@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/codegangsta/cli"
-	"github.com/gorilla/mux"
+	"github.com/ejholmes/slashdeploy"
 )
 
 var commands = []cli.Command{
@@ -19,6 +19,12 @@ var commands = []cli.Command{
 				Value:  "8080",
 				EnvVar: "PORT",
 				Usage:  "port to bind to",
+			},
+			cli.StringFlag{
+				Name:   "slack.verification.token",
+				Value:  "",
+				EnvVar: "SLACK_VERIFICATION_TOKEN",
+				Usage:  "The shared secret between SlashDeploy and Slack",
 			},
 		},
 		Action: runServer,
@@ -35,8 +41,14 @@ func main() {
 
 func runServer(c *cli.Context) {
 	port := c.String("port")
-	r := mux.NewRouter()
-	must(http.ListenAndServe(fmt.Sprintf(":%s", port), r))
+	s := newServer(c)
+	must(http.ListenAndServe(fmt.Sprintf(":%s", port), s))
+}
+
+func newServer(c *cli.Context) *slashdeploy.Server {
+	return slashdeploy.NewServer(slashdeploy.ServerConfig{
+		SlackVerificationToken: c.String("slack.verification.token"),
+	})
 }
 
 func must(err error) {
