@@ -1,1 +1,1 @@
-web: slashdeploy web
+web: slashdeploy server
