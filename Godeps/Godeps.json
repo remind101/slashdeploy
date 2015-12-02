@@ -1,0 +1,8 @@
+{
+	"ImportPath": "github.com/ejholmes/slashdeploy",
+	"GoVersion": "go1.4.2",
+	"Packages": [
+		"./..."
+	],
+	"Deps": []
+}
