@@ -34,6 +34,7 @@ type Server struct {
 
 // NewServer returns a new Server instance.
 func NewServer(config ServerConfig) *Server {
+	fmt.Println(config)
 	r := mux.NewRouter()
 	s := &Server{
 		Handler: r,
