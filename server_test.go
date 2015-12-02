@@ -48,6 +48,6 @@ func TestServer_SlackAuthCallback(t *testing.T) {
 
 	t.Log(resp.Body.String())
 
-	assert.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, http.StatusTemporaryRedirect, resp.Code)
 	assert.True(t, called)
 }

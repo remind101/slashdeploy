@@ -1,7 +1,7 @@
 package slashdeploy
 
 import (
-	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -66,6 +66,8 @@ func (s *Server) SlackAuthCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	fmt.Println(err)
+	fmt.Println(token)
 
-	json.NewEncoder(w).Encode(token)
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
