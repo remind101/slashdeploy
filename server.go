@@ -1,7 +1,6 @@
 package slashdeploy
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 
@@ -34,7 +33,6 @@ type Server struct {
 
 // NewServer returns a new Server instance.
 func NewServer(config ServerConfig) *Server {
-	fmt.Println(config)
 	r := mux.NewRouter()
 	s := &Server{
 		Handler: r,
@@ -67,8 +65,11 @@ func (s *Server) SlackAuthCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Println(err)
-	fmt.Println(token)
+
+	if err, ok := token.Extra("error").(string); ok {
+		http.Error(w, err, http.StatusBadRequest)
+		return
+	}
 
 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }

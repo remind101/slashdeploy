@@ -51,3 +51,37 @@ func TestServer_SlackAuthCallback(t *testing.T) {
 	assert.Equal(t, http.StatusTemporaryRedirect, resp.Code)
 	assert.True(t, called)
 }
+
+func TestServer_SlackAuthCallback_BadClientSecret(t *testing.T) {
+	var called bool
+
+	slack := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called = true
+		assert.Equal(t, "/api/oauth.access", r.URL.Path)
+
+		w.Header().Set("Content-Type", "application/json")
+		io.WriteString(w, `{
+    "ok": false,
+    "error": "bad_client_secret"
+}`)
+	}))
+	defer slack.Close()
+
+	s := &Server{
+		slackConfig: &oauth2.Config{
+			Endpoint: oauth2.Endpoint{
+				TokenURL: fmt.Sprintf("%s/api/oauth.access", slack.URL),
+			},
+		},
+	}
+
+	req, _ := http.NewRequest("GET", "?code=1234&state=", nil)
+	resp := httptest.NewRecorder()
+
+	s.SlackAuthCallback(resp, req)
+
+	t.Log(resp.Body.String())
+
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
+	assert.True(t, called)
+}
