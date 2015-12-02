@@ -1,0 +1,1 @@
+web: slashdeploy web
