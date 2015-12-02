@@ -26,6 +26,18 @@ var commands = []cli.Command{
 				EnvVar: "SLACK_VERIFICATION_TOKEN",
 				Usage:  "The shared secret between SlashDeploy and Slack",
 			},
+			cli.StringFlag{
+				Name:   "slack.client.id",
+				Value:  "",
+				EnvVar: "SLACK_CLIENT_ID",
+				Usage:  "OAuth client id",
+			},
+			cli.StringFlag{
+				Name:   "slack.client.secret",
+				Value:  "",
+				EnvVar: "SLACK_CLIENT_SECRET",
+				Usage:  "OAuth client secret",
+			},
 		},
 		Action: runServer,
 	},
@@ -48,6 +60,8 @@ func runServer(c *cli.Context) {
 func newServer(c *cli.Context) *slashdeploy.Server {
 	return slashdeploy.NewServer(slashdeploy.ServerConfig{
 		SlackVerificationToken: c.String("slack.verification.token"),
+		SlackClientID:          c.String("slack.client.id"),
+		SlackClientSecret:      c.String("slack.client.secret"),
 	})
 }
 
