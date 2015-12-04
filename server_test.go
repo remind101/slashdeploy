@@ -18,6 +18,7 @@ func TestServer_SlackAuthCallback(t *testing.T) {
 	slack := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		called = true
 		assert.Equal(t, "/api/oauth.access", r.URL.Path)
+		assert.Equal(t, "POST", r.Method)
 
 		w.Header().Set("Content-Type", "application/json")
 		io.WriteString(w, `{
@@ -35,6 +36,8 @@ func TestServer_SlackAuthCallback(t *testing.T) {
 
 	s := &Server{
 		slackConfig: &oauth2.Config{
+			ClientID:     "client_id",
+			ClientSecret: "client_secret",
 			Endpoint: oauth2.Endpoint{
 				TokenURL: fmt.Sprintf("%s/api/oauth.access", slack.URL),
 			},

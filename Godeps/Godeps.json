@@ -29,7 +29,7 @@
 		},
 		{
 			"ImportPath": "golang.org/x/oauth2",
-			"Rev": "8914e5017ca260f2a3a1575b1e6868874050d95e"
+			"Rev": "442624c9ec9243441e83b374a9e22ac549b5c51d"
 		}
 	]
 }
