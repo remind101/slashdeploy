@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/ejholmes/slashdeploy",
-	"GoVersion": "go1.4.2",
+	"GoVersion": "go1.5.1",
 	"Packages": [
 		"./..."
 	],
@@ -9,6 +9,10 @@
 			"ImportPath": "github.com/codegangsta/cli",
 			"Comment": "1.2.0-26-gf7ebb76",
 			"Rev": "f7ebb761e83e21225d1d8954fde853bf8edd46c4"
+		},
+		{
+			"ImportPath": "github.com/ejholmes/slash",
+			"Rev": "e0abbac8b127f8f0f283bad65807abe816edb595"
 		},
 		{
 			"ImportPath": "github.com/gorilla/context",
