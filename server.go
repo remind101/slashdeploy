@@ -6,6 +6,7 @@ import (
 
 	"golang.org/x/oauth2"
 
+	"github.com/ejholmes/slash"
 	"github.com/gorilla/mux"
 )
 
@@ -45,9 +46,7 @@ func NewServer(config ServerConfig) *Server {
 	}
 
 	r.HandleFunc("/", s.Root)
-
-	//r.Handle("/commands")
-
+	r.Handle("/commands", slash.NewServer(newCommand(config.SlackVerificationToken)))
 	r.HandleFunc("/auth/slack/callback", s.SlackAuthCallback)
 
 	return s
