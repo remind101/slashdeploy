@@ -16,7 +16,7 @@ type Deployer struct {
 	github githubClient
 }
 
-func (d *Deployer) Deploy(req deployments.DeploymentRequest) (*deployments.Deployment, chan deployments.Event, error) {
+func (d *Deployer) Deploy(req deployments.DeploymentRequest, e deployments.Statuses) (*deployments.Deployment, error) {
 	gd, _, err := d.github.CreateDeployment(req.Owner, req.Repository, &github.DeploymentRequest{
 		Environment: github.String(req.Environment),
 		Ref:         github.String(req.Ref),
@@ -24,12 +24,12 @@ func (d *Deployer) Deploy(req deployments.DeploymentRequest) (*deployments.Deplo
 		Task:        github.String("deploy"),
 	})
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// TODO: Poll the deployment for status updates.
 
 	return &deployments.Deployment{
 		ID: fmt.Sprintf("%d", *gd.ID),
-	}, nil, nil
+	}, nil
 }

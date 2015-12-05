@@ -130,7 +130,7 @@ type mockDeployer struct {
 	mock.Mock
 }
 
-func (m *mockDeployer) Deploy(request deployments.DeploymentRequest, u deployments.Events) (*deployments.Deployment, error) {
+func (m *mockDeployer) Deploy(request deployments.DeploymentRequest, e deployments.Statuses) (*deployments.Deployment, error) {
 	args := m.Called(request)
 	return args.Get(0).(*deployments.Deployment), args.Error(1)
 }

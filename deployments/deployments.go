@@ -21,49 +21,59 @@ type DeploymentRequest struct {
 	Environment string
 }
 
-type DeploymentEvent int
+type DeploymentStatus int
 
 const (
-	EventPending DeploymentEvent = iota
-	EventStarted
-	EventSucceeded
-	EventFailed
+	StatusPending DeploymentStatus = iota
+	StatusStarted
+	StatusSucceeded
+	StatusFailed
 )
 
-type Event struct {
-	Event DeploymentEvent
+type Status struct {
+	// The status type.
+	Status DeploymentStatus
+
+	// A url to view details about this deployment status.
+	URL string
 }
 
 // Deployer represents something that can create deployment requests.
 type Deployer interface {
 	// When deploy is called, the implementer should create a deployment
 	// request then immediately return. The implementer can use the provided
-	// Events to notify the consumer about status updates.
-	Deploy(DeploymentRequest, Events) (*Deployment, error)
+	// Statuses to notify the consumer about status updates.
+	Deploy(DeploymentRequest, Statuses) (*Deployment, error)
 }
 
-type DeployerFunc func(DeploymentRequest, Events) (*Deployment, error)
+type DeployerFunc func(DeploymentRequest, Statuses) (*Deployment, error)
 
-func (fn DeployerFunc) Deploy(req DeploymentRequest, u Events) (*Deployment, error) {
+func (fn DeployerFunc) Deploy(req DeploymentRequest, u Statuses) (*Deployment, error) {
 	return fn(req, u)
 }
 
-type Events interface {
-	Event(Event) error
+type Statuses interface {
+	Status(Status) error
 }
 
 // NullDeployer is a Deployer implementation that does nothing.
-var NullDeployer = DeployerFunc(func(req DeploymentRequest, e Events) (*Deployment, error) {
+var NullDeployer = DeployerFunc(func(req DeploymentRequest, e Statuses) (*Deployment, error) {
 	return &Deployment{ID: "1"}, nil
 })
 
-var FakeDeployer = DeployerFunc(func(req DeploymentRequest, e Events) (*Deployment, error) {
+var FakeDeployer = DeployerFunc(func(req DeploymentRequest, e Statuses) (*Deployment, error) {
 	go func() {
 		<-time.After(5 * time.Second)
-		e.Event(Event{Event: EventStarted})
+		e.Status(Status{
+			Status: StatusStarted,
+			URL:    "https://www.google.com",
+		})
 
 		<-time.After(5 * time.Second)
-		e.Event(Event{Event: EventSucceeded})
+		e.Status(Status{
+			Status: StatusSucceeded,
+			URL:    "https://www.google.com",
+		})
 	}()
 	return &Deployment{ID: "1"}, nil
 })

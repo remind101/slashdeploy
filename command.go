@@ -63,24 +63,24 @@ func (c *Command) Deploy(ctx context.Context, r slash.Responder, command slash.C
 		Environment: environment,
 		Ref:         ref,
 	}
-	_, err = c.Deployer.Deploy(req, &events{DeploymentRequest: req, Responder: r})
+	_, err = c.Deployer.Deploy(req, &statuses{DeploymentRequest: req, Responder: r})
 
 	return slash.Say(fmt.Sprintf("Created deployment request for %s. I'll let you know when it starts.", fmtDeploymentRequest(req))), nil
 }
 
-// Events is an implementation of the deployments.Events interface, that uses a
+// statuses is an implementation of the deployments.Statuses interface, that uses a
 // slash.Responder to notify the user about the deployment.
-type events struct {
+type statuses struct {
 	deployments.DeploymentRequest
 	slash.Responder
 }
 
-func (e *events) Event(event deployments.Event) error {
-	switch event.Event {
-	case deployments.EventStarted:
-		return e.Respond(slash.Reply(fmt.Sprintf("Your deployment of %s has started.", fmtDeploymentRequest(e.DeploymentRequest))))
-	case deployments.EventSucceeded:
-		return e.Respond(slash.Reply(fmt.Sprintf("Your deployment of %s has completed successfully.", fmtDeploymentRequest(e.DeploymentRequest))))
+func (e *statuses) Status(status deployments.Status) error {
+	switch status.Status {
+	case deployments.StatusStarted:
+		return e.Respond(slash.Reply(fmt.Sprintf("Your deployment of %s has started: %s", fmtDeploymentRequest(e.DeploymentRequest), status.URL)))
+	case deployments.StatusSucceeded:
+		return e.Respond(slash.Reply(fmt.Sprintf("Your deployment of %s has completed successfully: %s", fmtDeploymentRequest(e.DeploymentRequest), status.URL)))
 	default:
 		return nil
 	}
