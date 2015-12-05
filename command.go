@@ -65,7 +65,7 @@ func (c *Command) Deploy(ctx context.Context, r slash.Responder, command slash.C
 	}
 	_, err = c.Deployer.Deploy(req, &events{DeploymentRequest: req, Responder: r})
 
-	return slash.Say(fmt.Sprintf("Created deployment request for %s/%s@%s to %s. I'll let you know when it starts.", owner, repo, ref, environment)), nil
+	return slash.Say(fmt.Sprintf("Created deployment request for %s. I'll let you know when it starts.", fmtDeploymentRequest(req))), nil
 }
 
 // Events is an implementation of the deployments.Events interface, that uses a
@@ -78,10 +78,16 @@ type events struct {
 func (e *events) Event(event deployments.Event) error {
 	switch event.Event {
 	case deployments.EventStarted:
-		return e.Respond(slash.Reply("Your deployment of %s/%s@%s to %s has started."))
+		return e.Respond(slash.Reply(fmt.Sprintf("Your deployment of %s has started.", fmtDeploymentRequest(e.DeploymentRequest))))
+	case deployments.EventSucceeded:
+		return e.Respond(slash.Reply(fmt.Sprintf("Your deployment of %s has completed successfully.", fmtDeploymentRequest(e.DeploymentRequest))))
 	default:
 		return nil
 	}
+}
+
+func fmtDeploymentRequest(req deployments.DeploymentRequest) string {
+	return fmt.Sprintf("%s/%s@%s to %s", req.Owner, req.Repository, req.Ref, req.Environment)
 }
 
 var errInvalidRepo = errors.New("repo not valid")
