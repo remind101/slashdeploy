@@ -7,14 +7,14 @@ import (
 	"strings"
 
 	"github.com/ejholmes/slash"
-	"github.com/google/go-github/github"
+	"github.com/ejholmes/slashdeploy/deployments"
 	"golang.org/x/net/context"
 )
 
 // Command is a slash.Handler that handles the base /deploy command.
 type Command struct {
 	slash.Handler
-	Deployer
+	deployments.Deployer
 }
 
 func newCommand(verificationToken string) *Command {
@@ -57,12 +57,13 @@ func (c *Command) Deploy(ctx context.Context, r slash.Responder, command slash.C
 		ref = DefaultRef
 	}
 
-	_, _, err = c.CreateDeployment(owner, repo, &github.DeploymentRequest{
-		Environment: github.String(environment),
-		Ref:         github.String(ref),
-		Task:        github.String(DefaultTask),
-		AutoMerge:   github.Bool(DefaultAutoMerge),
-	})
+	_, err = c.Deployer.Deploy(deployments.DeploymentRequest{
+		Owner:       owner,
+		Repository:  repo,
+		Environment: environment,
+		Ref:         ref,
+	}, nil)
+
 	return slash.Say(fmt.Sprintf("Created deployment request for %s/%s@%s to %s", owner, repo, ref, environment)), nil
 }
 

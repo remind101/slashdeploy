@@ -5,7 +5,7 @@ import (
 
 	"github.com/ejholmes/slash"
 	"github.com/ejholmes/slash/slashtest"
-	"github.com/google/go-github/github"
+	"github.com/ejholmes/slashdeploy/deployments"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"golang.org/x/net/context"
@@ -38,12 +38,12 @@ func TestCommand_Deploy_Basic(t *testing.T) {
 		Token:   "token",
 	}
 
-	d.On("CreateDeployment", "remind101", "acme-inc", &github.DeploymentRequest{
-		Environment: github.String("production"),
-		Ref:         github.String("master"),
-		Task:        github.String("deploy"),
-		AutoMerge:   github.Bool(false),
-	}).Return(&github.Deployment{}, nil)
+	d.On("Deploy", deployments.DeploymentRequest{
+		Owner:       "remind101",
+		Repository:  "acme-inc",
+		Environment: "production",
+		Ref:         "master",
+	}).Return(&deployments.Deployment{}, nil)
 
 	_, err := c.ServeCommand(context.Background(), rec, cmd)
 	assert.NoError(t, err)
@@ -63,12 +63,12 @@ func TestCommand_Deploy_WithEnvironment(t *testing.T) {
 		Token:   "token",
 	}
 
-	d.On("CreateDeployment", "remind101", "acme-inc", &github.DeploymentRequest{
-		Environment: github.String("staging"),
-		Ref:         github.String("master"),
-		Task:        github.String("deploy"),
-		AutoMerge:   github.Bool(false),
-	}).Return(&github.Deployment{}, nil)
+	d.On("Deploy", deployments.DeploymentRequest{
+		Owner:       "remind101",
+		Repository:  "acme-inc",
+		Environment: "staging",
+		Ref:         "master",
+	}).Return(&deployments.Deployment{}, nil)
 
 	_, err := c.ServeCommand(context.Background(), rec, cmd)
 	assert.NoError(t, err)
@@ -88,12 +88,12 @@ func TestCommand_Deploy_WithRef(t *testing.T) {
 		Token:   "token",
 	}
 
-	d.On("CreateDeployment", "remind101", "acme-inc", &github.DeploymentRequest{
-		Environment: github.String("production"),
-		Ref:         github.String("topic-branch"),
-		Task:        github.String("deploy"),
-		AutoMerge:   github.Bool(false),
-	}).Return(&github.Deployment{}, nil)
+	d.On("Deploy", deployments.DeploymentRequest{
+		Owner:       "remind101",
+		Repository:  "acme-inc",
+		Environment: "production",
+		Ref:         "topic-branch",
+	}).Return(&deployments.Deployment{}, nil)
 
 	_, err := c.ServeCommand(context.Background(), rec, cmd)
 	assert.NoError(t, err)
@@ -113,12 +113,12 @@ func TestCommand_Deploy_WithRefAndEnvironment(t *testing.T) {
 		Token:   "token",
 	}
 
-	d.On("CreateDeployment", "remind101", "acme-inc", &github.DeploymentRequest{
-		Environment: github.String("staging"),
-		Ref:         github.String("topic-branch"),
-		Task:        github.String("deploy"),
-		AutoMerge:   github.Bool(false),
-	}).Return(&github.Deployment{}, nil)
+	d.On("Deploy", deployments.DeploymentRequest{
+		Owner:       "remind101",
+		Repository:  "acme-inc",
+		Environment: "staging",
+		Ref:         "topic-branch",
+	}).Return(&deployments.Deployment{}, nil)
 
 	_, err := c.ServeCommand(context.Background(), rec, cmd)
 	assert.NoError(t, err)
@@ -130,7 +130,7 @@ type mockDeployer struct {
 	mock.Mock
 }
 
-func (m *mockDeployer) CreateDeployment(owner, repo string, request *github.DeploymentRequest) (*github.Deployment, *github.Response, error) {
-	args := m.Called(owner, repo, request)
-	return args.Get(0).(*github.Deployment), nil, args.Error(1)
+func (m *mockDeployer) Deploy(request deployments.DeploymentRequest, u deployments.Events) (*deployments.Deployment, error) {
+	args := m.Called(request)
+	return args.Get(0).(*deployments.Deployment), args.Error(1)
 }

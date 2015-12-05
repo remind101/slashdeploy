@@ -7,6 +7,7 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/ejholmes/slash"
+	"github.com/ejholmes/slashdeploy/deployments"
 	"github.com/gorilla/mux"
 )
 
@@ -50,7 +51,7 @@ func NewServer(config ServerConfig) *Server {
 
 	// Where the slash commands are served from.
 	c := newCommand(config.SlackVerificationToken)
-	c.Deployer = NullDeployer
+	c.Deployer = deployments.NullDeployer
 	r.Handle("/commands", slash.NewServer(c))
 
 	// Handle authentication requests to install the slash commands.
