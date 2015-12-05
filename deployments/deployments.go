@@ -1,5 +1,7 @@
 package deployments
 
+import "time"
+
 type Deployment struct {
 	// A unique identifier for the deployment request that was created.
 	ID string
@@ -52,5 +54,16 @@ type Events interface {
 
 // NullDeployer is a Deployer implementation that does nothing.
 var NullDeployer = DeployerFunc(func(req DeploymentRequest, e Events) (*Deployment, error) {
+	return &Deployment{ID: "1"}, nil
+})
+
+var FakeDeployer = DeployerFunc(func(req DeploymentRequest, e Events) (*Deployment, error) {
+	go func() {
+		<-time.After(5 * time.Second)
+		e.Event(Event{Event: EventStarted})
+
+		<-time.After(5 * time.Second)
+		e.Event(Event{Event: EventSucceeded})
+	}()
 	return &Deployment{ID: "1"}, nil
 })

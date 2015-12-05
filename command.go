@@ -57,14 +57,31 @@ func (c *Command) Deploy(ctx context.Context, r slash.Responder, command slash.C
 		ref = DefaultRef
 	}
 
-	_, err = c.Deployer.Deploy(deployments.DeploymentRequest{
+	req := deployments.DeploymentRequest{
 		Owner:       owner,
 		Repository:  repo,
 		Environment: environment,
 		Ref:         ref,
-	}, nil)
+	}
+	_, err = c.Deployer.Deploy(req, &events{DeploymentRequest: req, Responder: r})
 
-	return slash.Say(fmt.Sprintf("Created deployment request for %s/%s@%s to %s", owner, repo, ref, environment)), nil
+	return slash.Say(fmt.Sprintf("Created deployment request for %s/%s@%s to %s. I'll let you know when it starts.", owner, repo, ref, environment)), nil
+}
+
+// Events is an implementation of the deployments.Events interface, that uses a
+// slash.Responder to notify the user about the deployment.
+type events struct {
+	deployments.DeploymentRequest
+	slash.Responder
+}
+
+func (e *events) Event(event deployments.Event) error {
+	switch event.Event {
+	case deployments.EventStarted:
+		return e.Respond(slash.Reply("Your deployment of %s/%s@%s to %s has started."))
+	default:
+		return nil
+	}
 }
 
 var errInvalidRepo = errors.New("repo not valid")
