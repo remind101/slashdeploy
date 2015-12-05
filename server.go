@@ -45,8 +45,15 @@ func NewServer(config ServerConfig) *Server {
 		},
 	}
 
+	// Handle root for docs.
 	r.HandleFunc("/", s.Root)
-	r.Handle("/commands", slash.NewServer(newCommand(config.SlackVerificationToken)))
+
+	// Where the slash commands are served from.
+	c := newCommand(config.SlackVerificationToken)
+	c.Deployer = NullDeployer
+	r.Handle("/commands", slash.NewServer(c))
+
+	// Handle authentication requests to install the slash commands.
 	r.HandleFunc("/auth/slack/callback", s.SlackAuthCallback)
 
 	return s
