@@ -7,8 +7,6 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/ejholmes/slash"
-	"github.com/ejholmes/slashdeploy/commands"
-	"github.com/ejholmes/slashdeploy/deployments"
 	"github.com/gorilla/mux"
 )
 
@@ -20,47 +18,31 @@ var (
 	}
 )
 
-type ServerConfig struct {
-	// Shared secret to verify that slash commands originated from Slack.
-	SlackVerificationToken string
-
-	// OAuth settings for Slack.
-	SlackClientID, SlackClientSecret string
-}
-
 // Server is an http.Handler that servers the SlashDeploy application.
 type Server struct {
-	slackConfig *oauth2.Config
+	*SlashDeploy
 	http.Handler
 }
 
 // NewServer returns a new Server instance.
-func NewServer(config ServerConfig) *Server {
+func NewServer(sd *SlashDeploy, commands slash.Handler) *Server {
 	r := mux.NewRouter()
 	s := &Server{
-		Handler: r,
-		slackConfig: &oauth2.Config{
-			ClientID:     config.SlackClientID,
-			ClientSecret: config.SlackClientSecret,
-			Scopes:       DefaultSlackScopes,
-			Endpoint:     DefaultSlackEndpoint,
-		},
+		SlashDeploy: sd,
+		Handler:     r,
 	}
 
 	// Handle root for docs.
 	r.HandleFunc("/", s.Root)
 
 	// Where the slash commands are served from.
-	c := commands.New(config.SlackVerificationToken, commands.SubCommands{
-		Help: commands.Help,
-		Deploy: authenticate(&commands.Deploy{
-			Deployer: deployments.NullDeployer,
-		}, &usersStore{}),
-	})
-	r.Handle("/commands", slash.NewServer(c))
+	r.Handle("/commands", slash.NewServer(commands))
 
-	// Handle authentication requests to install the slash commands.
-	r.HandleFunc("/auth/slack/callback", s.SlackAuthCallback)
+	// Handle slack auth callback.
+	r.Handle("/auth/slack/callback", &SlackAuthCallback{Config: s.SlackOAuth})
+
+	// Handle github auth callback
+	r.Handle("/auth/github/callback", &GitHubAuthCallback{Config: s.GitHubOAuth, Users: s.Users})
 
 	return s
 }
@@ -72,7 +54,7 @@ func (s *Server) Root(w http.ResponseWriter, r *http.Request) {
 func (s *Server) SlackAuthCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 
-	token, err := s.slackConfig.Exchange(oauth2.NoContext, code)
+	token, err := s.SlackOAuth.Exchange(oauth2.NoContext, code)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

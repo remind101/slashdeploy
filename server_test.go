@@ -35,11 +35,13 @@ func TestServer_SlackAuthCallback(t *testing.T) {
 	defer slack.Close()
 
 	s := &Server{
-		slackConfig: &oauth2.Config{
-			ClientID:     "client_id",
-			ClientSecret: "client_secret",
-			Endpoint: oauth2.Endpoint{
-				TokenURL: fmt.Sprintf("%s/api/oauth.access", slack.URL),
+		SlashDeploy: &SlashDeploy{
+			SlackOAuth: &oauth2.Config{
+				ClientID:     "client_id",
+				ClientSecret: "client_secret",
+				Endpoint: oauth2.Endpoint{
+					TokenURL: fmt.Sprintf("%s/api/oauth.access", slack.URL),
+				},
 			},
 		},
 	}
@@ -71,9 +73,11 @@ func TestServer_SlackAuthCallback_BadClientSecret(t *testing.T) {
 	defer slack.Close()
 
 	s := &Server{
-		slackConfig: &oauth2.Config{
-			Endpoint: oauth2.Endpoint{
-				TokenURL: fmt.Sprintf("%s/api/oauth.access", slack.URL),
+		SlashDeploy: &SlashDeploy{
+			SlackOAuth: &oauth2.Config{
+				Endpoint: oauth2.Endpoint{
+					TokenURL: fmt.Sprintf("%s/api/oauth.access", slack.URL),
+				},
 			},
 		},
 	}
