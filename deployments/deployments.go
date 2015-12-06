@@ -25,7 +25,7 @@ type DeploymentRequest struct {
 	Environment string
 }
 
-func (d *DeploymentRequest) String() string {
+func (d DeploymentRequest) String() string {
 	return fmt.Sprintf("%s/%s@%s to %s", d.Owner, d.Repository, d.Ref, d.Environment)
 }
 
