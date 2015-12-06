@@ -1,6 +1,10 @@
 package deployments
 
-import "fmt"
+import (
+	"fmt"
+
+	"golang.org/x/net/context"
+)
 
 type Deployment struct {
 	// A unique identifier for the deployment request that was created.
@@ -30,16 +34,16 @@ type Deployer interface {
 	// When deploy is called, the implementer should create a deployment
 	// request then immediately return. The implementer can use the provided
 	// Statuses to notify the consumer about status updates.
-	Deploy(DeploymentRequest) (*Deployment, error)
+	Deploy(context.Context, DeploymentRequest) (*Deployment, error)
 }
 
-type DeployerFunc func(DeploymentRequest) (*Deployment, error)
+type DeployerFunc func(context.Context, DeploymentRequest) (*Deployment, error)
 
-func (fn DeployerFunc) Deploy(req DeploymentRequest) (*Deployment, error) {
-	return fn(req)
+func (fn DeployerFunc) Deploy(ctx context.Context, req DeploymentRequest) (*Deployment, error) {
+	return fn(ctx, req)
 }
 
 // NullDeployer is a Deployer implementation that does nothing.
-var NullDeployer = DeployerFunc(func(req DeploymentRequest) (*Deployment, error) {
+var NullDeployer = DeployerFunc(func(ctx context.Context, req DeploymentRequest) (*Deployment, error) {
 	return &Deployment{ID: "1"}, nil
 })

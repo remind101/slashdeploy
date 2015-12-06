@@ -53,9 +53,9 @@ func NewServer(config ServerConfig) *Server {
 	// Where the slash commands are served from.
 	c := commands.New(config.SlackVerificationToken, commands.SubCommands{
 		Help: commands.Help,
-		Deploy: &commands.Deploy{
+		Deploy: authenticate(&commands.Deploy{
 			Deployer: deployments.NullDeployer,
-		},
+		}),
 	})
 	r.Handle("/commands", slash.NewServer(c))
 

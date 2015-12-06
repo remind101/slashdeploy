@@ -40,7 +40,7 @@ func (c *Deploy) ServeCommand(ctx context.Context, r slash.Responder, _ slash.Co
 		return slash.NoResponse, err
 	}
 
-	_, err = c.Deploy(req)
+	_, err = c.Deploy(ctx, req)
 	if err != nil {
 		return slash.NoResponse, err
 	}

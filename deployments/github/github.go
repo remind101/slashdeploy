@@ -3,6 +3,8 @@ package github
 import (
 	"fmt"
 
+	"golang.org/x/net/context"
+
 	"github.com/ejholmes/slashdeploy/deployments"
 	"github.com/google/go-github/github"
 )
@@ -16,7 +18,7 @@ type Deployer struct {
 	github githubClient
 }
 
-func (d *Deployer) Deploy(req deployments.DeploymentRequest) (*deployments.Deployment, error) {
+func (d *Deployer) Deploy(ctx context.Context, req deployments.DeploymentRequest) (*deployments.Deployment, error) {
 	gd, _, err := d.github.CreateDeployment(req.Owner, req.Repository, &github.DeploymentRequest{
 		Environment: github.String(req.Environment),
 		Ref:         github.String(req.Ref),
