@@ -6,13 +6,14 @@ import (
 	"os"
 
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/github"
+	githuboauth "golang.org/x/oauth2/github"
 
 	"github.com/codegangsta/cli"
 	"github.com/ejholmes/slash"
 	"github.com/ejholmes/slashdeploy"
 	"github.com/ejholmes/slashdeploy/commands"
 	"github.com/ejholmes/slashdeploy/deployments"
+	"github.com/ejholmes/slashdeploy/deployments/github"
 )
 
 var cmds = []cli.Command{
@@ -89,10 +90,10 @@ func newSlashDeploy(c *cli.Context) *slashdeploy.SlashDeploy {
 			ClientID:     c.String("github.client.id"),
 			ClientSecret: c.String("github.client.secret"),
 			Scopes:       []string{"repo_deployment"},
-			Endpoint:     github.Endpoint,
+			Endpoint:     githuboauth.Endpoint,
 		},
 		BuildDeployer: func(user *slashdeploy.User) deployments.Deployer {
-			return deployments.NullDeployer
+			return github.NewDeployer(user.GitHubToken)
 		},
 	}
 }
