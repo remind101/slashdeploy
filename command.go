@@ -22,10 +22,12 @@ func newCommand(verificationToken string) *Command {
 
 	d := slash.NewMux()
 	d.Match(slash.MatchSubcommand("help"), slash.HandlerFunc(c.Help))
-	d.MatchText(regexp.MustCompile(`(?P<repo>\S+?)@(?P<ref>\S+?) to (?P<environment>\S+?)$`), slash.HandlerFunc(c.Deploy))
-	d.MatchText(regexp.MustCompile(`(?P<repo>\S+?) to (?P<environment>\S+?)$`), slash.HandlerFunc(c.Deploy))
-	d.MatchText(regexp.MustCompile(`(?P<repo>\S+?)@(?P<ref>\S+?)$`), slash.HandlerFunc(c.Deploy))
-	d.MatchText(regexp.MustCompile(`(?P<repo>\S+?)$`), slash.HandlerFunc(c.Deploy))
+
+	deploy := authenticate(slash.HandlerFunc(c.Deploy), &usersStore{})
+	d.MatchText(regexp.MustCompile(`(?P<repo>\S+?)@(?P<ref>\S+?) to (?P<environment>\S+?)$`), deploy)
+	d.MatchText(regexp.MustCompile(`(?P<repo>\S+?) to (?P<environment>\S+?)$`), deploy)
+	d.MatchText(regexp.MustCompile(`(?P<repo>\S+?)@(?P<ref>\S+?)$`), deploy)
+	d.MatchText(regexp.MustCompile(`(?P<repo>\S+?)$`), deploy)
 
 	r := slash.NewMux()
 	r.Command("/deploy", verificationToken, d)
@@ -101,6 +103,21 @@ func splitRepo(fullName string) (repo, owner string, err error) {
 
 	repo, owner = parts[0], parts[1]
 	return
+}
+
+func authenticate(h slash.Handler, s UsersStore) slash.Handler {
+	return slash.HandlerFunc(func(ctx context.Context, r slash.Responder, c slash.Command) (slash.Response, error) {
+		u, err := s.Find(c.UserID)
+		if err != nil {
+			return slash.NoResponse, err
+		}
+
+		if u == nil {
+			//return slash.Reply("Please authenticate first"), nil
+		}
+
+		return h.ServeCommand(WithUser(ctx, u), r, c)
+	})
 }
 
 var helpText = `To deploy a repo to the default environment: /deploy REPO

@@ -1,6 +1,9 @@
 package deployments
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Deployment struct {
 	// A unique identifier for the deployment request that was created.
@@ -19,6 +22,10 @@ type DeploymentRequest struct {
 
 	// The environment to deploy to.
 	Environment string
+}
+
+func (d *DeploymentRequest) String() string {
+	return fmt.Sprintf("%s/%s@%s to %s", d.Owner, d.Repository, d.Ref, d.Environment)
 }
 
 type DeploymentStatus int
