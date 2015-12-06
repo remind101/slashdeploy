@@ -14,16 +14,24 @@ type User struct {
 	GitHubToken string
 }
 
+type key int
+
+const (
+	userKey key = iota
+)
+
 func UserFromContext(ctx context.Context) (*User, bool) {
-	return nil, false
+	u, ok := ctx.Value(userKey).(*User)
+	return u, ok
 }
 
 func WithUser(ctx context.Context, user *User) context.Context {
-	return ctx
+	return context.WithValue(ctx, userKey, user)
 }
 
 type UsersStore interface {
 	Find(id string) (*User, error)
+	Save(*User) error
 }
 
 // in memory usersStore.
@@ -37,4 +45,12 @@ func (u *usersStore) Find(id string) (*User, error) {
 	defer u.RUnlock()
 
 	return u.users[id], nil
+}
+
+func (u *usersStore) Save(user *User) error {
+	u.Lock()
+	defer u.Unlock()
+
+	u.users[user.ID] = user
+	return nil
 }

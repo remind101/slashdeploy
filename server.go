@@ -55,7 +55,7 @@ func NewServer(config ServerConfig) *Server {
 		Help: commands.Help,
 		Deploy: authenticate(&commands.Deploy{
 			Deployer: deployments.NullDeployer,
-		}),
+		}, &usersStore{}),
 	})
 	r.Handle("/commands", slash.NewServer(c))
 
