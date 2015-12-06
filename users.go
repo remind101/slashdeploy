@@ -34,20 +34,20 @@ type UsersStore interface {
 	Save(*User) error
 }
 
-// in memory usersStore.
-type usersStore struct {
+// MemUsersStore is an in memory UsersStore implementation.
+type MemUsersStore struct {
 	sync.RWMutex
 	users map[string]*User
 }
 
-func (u *usersStore) Find(id string) (*User, error) {
+func (u *MemUsersStore) Find(id string) (*User, error) {
 	u.RLock()
 	defer u.RUnlock()
 
 	return u.users[id], nil
 }
 
-func (u *usersStore) Save(user *User) error {
+func (u *MemUsersStore) Save(user *User) error {
 	u.Lock()
 	defer u.Unlock()
 
