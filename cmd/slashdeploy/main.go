@@ -78,7 +78,7 @@ func runServer(c *cli.Context) {
 
 func newSlashDeploy(c *cli.Context) *slashdeploy.SlashDeploy {
 	return &slashdeploy.SlashDeploy{
-		Users: &slashdeploy.MemUsersStore{},
+		Users: slashdeploy.NewMemUsersStore(),
 		SlackOAuth: &oauth2.Config{
 			ClientID:     c.String("slack.client.id"),
 			ClientSecret: c.String("slash.client.secret"),

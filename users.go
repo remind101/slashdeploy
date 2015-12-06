@@ -40,6 +40,12 @@ type MemUsersStore struct {
 	users map[string]*User
 }
 
+func NewMemUsersStore() *MemUsersStore {
+	return &MemUsersStore{
+		users: make(map[string]*User),
+	}
+}
+
 func (u *MemUsersStore) Find(id string) (*User, error) {
 	u.RLock()
 	defer u.RUnlock()
