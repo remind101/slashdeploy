@@ -45,7 +45,7 @@ func (c *Deploy) ServeCommand(ctx context.Context, r slash.Responder, _ slash.Co
 		return slash.NoResponse, err
 	}
 
-	return slash.Say(fmt.Sprintf("Created deployment request for %s. I'll let you know when it starts.", req)), nil
+	return slash.Say(fmt.Sprintf("Created deployment request for %s.", req)), nil
 }
 
 func deploymentRequest(params map[string]string) (deployments.DeploymentRequest, error) {
