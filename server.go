@@ -54,7 +54,7 @@ func NewServer(config ServerConfig) *Server {
 	c := commands.New(config.SlackVerificationToken, commands.SubCommands{
 		Help: commands.Help,
 		Deploy: &commands.Deploy{
-			Deployer: deployments.FakeDeployer,
+			Deployer: deployments.NullDeployer,
 		},
 	})
 	r.Handle("/commands", slash.NewServer(c))
