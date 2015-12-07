@@ -10,6 +10,6 @@ SlashDeploy is already hosted at https://slashdeploy.herokuapp.com. All you have
 
 ## FAQ
 
-### What's GitHub Deployments
+### What's GitHub Deployments?
 
 In a nutshell, GitHub Deployments are a way to initialize a deployment **request** for a GitHub repository. It allows you to decouple the act of requesting a deployment, and the actual fullfillment. This allows you to have a consistent interface for performing deployments, whether it's a web app, infrastructure, native application, etc.
