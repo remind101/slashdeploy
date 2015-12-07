@@ -7,3 +7,9 @@
 SlashDeploy is already hosted at https://slashdeploy.herokuapp.com. All you have to do is add it to your Slack team:
 
 <a href="https://slack.com/oauth/authorize?scope=commands&client_id=2180283999.15740165841"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>
+
+## FAQ
+
+### What's GitHub Deployments
+
+In a nutshell, GitHub Deployments are a way to initialize a deployment **request** for a GitHub repository. It allows you to decouple the act of requesting a deployment, and the actual fullfillment. This allows you to have a consistent interface for performing deployments, whether it's a web app, infrastructure, native application, etc.
