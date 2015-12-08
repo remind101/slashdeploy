@@ -28,6 +28,12 @@ var cmds = []cli.Command{
 				Usage:  "port to bind to",
 			},
 			cli.StringFlag{
+				Name:   "state.key",
+				Value:  "",
+				EnvVar: "STATE_KEY",
+				Usage:  "Key used to sign oauth state.",
+			},
+			cli.StringFlag{
 				Name:   "slack.verification.token",
 				Value:  "",
 				EnvVar: "SLACK_VERIFICATION_TOKEN",
