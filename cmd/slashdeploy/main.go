@@ -72,14 +72,21 @@ func main() {
 
 func runServer(c *cli.Context) {
 	port := c.String("port")
-	sd := newSlashDeploy(c)
-	s := slashdeploy.NewServer(sd, newCommands(sd, c))
-	must(http.ListenAndServe(fmt.Sprintf(":%s", port), s))
+	s := newSlashDeploy(c)
+	must(http.ListenAndServe(fmt.Sprintf(":%s", port), slashdeploy.NewServer(slashdeploy.Handlers{
+		Commands:           slash.NewServer(newCommands(s, c)),
+		SlackAuthCallback:  &slashdeploy.SlackAuthCallback{Config: s.SlackOAuth},
+		GitHubAuthCallback: &slashdeploy.GitHubAuthCallback{Config: s.GitHubOAuth, Users: s.Users, StateDecoder: s},
+	})))
 }
 
 func newSlashDeploy(c *cli.Context) *slashdeploy.SlashDeploy {
+	state := slashdeploy.SignedState([]byte(c.String("state.key")))
+
 	return &slashdeploy.SlashDeploy{
-		Users: slashdeploy.NewMemUsersStore(),
+		Users:        slashdeploy.NewMemUsersStore(),
+		StateEncoder: state,
+		StateDecoder: state,
 		SlackOAuth: &oauth2.Config{
 			ClientID:     c.String("slack.client.id"),
 			ClientSecret: c.String("slack.client.secret"),

@@ -17,8 +17,9 @@ import (
 func TestAuthenticator_ServeCommand(t *testing.T) {
 	u := new(mockUsersStore)
 	a := &Authenticator{
-		Users:  u,
-		Config: &oauth2.Config{},
+		Users:        u,
+		Config:       &oauth2.Config{},
+		StateEncoder: new(nullState),
 	}
 
 	u.On("Find", "T1").Return(nil, nil)
@@ -26,7 +27,7 @@ func TestAuthenticator_ServeCommand(t *testing.T) {
 	_, err := a.ServeCommand(context.Background(), nil, slash.Command{
 		UserID: "T1",
 	})
-	assert.IsType(t, &authorize{}, err)
+	assert.IsType(t, &authenticate{}, err)
 }
 
 func TestGitHubAuthCallback(t *testing.T) {
@@ -38,7 +39,8 @@ func TestGitHubAuthCallback(t *testing.T) {
 
 	u := new(mockUsersStore)
 	h := &GitHubAuthCallback{
-		Users: u,
+		Users:        u,
+		StateDecoder: new(nullState),
 		Config: &oauth2.Config{
 			Endpoint: oauth2.Endpoint{
 				TokenURL: s.URL,
@@ -60,6 +62,19 @@ func TestGitHubAuthCallback(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.Code)
 }
 
+func TestJWTState(t *testing.T) {
+	s := &jwtState{key: []byte{'a', 'b', 'c'}}
+
+	str, err := s.Encode(State{
+		UserID: "T1",
+	})
+	assert.NoError(t, err)
+
+	state, err := s.Decode(str)
+	assert.NoError(t, err)
+	assert.Equal(t, "T1", state.UserID)
+}
+
 type mockUsersStore struct {
 	mock.Mock
 }
@@ -76,4 +91,16 @@ func (m *mockUsersStore) Find(id string) (*User, error) {
 func (m *mockUsersStore) Save(user *User) error {
 	args := m.Called(user)
 	return args.Error(0)
+}
+
+type nullState struct{}
+
+func (s *nullState) Encode(state State) (string, error) {
+	return state.UserID, nil
+}
+
+func (s *nullState) Decode(state string) (*State, error) {
+	return &State{
+		UserID: state,
+	}, nil
 }

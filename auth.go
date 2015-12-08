@@ -1,20 +1,22 @@
 package slashdeploy
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/ejholmes/slash"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 )
 
-type authorize struct {
+type authenticate struct {
 	URL string
 }
 
-func (e *authorize) Error() string {
+func (e *authenticate) Error() string {
 	return fmt.Sprintf("Please <%s|authenticate> then try again.", e.URL)
 }
 
@@ -24,6 +26,7 @@ func (e *authorize) Error() string {
 type Authenticator struct {
 	slash.Handler
 	Users UsersStore
+	StateEncoder
 
 	*oauth2.Config
 }
@@ -37,8 +40,15 @@ func (h *Authenticator) ServeCommand(ctx context.Context, r slash.Responder, c s
 	// If the user doesn't exist, give them a url to oauth with the
 	// provider.
 	if user == nil {
-		url := h.AuthCodeURL(c.UserID)
-		return slash.NoResponse, &authorize{URL: url}
+		state, err := h.Encode(State{
+			UserID: c.UserID,
+		})
+		if err != nil {
+			return slash.NoResponse, err
+		}
+
+		url := h.AuthCodeURL(state)
+		return slash.NoResponse, &authenticate{URL: url}
 	}
 
 	// Add the user to the context for downstream consumers.
@@ -50,6 +60,7 @@ func (h *Authenticator) ServeCommand(ctx context.Context, r slash.Responder, c s
 // GitHubAuthCallback is an http.Handler that creates a new user.
 type GitHubAuthCallback struct {
 	Users UsersStore
+	StateDecoder
 	*oauth2.Config
 }
 
@@ -68,10 +79,13 @@ func (h *GitHubAuthCallback) exchange(r *http.Request) error {
 		return err
 	}
 
-	userID := r.FormValue("state")
+	state, err := h.Decode(r.FormValue("state"))
+	if err != nil {
+		return err
+	}
 
 	if err := h.Users.Save(&User{
-		ID:          userID,
+		ID:          state.UserID,
 		GitHubToken: token.AccessToken,
 	}); err != nil {
 		return err
@@ -106,4 +120,54 @@ func (h *SlackAuthCallback) exchange(r *http.Request) error {
 	}
 
 	return nil
+}
+
+// State is passed during the oauth flow to keep track of the user id.
+type State struct {
+	UserID string
+}
+
+type StateEncoder interface {
+	Encode(State) (string, error)
+}
+
+type StateDecoder interface {
+	Decode(state string) (*State, error)
+}
+
+func SignedState(key []byte) *jwtState {
+	return &jwtState{key: key}
+}
+
+// jwtState encodes and decodes State's using JWT.
+type jwtState struct {
+	key []byte
+}
+
+func (s *jwtState) Encode(state State) (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
+	token.Claims["user_id"] = state.UserID
+	return token.SignedString(s.key)
+}
+
+func (s *jwtState) Decode(state string) (*State, error) {
+	token, err := jwt.Parse(state, jwtStaticKey(s.key))
+	if err != nil {
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, errors.New("invalid state")
+	}
+
+	return &State{
+		UserID: token.Claims["user_id"].(string),
+	}, nil
+
+}
+
+func jwtStaticKey(secret []byte) func(*jwt.Token) (interface{}, error) {
+	return func(*jwt.Token) (interface{}, error) {
+		return secret, nil
+	}
 }

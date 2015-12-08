@@ -6,7 +6,6 @@ import (
 
 	"golang.org/x/oauth2"
 
-	"github.com/ejholmes/slash"
 	"github.com/gorilla/mux"
 )
 
@@ -20,50 +19,37 @@ var (
 
 // Server is an http.Handler that servers the SlashDeploy application.
 type Server struct {
-	*SlashDeploy
 	http.Handler
 }
 
+type Handlers struct {
+	Commands           http.Handler
+	SlackAuthCallback  http.Handler
+	GitHubAuthCallback http.Handler
+}
+
 // NewServer returns a new Server instance.
-func NewServer(sd *SlashDeploy, commands slash.Handler) *Server {
+func NewServer(handlers Handlers) *Server {
 	r := mux.NewRouter()
 	s := &Server{
-		SlashDeploy: sd,
-		Handler:     r,
+		Handler: r,
 	}
 
 	// Handle root for docs.
 	r.HandleFunc("/", s.Root)
 
 	// Where the slash commands are served from.
-	r.Handle("/commands", slash.NewServer(commands))
+	r.Handle("/commands", handlers.Commands)
 
 	// Handle slack auth callback.
-	r.Handle("/auth/slack/callback", &SlackAuthCallback{Config: s.SlackOAuth})
+	r.Handle("/auth/slack/callback", handlers.SlackAuthCallback)
 
 	// Handle github auth callback
-	r.Handle("/auth/github/callback", &GitHubAuthCallback{Config: s.GitHubOAuth, Users: s.Users})
+	r.Handle("/auth/github/callback", handlers.GitHubAuthCallback)
 
 	return s
 }
 
 func (s *Server) Root(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Ok\n")
-}
-
-func (s *Server) SlackAuthCallback(w http.ResponseWriter, r *http.Request) {
-	code := r.FormValue("code")
-
-	token, err := s.SlackOAuth.Exchange(oauth2.NoContext, code)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	if err, ok := token.Extra("error").(string); ok {
-		http.Error(w, err, http.StatusBadRequest)
-		return
-	}
-
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }

@@ -30,6 +30,9 @@ type SlashDeploy struct {
 	// BuildDeployer builds a deployments.Deployer so that the deployment
 	// request can be created by the associated GitHub user.
 	BuildDeployer func(*User) deployments.Deployer
+
+	StateEncoder
+	StateDecoder
 }
 
 func (s *SlashDeploy) Deploy(ctx context.Context, req deployments.DeploymentRequest) (*deployments.Deployment, error) {
@@ -44,8 +47,9 @@ func (s *SlashDeploy) Deploy(ctx context.Context, req deployments.DeploymentRequ
 // GitHubAuthenticate wraps the slash.Handler with an Authenticator.
 func (s *SlashDeploy) GitHubAuthenticate(h slash.Handler) slash.Handler {
 	return &Authenticator{
-		Users:   s.Users,
-		Config:  s.GitHubOAuth,
-		Handler: h,
+		Users:        s.Users,
+		Config:       s.GitHubOAuth,
+		StateEncoder: s,
+		Handler:      h,
 	}
 }
