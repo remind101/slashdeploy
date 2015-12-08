@@ -34,6 +34,7 @@ type factory struct {
 
 func newFactory(c *cli.Context) *factory {
 	return &factory{
+		Context: c,
 		SlashDeploy: &slashdeploy.SlashDeploy{
 			Users: slashdeploy.NewMemUsersStore(),
 			BuildDeployer: func(user *slashdeploy.User) deployments.Deployer {
