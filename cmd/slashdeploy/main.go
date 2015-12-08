@@ -5,15 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"golang.org/x/oauth2"
-	githuboauth "golang.org/x/oauth2/github"
-
 	"github.com/codegangsta/cli"
-	"github.com/ejholmes/slash"
-	"github.com/ejholmes/slashdeploy"
-	"github.com/ejholmes/slashdeploy/commands"
-	"github.com/ejholmes/slashdeploy/deployments"
-	"github.com/ejholmes/slashdeploy/deployments/github"
 )
 
 var cmds = []cli.Command{
@@ -78,46 +70,8 @@ func main() {
 
 func runServer(c *cli.Context) {
 	port := c.String("port")
-	s := newSlashDeploy(c)
-	must(http.ListenAndServe(fmt.Sprintf(":%s", port), slashdeploy.NewServer(slashdeploy.Handlers{
-		Commands:           slash.NewServer(newCommands(s, c)),
-		SlackAuthCallback:  &slashdeploy.SlackAuthCallback{Config: s.SlackOAuth},
-		GitHubAuthCallback: &slashdeploy.GitHubAuthCallback{Config: s.GitHubOAuth, Users: s.Users, StateDecoder: s},
-	})))
-}
-
-func newSlashDeploy(c *cli.Context) *slashdeploy.SlashDeploy {
-	state := slashdeploy.SignedState([]byte(c.String("state.key")))
-
-	return &slashdeploy.SlashDeploy{
-		Users:        slashdeploy.NewMemUsersStore(),
-		StateEncoder: state,
-		StateDecoder: state,
-		SlackOAuth: &oauth2.Config{
-			ClientID:     c.String("slack.client.id"),
-			ClientSecret: c.String("slack.client.secret"),
-			Scopes:       slashdeploy.DefaultSlackScopes,
-			Endpoint:     slashdeploy.DefaultSlackEndpoint,
-		},
-		GitHubOAuth: &oauth2.Config{
-			ClientID:     c.String("github.client.id"),
-			ClientSecret: c.String("github.client.secret"),
-			Scopes:       []string{"repo_deployment"},
-			Endpoint:     githuboauth.Endpoint,
-		},
-		BuildDeployer: func(user *slashdeploy.User) deployments.Deployer {
-			return github.NewDeployer(user.GitHubToken)
-		},
-	}
-}
-
-func newCommands(s *slashdeploy.SlashDeploy, c *cli.Context) slash.Handler {
-	return commands.New(c.String("slack.verification.token"), commands.SubCommands{
-		Help: commands.Help,
-		Deploy: s.GitHubAuthenticate(&commands.Deploy{
-			Deployer: s,
-		}),
-	})
+	f := newFactory(c)
+	must(http.ListenAndServe(fmt.Sprintf(":%s", port), f.Server()))
 }
 
 func must(err error) {

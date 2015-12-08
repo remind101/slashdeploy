@@ -1,4 +1,4 @@
-package slashdeploy
+package auth
 
 import (
 	"errors"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/ejholmes/slash"
+	"github.com/ejholmes/slashdeploy"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 )
@@ -25,7 +26,7 @@ func (e *authenticate) Error() string {
 // initiate an oauth flow with the provider.
 type Authenticator struct {
 	slash.Handler
-	Users UsersStore
+	Users slashdeploy.UsersStore
 	StateEncoder
 
 	*oauth2.Config
@@ -52,14 +53,14 @@ func (h *Authenticator) ServeCommand(ctx context.Context, r slash.Responder, c s
 	}
 
 	// Add the user to the context for downstream consumers.
-	ctx = WithUser(ctx, user)
+	ctx = slashdeploy.WithUser(ctx, user)
 
 	return h.Handler.ServeCommand(ctx, r, c)
 }
 
 // GitHubAuthCallback is an http.Handler that creates a new user.
 type GitHubAuthCallback struct {
-	Users UsersStore
+	Users slashdeploy.UsersStore
 	StateDecoder
 	*oauth2.Config
 }
@@ -84,7 +85,7 @@ func (h *GitHubAuthCallback) exchange(r *http.Request) error {
 		return err
 	}
 
-	if err := h.Users.Save(&User{
+	if err := h.Users.Save(&slashdeploy.User{
 		ID:          state.UserID,
 		GitHubToken: token.AccessToken,
 	}); err != nil {

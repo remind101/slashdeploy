@@ -1,4 +1,4 @@
-package slashdeploy
+package auth
 
 import (
 	"io"
@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ejholmes/slash"
+	"github.com/ejholmes/slashdeploy"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
@@ -51,7 +52,7 @@ func TestGitHubAuthCallback(t *testing.T) {
 	req, _ := http.NewRequest("GET", "?code=1234&state=T1", nil)
 	resp := httptest.NewRecorder()
 
-	u.On("Save", &User{
+	u.On("Save", &slashdeploy.User{
 		ID:          "T1",
 		GitHubToken: "abcd",
 	}).Return(nil)
@@ -79,16 +80,16 @@ type mockUsersStore struct {
 	mock.Mock
 }
 
-func (m *mockUsersStore) Find(id string) (*User, error) {
+func (m *mockUsersStore) Find(id string) (*slashdeploy.User, error) {
 	args := m.Called(id)
-	u, ok := args.Get(0).(*User)
+	u, ok := args.Get(0).(*slashdeploy.User)
 	if !ok {
 		return nil, args.Error(1)
 	}
 	return u, args.Error(1)
 }
 
-func (m *mockUsersStore) Save(user *User) error {
+func (m *mockUsersStore) Save(user *slashdeploy.User) error {
 	args := m.Called(user)
 	return args.Error(0)
 }
