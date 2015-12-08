@@ -10,6 +10,7 @@ import (
 	"github.com/ejholmes/slashdeploy/commands"
 	"github.com/ejholmes/slashdeploy/deployments"
 	"github.com/ejholmes/slashdeploy/deployments/github"
+	slackoauth "github.com/ejholmes/slashdeploy/pkg/oauth2/slack"
 	"golang.org/x/oauth2"
 	githuboauth "golang.org/x/oauth2/github"
 )
@@ -46,8 +47,8 @@ func newFactory(c *cli.Context) *factory {
 			slack: &oauth2.Config{
 				ClientID:     c.String("slack.client.id"),
 				ClientSecret: c.String("slack.client.secret"),
-				Scopes:       slashdeploy.DefaultSlackScopes,
-				Endpoint:     slashdeploy.DefaultSlackEndpoint,
+				Scopes:       []string{"commands"},
+				Endpoint:     slackoauth.Endpoint,
 			},
 			github: &oauth2.Config{
 				ClientID:     c.String("github.client.id"),

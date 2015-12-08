@@ -4,17 +4,7 @@ import (
 	"io"
 	"net/http"
 
-	"golang.org/x/oauth2"
-
 	"github.com/gorilla/mux"
-)
-
-// Basic OAuth settings for Slack.
-var (
-	DefaultSlackScopes   = []string{"commands"}
-	DefaultSlackEndpoint = oauth2.Endpoint{
-		TokenURL: "https://slack.com/api/oauth.access",
-	}
 )
 
 // Server is an http.Handler that servers the SlashDeploy application.
