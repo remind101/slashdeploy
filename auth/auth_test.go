@@ -16,7 +16,7 @@ import (
 )
 
 func TestAuthenticator_ServeCommand(t *testing.T) {
-	u := new(mockUsersStore)
+	u := new(mockUsersService)
 	a := &Authenticator{
 		Users:        u,
 		Config:       &oauth2.Config{},
@@ -38,7 +38,7 @@ func TestGitHubAuthCallback(t *testing.T) {
 	}))
 	defer s.Close()
 
-	u := new(mockUsersStore)
+	u := new(mockUsersService)
 	h := &GitHubAuthCallback{
 		Users:        u,
 		StateDecoder: new(nullState),
@@ -76,11 +76,11 @@ func TestJWTState(t *testing.T) {
 	assert.Equal(t, "T1", state.UserID)
 }
 
-type mockUsersStore struct {
+type mockUsersService struct {
 	mock.Mock
 }
 
-func (m *mockUsersStore) Find(id string) (*slashdeploy.User, error) {
+func (m *mockUsersService) Find(id string) (*slashdeploy.User, error) {
 	args := m.Called(id)
 	u, ok := args.Get(0).(*slashdeploy.User)
 	if !ok {
@@ -89,7 +89,7 @@ func (m *mockUsersStore) Find(id string) (*slashdeploy.User, error) {
 	return u, args.Error(1)
 }
 
-func (m *mockUsersStore) Save(user *slashdeploy.User) error {
+func (m *mockUsersService) Save(user *slashdeploy.User) error {
 	args := m.Called(user)
 	return args.Error(0)
 }

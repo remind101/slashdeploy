@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/ejholmes/slashdeploy/deployments"
+	"github.com/ejholmes/slashdeploy"
 	"github.com/google/go-github/github"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -24,7 +24,7 @@ func TestDeployer_Deploy(t *testing.T) {
 		Task:        github.String("deploy"),
 	}).Return(&github.Deployment{ID: github.Int(1)}, nil)
 
-	_, err := s.Deploy(context.Background(), deployments.DeploymentRequest{
+	err := s.Deploy(context.Background(), slashdeploy.DeploymentRequest{
 		Owner:       "ejholmes",
 		Repository:  "acme-inc",
 		Environment: "production",
@@ -59,7 +59,7 @@ func TestDeployer_Deploy_CommitStatusChecksFailed(t *testing.T) {
 		},
 	})
 
-	_, err := s.Deploy(context.Background(), deployments.DeploymentRequest{
+	err := s.Deploy(context.Background(), slashdeploy.DeploymentRequest{
 		Owner:       "ejholmes",
 		Repository:  "acme-inc",
 		Environment: "production",
@@ -88,7 +88,7 @@ func TestDeployer_Deploy_NoRef(t *testing.T) {
 		Errors:  []github.Error{},
 	})
 
-	_, err := s.Deploy(context.Background(), deployments.DeploymentRequest{
+	err := s.Deploy(context.Background(), slashdeploy.DeploymentRequest{
 		Owner:       "ejholmes",
 		Repository:  "acme-inc",
 		Environment: "production",

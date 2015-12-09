@@ -26,7 +26,9 @@ func (e *authenticate) Error() string {
 // initiate an oauth flow with the provider.
 type Authenticator struct {
 	slash.Handler
-	Users slashdeploy.UsersStore
+	Users interface {
+		Find(string) (*slashdeploy.User, error)
+	}
 	StateEncoder
 
 	*oauth2.Config
@@ -60,7 +62,9 @@ func (h *Authenticator) ServeCommand(ctx context.Context, r slash.Responder, c s
 
 // GitHubAuthCallback is an http.Handler that creates a new user.
 type GitHubAuthCallback struct {
-	Users slashdeploy.UsersStore
+	Users interface {
+		Save(*slashdeploy.User) error
+	}
 	StateDecoder
 	*oauth2.Config
 }

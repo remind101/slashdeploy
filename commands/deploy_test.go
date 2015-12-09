@@ -7,14 +7,14 @@ import (
 
 	"github.com/ejholmes/slash"
 	"github.com/ejholmes/slash/slashtest"
-	"github.com/ejholmes/slashdeploy/deployments"
+	"github.com/ejholmes/slashdeploy"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestDeploy_InvalidRepo(t *testing.T) {
-	d := new(mockDeployer)
-	c := &Deploy{Deployer: d}
+	d := new(mockDeploymentsService)
+	c := &Deploy{deploymentsService: d}
 
 	ctx := slash.WithParams(context.Background(), map[string]string{})
 	rec := slashtest.NewRecorder()
@@ -25,8 +25,8 @@ func TestDeploy_InvalidRepo(t *testing.T) {
 }
 
 func TestDeploy_Defaults(t *testing.T) {
-	d := new(mockDeployer)
-	c := &Deploy{Deployer: d}
+	d := new(mockDeploymentsService)
+	c := &Deploy{deploymentsService: d}
 
 	ctx := slash.WithParams(context.Background(), map[string]string{
 		"repo": "ejholmes/acme-inc",
@@ -34,20 +34,20 @@ func TestDeploy_Defaults(t *testing.T) {
 	rec := slashtest.NewRecorder()
 	cmd := slash.Command{}
 
-	d.On("Deploy", deployments.DeploymentRequest{
+	d.On("CreateDeployment", slashdeploy.DeploymentRequest{
 		Owner:       "ejholmes",
 		Repository:  "acme-inc",
 		Ref:         "master",
 		Environment: "production",
-	}).Return(&deployments.Deployment{}, nil)
+	}).Return(&slashdeploy.Deployment{}, nil)
 
 	_, err := c.ServeCommand(ctx, rec, cmd)
 	assert.NoError(t, err)
 }
 
 func TestDeploy_Overrides(t *testing.T) {
-	d := new(mockDeployer)
-	c := &Deploy{Deployer: d}
+	d := new(mockDeploymentsService)
+	c := &Deploy{deploymentsService: d}
 
 	ctx := slash.WithParams(context.Background(), map[string]string{
 		"repo":        "ejholmes/acme-inc",
@@ -57,22 +57,22 @@ func TestDeploy_Overrides(t *testing.T) {
 	rec := slashtest.NewRecorder()
 	cmd := slash.Command{}
 
-	d.On("Deploy", deployments.DeploymentRequest{
+	d.On("CreateDeployment", slashdeploy.DeploymentRequest{
 		Owner:       "ejholmes",
 		Repository:  "acme-inc",
 		Ref:         "topic-branch",
 		Environment: "staging",
-	}).Return(&deployments.Deployment{}, nil)
+	}).Return(&slashdeploy.Deployment{}, nil)
 
 	_, err := c.ServeCommand(ctx, rec, cmd)
 	assert.NoError(t, err)
 }
 
-type mockDeployer struct {
+type mockDeploymentsService struct {
 	mock.Mock
 }
 
-func (m *mockDeployer) Deploy(ctx context.Context, request deployments.DeploymentRequest) (*deployments.Deployment, error) {
+func (m *mockDeploymentsService) CreateDeployment(ctx context.Context, request slashdeploy.DeploymentRequest) (*slashdeploy.Deployment, error) {
 	args := m.Called(request)
-	return args.Get(0).(*deployments.Deployment), args.Error(1)
+	return args.Get(0).(*slashdeploy.Deployment), args.Error(1)
 }

@@ -7,7 +7,7 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 
-	"github.com/ejholmes/slashdeploy/deployments"
+	"github.com/ejholmes/slashdeploy"
 	"github.com/google/go-github/github"
 )
 
@@ -58,8 +58,8 @@ func NewDeployer(token string) *Deployer {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, req deployments.DeploymentRequest) (*deployments.Deployment, error) {
-	gd, _, err := d.github.CreateDeployment(req.Owner, req.Repository, &github.DeploymentRequest{
+func (d *Deployer) Deploy(ctx context.Context, req slashdeploy.DeploymentRequest) error {
+	_, _, err := d.github.CreateDeployment(req.Owner, req.Repository, &github.DeploymentRequest{
 		Environment: github.String(req.Environment),
 		Ref:         github.String(req.Ref),
 		AutoMerge:   github.Bool(false),
@@ -68,21 +68,19 @@ func (d *Deployer) Deploy(ctx context.Context, req deployments.DeploymentRequest
 	if err != nil {
 		if err, ok := err.(*github.ErrorResponse); ok {
 			if strings.HasPrefix(err.Message, "Conflict: Commit status checks failed for") {
-				return nil, &CommitStatusChecksError{
+				return &CommitStatusChecksError{
 					Ref:           req.Ref,
 					ErrorResponse: err,
 				}
 			} else if strings.HasPrefix(err.Message, "No ref found for") {
-				return nil, &NoRefError{
+				return &NoRefError{
 					Ref:           req.Ref,
 					ErrorResponse: err,
 				}
 			}
 		}
-		return nil, err
+		return err
 	}
 
-	return &deployments.Deployment{
-		ID: fmt.Sprintf("%d", *gd.ID),
-	}, nil
+	return nil
 }

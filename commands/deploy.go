@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/ejholmes/slash"
+	"github.com/ejholmes/slashdeploy"
 	"github.com/ejholmes/slashdeploy/deployments"
 	"golang.org/x/net/context"
 )
@@ -26,10 +27,20 @@ func (e *InvalidRepoError) Error() string {
 	return fmt.Sprintf("%s is not a valid repository", e.Repository)
 }
 
-// Deploy is a slash.Handler that triggers a deployment using a
-// deployments.Deployer.
+type deploymentsService interface {
+	CreateDeployment(context.Context, slashdeploy.DeploymentRequest) (*slashdeploy.Deployment, error)
+}
+
+// Deploy is a slash.Handler that triggers a deployment using the deployments
+// service.
 type Deploy struct {
-	deployments.Deployer
+	deploymentsService
+}
+
+func NewDeploy(s *deployments.Service) *Deploy {
+	return &Deploy{
+		deploymentsService: s,
+	}
 }
 
 func (c *Deploy) ServeCommand(ctx context.Context, r slash.Responder, _ slash.Command) (slash.Response, error) {
@@ -40,7 +51,7 @@ func (c *Deploy) ServeCommand(ctx context.Context, r slash.Responder, _ slash.Co
 		return slash.NoResponse, err
 	}
 
-	_, err = c.Deploy(ctx, req)
+	_, err = c.CreateDeployment(ctx, req)
 	if err != nil {
 		return slash.NoResponse, err
 	}
@@ -48,8 +59,8 @@ func (c *Deploy) ServeCommand(ctx context.Context, r slash.Responder, _ slash.Co
 	return slash.Say(fmt.Sprintf("Created deployment request for %s.", req)), nil
 }
 
-func deploymentRequest(params map[string]string) (deployments.DeploymentRequest, error) {
-	var d deployments.DeploymentRequest
+func deploymentRequest(params map[string]string) (slashdeploy.DeploymentRequest, error) {
+	var d slashdeploy.DeploymentRequest
 
 	// Parse the <org>/<repo> format into it's individual parts, returning
 	// an error if it's not a valid repo.

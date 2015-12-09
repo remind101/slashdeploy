@@ -1,49 +1,45 @@
 package deployments
 
 import (
-	"fmt"
-
+	"github.com/ejholmes/slashdeploy"
 	"golang.org/x/net/context"
 )
 
-type Deployment struct {
-	// A unique identifier for the deployment request that was created.
-	ID string
+// Service object for creating deployments.
+type Service struct {
+	// BuildDeployer should return a Deployer instance to create the
+	// deployment as the given user.
+	BuildDeployer func(*slashdeploy.User) Deployer
 }
 
-type DeploymentRequest struct {
-	// The User or Organization that owns the repository.
-	Owner string
+// CreateDeployment creates a new GitHub deployment as the given user.
+func (s *Service) CreateDeployment(ctx context.Context, req slashdeploy.DeploymentRequest) (*slashdeploy.Deployment, error) {
+	user, ok := slashdeploy.UserFromContext(ctx)
+	if !ok {
+		panic("user should be set")
+	}
 
-	// The name of the repository to deploy.
-	Repository string
+	err := s.BuildDeployer(user).Deploy(req)
+	if err != nil {
+		return nil, err
+	}
 
-	// The git ref to deploy.
-	Ref string
-
-	// The environment to deploy to.
-	Environment string
-}
-
-func (d DeploymentRequest) String() string {
-	return fmt.Sprintf("%s/%s@%s to %s", d.Owner, d.Repository, d.Ref, d.Environment)
+	return &slashdeploy.Deployment{}, nil
 }
 
 // Deployer represents something that can create deployment requests.
 type Deployer interface {
-	// When deploy is called, the implementer should create a deployment
-	// request then immediately return. The implementer can use the provided
-	// Statuses to notify the consumer about status updates.
-	Deploy(context.Context, DeploymentRequest) (*Deployment, error)
+	// Deploy creates the deployment.
+	Deploy(slashdeploy.DeploymentRequest) error
 }
 
-type DeployerFunc func(context.Context, DeploymentRequest) (*Deployment, error)
+type DeployerFunc func(slashdeploy.DeploymentRequest) error
 
-func (fn DeployerFunc) Deploy(ctx context.Context, req DeploymentRequest) (*Deployment, error) {
-	return fn(ctx, req)
+func (fn DeployerFunc) Deploy(req slashdeploy.DeploymentRequest) error {
+	return fn(req)
 }
 
 // NullDeployer is a Deployer implementation that does nothing.
-var NullDeployer = DeployerFunc(func(ctx context.Context, req DeploymentRequest) (*Deployment, error) {
-	return &Deployment{ID: "1"}, nil
+var NullDeployer = DeployerFunc(func(req slashdeploy.DeploymentRequest) error {
+	return nil
 })

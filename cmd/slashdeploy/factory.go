@@ -10,8 +10,10 @@ import (
 	"github.com/ejholmes/slashdeploy/commands"
 	"github.com/ejholmes/slashdeploy/deployments"
 	"github.com/ejholmes/slashdeploy/deployments/github"
-	slackoauth "github.com/ejholmes/slashdeploy/pkg/oauth2/slack"
+	"github.com/ejholmes/slashdeploy/users"
 	"golang.org/x/oauth2"
+
+	slackoauth "github.com/ejholmes/slashdeploy/pkg/oauth2/slack"
 	githuboauth "golang.org/x/oauth2/github"
 )
 
@@ -22,9 +24,10 @@ type oauthConfig struct {
 
 // service factory
 type factory struct {
-	*slashdeploy.SlashDeploy
-	commands     slash.Handler
-	stateEncoder interface {
+	deploymentsService *deployments.Service
+	usersService       *users.Service
+	commands           slash.Handler
+	stateEncoder       interface {
 		auth.StateEncoder
 		auth.StateDecoder
 	}
@@ -34,13 +37,19 @@ type factory struct {
 }
 
 func newFactory(c *cli.Context) *factory {
+	s := &slashdeploy.SlashDeploy{
+		Users: slashdeploy.NewMemUsersStore(),
+	}
+
 	return &factory{
 		Context: c,
-		SlashDeploy: &slashdeploy.SlashDeploy{
-			Users: slashdeploy.NewMemUsersStore(),
+		deploymentsService: &deployments.Service{
 			BuildDeployer: func(user *slashdeploy.User) deployments.Deployer {
 				return github.NewDeployer(user.GitHubToken)
 			},
+		},
+		usersService: &users.Service{
+			Users: s.Users,
 		},
 		stateEncoder: auth.SignedState([]byte(c.String("state.key"))),
 		oauthConfig: &oauthConfig{
@@ -63,10 +72,8 @@ func newFactory(c *cli.Context) *factory {
 func (f *factory) Commands() slash.Handler {
 	if f.commands == nil {
 		f.commands = commands.New(f.String("slack.verification.token"), commands.SubCommands{
-			Help: commands.Help,
-			Deploy: f.GitHubAuthenticate(&commands.Deploy{
-				Deployer: f.SlashDeploy,
-			}),
+			Help:   commands.Help,
+			Deploy: f.GitHubAuthenticate(commands.NewDeploy(f.deploymentsService)),
 		})
 	}
 	return f.commands
@@ -74,7 +81,7 @@ func (f *factory) Commands() slash.Handler {
 
 func (f *factory) GitHubAuthenticate(h slash.Handler) slash.Handler {
 	return &auth.Authenticator{
-		Users:        f.SlashDeploy.Users,
+		Users:        f.usersService,
 		Config:       f.oauthConfig.github,
 		StateEncoder: f.stateEncoder,
 		Handler:      h,
@@ -86,7 +93,7 @@ func (f *factory) Server() http.Handler {
 		f.server = slashdeploy.NewServer(slashdeploy.Handlers{
 			Commands:           slash.NewServer(f.Commands()),
 			SlackAuthCallback:  &auth.SlackAuthCallback{Config: f.oauthConfig.slack},
-			GitHubAuthCallback: &auth.GitHubAuthCallback{Config: f.oauthConfig.github, Users: f.SlashDeploy.Users, StateDecoder: f.stateEncoder},
+			GitHubAuthCallback: &auth.GitHubAuthCallback{Config: f.oauthConfig.github, Users: f.usersService, StateDecoder: f.stateEncoder},
 		})
 	}
 	return f.server
