@@ -33,3 +33,21 @@ Deploy a branch:
 ### What's GitHub Deployments?
 
 In a nutshell, GitHub Deployments are a way to initialize a deployment **request** for a GitHub repository. It allows you to decouple the act of requesting a deployment, and the actual fullfillment. This allows you to have a consistent interface for performing deployments, whether it's a web app, infrastructure, native application, etc.
+
+## Development
+
+### Tests
+
+The full test suite can be run with:
+
+```
+$ godep go test ./...
+```
+
+### Structure
+
+SlashDeploy is organized into multiple subpackages.
+
+* `github.com/ejholmes/slashdeploy`: This is the root package and it's responsible for interacting with the domain models, and serves as a service layer for the control layers.
+* `github.com/ejholmes/slashdeploy/commands`: This maintains the Slack slash commands control layer. It's a consumer of the root package.
+* `github.com/ejholmes/slashdeploy/server`: This is exposes the HTTP api.
