@@ -5,6 +5,12 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Defaults unless overriden by the repository settings.
+var (
+	DefaultEnvironment = "production"
+	DefaultRef         = "master"
+)
+
 // Service object for creating deployments.
 type Service struct {
 	// BuildDeployer should return a Deployer instance to create the
@@ -17,6 +23,14 @@ func (s *Service) CreateDeployment(ctx context.Context, req slashdeploy.Deployme
 	user, ok := slashdeploy.UserFromContext(ctx)
 	if !ok {
 		panic("user should be set")
+	}
+
+	if req.Environment == "" {
+		req.Environment = DefaultEnvironment
+	}
+
+	if req.Ref == "" {
+		req.Ref = DefaultRef
 	}
 
 	err := s.BuildDeployer(user).Deploy(req)

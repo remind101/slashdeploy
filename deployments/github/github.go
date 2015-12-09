@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 
 	"github.com/ejholmes/slashdeploy"
@@ -58,7 +57,7 @@ func NewDeployer(token string) *Deployer {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, req slashdeploy.DeploymentRequest) error {
+func (d *Deployer) Deploy(req slashdeploy.DeploymentRequest) error {
 	_, _, err := d.github.CreateDeployment(req.Owner, req.Repository, &github.DeploymentRequest{
 		Environment: github.String(req.Environment),
 		Ref:         github.String(req.Ref),

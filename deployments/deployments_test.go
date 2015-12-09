@@ -17,12 +17,20 @@ func TestService_CreateDeployment(t *testing.T) {
 		return d
 	}}
 
-	req := slashdeploy.DeploymentRequest{}
-
-	d.On("Deploy", req).Return(nil)
+	d.On("Deploy", slashdeploy.DeploymentRequest{
+		Owner:       "ejholmes",
+		Repository:  "acme-inc",
+		Ref:         "master",
+		Environment: "production",
+	}).Return(nil)
 
 	ctx := slashdeploy.WithUser(context.Background(), u)
-	_, err := s.CreateDeployment(ctx, req)
+	_, err := s.CreateDeployment(ctx, slashdeploy.DeploymentRequest{
+		Owner:       "ejholmes",
+		Repository:  "acme-inc",
+		Ref:         "master",
+		Environment: "production",
+	})
 	assert.NoError(t, err)
 }
 

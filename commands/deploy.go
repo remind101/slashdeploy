@@ -70,17 +70,8 @@ func deploymentRequest(params map[string]string) (slashdeploy.DeploymentRequest,
 		return d, &InvalidRepoError{Repository: params["repo"]}
 	}
 
-	// Use custom environment if provided.
 	d.Environment = params["environment"]
-	if d.Environment == "" {
-		d.Environment = DefaultEnvironment
-	}
-
-	// Use custom ref if provided.
 	d.Ref = params["ref"]
-	if d.Ref == "" {
-		d.Ref = DefaultRef
-	}
 
 	return d, nil
 }

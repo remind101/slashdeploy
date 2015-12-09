@@ -8,7 +8,6 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"golang.org/x/net/context"
 )
 
 func TestDeployer_Deploy(t *testing.T) {
@@ -24,7 +23,7 @@ func TestDeployer_Deploy(t *testing.T) {
 		Task:        github.String("deploy"),
 	}).Return(&github.Deployment{ID: github.Int(1)}, nil)
 
-	err := s.Deploy(context.Background(), slashdeploy.DeploymentRequest{
+	err := s.Deploy(slashdeploy.DeploymentRequest{
 		Owner:       "ejholmes",
 		Repository:  "acme-inc",
 		Environment: "production",
@@ -59,7 +58,7 @@ func TestDeployer_Deploy_CommitStatusChecksFailed(t *testing.T) {
 		},
 	})
 
-	err := s.Deploy(context.Background(), slashdeploy.DeploymentRequest{
+	err := s.Deploy(slashdeploy.DeploymentRequest{
 		Owner:       "ejholmes",
 		Repository:  "acme-inc",
 		Environment: "production",
@@ -88,7 +87,7 @@ func TestDeployer_Deploy_NoRef(t *testing.T) {
 		Errors:  []github.Error{},
 	})
 
-	err := s.Deploy(context.Background(), slashdeploy.DeploymentRequest{
+	err := s.Deploy(slashdeploy.DeploymentRequest{
 		Owner:       "ejholmes",
 		Repository:  "acme-inc",
 		Environment: "production",
