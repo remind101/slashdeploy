@@ -27,7 +27,7 @@ func (e *authenticate) Error() string {
 type Authenticator struct {
 	slash.Handler
 	Users interface {
-		Find(string) (*slashdeploy.User, error)
+		FindUser(string) (*slashdeploy.User, error)
 	}
 	StateEncoder
 
@@ -35,7 +35,7 @@ type Authenticator struct {
 }
 
 func (h *Authenticator) ServeCommand(ctx context.Context, r slash.Responder, c slash.Command) (slash.Response, error) {
-	user, err := h.Users.Find(c.UserID)
+	user, err := h.Users.FindUser(c.UserID)
 	if err != nil {
 		return slash.NoResponse, err
 	}
@@ -63,7 +63,7 @@ func (h *Authenticator) ServeCommand(ctx context.Context, r slash.Responder, c s
 // GitHubAuthCallback is an http.Handler that creates a new user.
 type GitHubAuthCallback struct {
 	Users interface {
-		Save(*slashdeploy.User) error
+		CreateUser(*slashdeploy.User) error
 	}
 	StateDecoder
 	*oauth2.Config
@@ -89,9 +89,9 @@ func (h *GitHubAuthCallback) exchange(r *http.Request) error {
 		return err
 	}
 
-	if err := h.Users.Save(&slashdeploy.User{
+	if err := h.Users.CreateUser(&slashdeploy.User{
 		ID:          state.UserID,
-		GitHubToken: token.AccessToken,
+		GitHubToken: &token.AccessToken,
 	}); err != nil {
 		return err
 	}

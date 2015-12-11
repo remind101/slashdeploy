@@ -11,5 +11,5 @@ import (
 func TestHelp(t *testing.T) {
 	resp, err := Help.ServeCommand(context.Background(), nil, slash.Command{})
 	assert.NoError(t, err)
-	assert.Equal(t, helpText, resp.Text)
+	assert.Equal(t, HelpText, resp.Text)
 }

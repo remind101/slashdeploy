@@ -23,7 +23,7 @@ func TestAuthenticator_ServeCommand(t *testing.T) {
 		StateEncoder: new(nullState),
 	}
 
-	u.On("Find", "T1").Return(nil, nil)
+	u.On("FindUser", "T1").Return(nil, nil)
 
 	_, err := a.ServeCommand(context.Background(), nil, slash.Command{
 		UserID: "T1",
@@ -52,9 +52,10 @@ func TestGitHubAuthCallback(t *testing.T) {
 	req, _ := http.NewRequest("GET", "?code=1234&state=T1", nil)
 	resp := httptest.NewRecorder()
 
-	u.On("Save", &slashdeploy.User{
+	token := "abcd"
+	u.On("CreateUser", &slashdeploy.User{
 		ID:          "T1",
-		GitHubToken: "abcd",
+		GitHubToken: &token,
 	}).Return(nil)
 
 	h.ServeHTTP(resp, req)
@@ -80,7 +81,7 @@ type mockUsersService struct {
 	mock.Mock
 }
 
-func (m *mockUsersService) Find(id string) (*slashdeploy.User, error) {
+func (m *mockUsersService) FindUser(id string) (*slashdeploy.User, error) {
 	args := m.Called(id)
 	u, ok := args.Get(0).(*slashdeploy.User)
 	if !ok {
@@ -89,7 +90,7 @@ func (m *mockUsersService) Find(id string) (*slashdeploy.User, error) {
 	return u, args.Error(1)
 }
 
-func (m *mockUsersService) Save(user *slashdeploy.User) error {
+func (m *mockUsersService) CreateUser(user *slashdeploy.User) error {
 	args := m.Called(user)
 	return args.Error(0)
 }

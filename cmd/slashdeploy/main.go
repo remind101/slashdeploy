@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/codegangsta/cli"
@@ -69,9 +68,9 @@ func main() {
 }
 
 func runServer(c *cli.Context) {
-	port := c.String("port")
-	f := newFactory(c)
-	must(http.ListenAndServe(fmt.Sprintf(":%s", port), f.Server()))
+	//port := c.String("port")
+	//f := newFactory(c)
+	//must(http.ListenAndServe(fmt.Sprintf(":%s", port), f.Server()))
 }
 
 func must(err error) {

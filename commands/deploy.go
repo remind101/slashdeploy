@@ -7,7 +7,6 @@ import (
 
 	"github.com/ejholmes/slash"
 	"github.com/ejholmes/slashdeploy"
-	"github.com/ejholmes/slashdeploy/deployments"
 	"golang.org/x/net/context"
 )
 
@@ -37,7 +36,7 @@ type Deploy struct {
 	deploymentsService
 }
 
-func NewDeploy(s *deployments.Service) *Deploy {
+func NewDeploy(s *slashdeploy.DeploymentsService) *Deploy {
 	return &Deploy{
 		deploymentsService: s,
 	}
