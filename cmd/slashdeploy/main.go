@@ -9,6 +9,7 @@ import (
 	"github.com/ejholmes/slashdeploy"
 	"github.com/ejholmes/slashdeploy/server"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 
 	slackoauth "github.com/ejholmes/slashdeploy/pkg/oauth2/slack"
 	"golang.org/x/oauth2"
