@@ -51,6 +51,10 @@
 			"Rev": "0fa27b5cb05c4239ff23cbec3af1d56af75c1854"
 		},
 		{
+			"ImportPath": "github.com/rubenv/sql-migrate",
+			"Rev": "53184e1edfb4f9655b0fa8dd2c23e7763f452bda"
+		},
+		{
 			"ImportPath": "github.com/stretchr/objx",
 			"Rev": "cbeaeb16a013161a98496fad62933b1d21786672"
 		},
@@ -71,6 +75,11 @@
 		{
 			"ImportPath": "golang.org/x/oauth2",
 			"Rev": "442624c9ec9243441e83b374a9e22ac549b5c51d"
+		},
+		{
+			"ImportPath": "gopkg.in/gorp.v1",
+			"Comment": "v1.7.1",
+			"Rev": "c87af80f3cc5036b55b83d77171e156791085e2e"
 		}
 	]
 }
