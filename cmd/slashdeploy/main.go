@@ -7,6 +7,7 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/ejholmes/slashdeploy"
+	"github.com/ejholmes/slashdeploy/deployments/github"
 	"github.com/ejholmes/slashdeploy/server"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -86,7 +87,20 @@ func runServer(c *cli.Context) {
 	port := c.String("port")
 	db := sqlx.MustConnect("postgres", c.String("db"))
 	must(slashdeploy.MigrateUp(db, "postgres"))
-	s := server.New(slashdeploy.New(db), server.Config{
+	s := newServer(newClient(db), c)
+	must(http.ListenAndServe(fmt.Sprintf(":%s", port), s))
+}
+
+func newClient(db *sqlx.DB) *slashdeploy.Client {
+	s := slashdeploy.New(db)
+	s.BuildDeployer = func(user *slashdeploy.User) slashdeploy.Deployer {
+		return github.NewDeployer(*user.GitHubToken)
+	}
+	return s
+}
+
+func newServer(s *slashdeploy.Client, c *cli.Context) http.Handler {
+	return server.New(s, server.Config{
 		OAuth: &server.OAuthConfig{
 			Slack: &oauth2.Config{
 				ClientID:     c.String("slack.client.id"),
@@ -104,7 +118,6 @@ func runServer(c *cli.Context) {
 		StateKey:               []byte(c.String("state.key")),
 		SlackVerificationToken: c.String("slack.verification.token"),
 	})
-	must(http.ListenAndServe(fmt.Sprintf(":%s", port), s))
 }
 
 func must(err error) {
