@@ -58,10 +58,14 @@ func (s *DeploymentsService) CreateDeployment(ctx context.Context, req Deploymen
 		req.Ref = DefaultRef
 	}
 
-	err := s.BuildDeployer(user).Deploy(req)
-	if err != nil {
+	if err := s.BuildDeployer(user).Deploy(req); err != nil {
 		return nil, err
 	}
+
+	_ = s.Environments.CreateEnvironment(&Environment{
+		Repository: fmt.Sprintf("%s/%s", req.Owner, req.Repository),
+		Name:       req.Environment,
+	})
 
 	return &Deployment{}, nil
 }

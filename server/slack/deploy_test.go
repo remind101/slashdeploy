@@ -14,9 +14,7 @@ import (
 func TestDeployCommand(t *testing.T) {
 	d := new(mockClient)
 	c := &DeployCommand{
-		Commands: &Commands{
-			client: d,
-		},
+		client: d,
 	}
 
 	ctx := slash.WithParams(context.Background(), map[string]string{
@@ -41,9 +39,7 @@ func TestDeployCommand(t *testing.T) {
 func TestDeployCommand_InvalidRepo(t *testing.T) {
 	d := new(mockClient)
 	c := &DeployCommand{
-		Commands: &Commands{
-			client: d,
-		},
+		client: d,
 	}
 
 	ctx := slash.WithParams(context.Background(), map[string]string{})

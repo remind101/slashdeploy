@@ -30,8 +30,9 @@ func Test_InvalidToken(t *testing.T) {
 
 func Test_Route(t *testing.T) {
 	cmds := handlers{
-		Help:   new(recordParamsHandler),
-		Deploy: new(recordParamsHandler),
+		Help:         new(recordParamsHandler),
+		Deploy:       new(recordParamsHandler),
+		Environments: new(recordParamsHandler),
 	}
 
 	tests := []struct {
@@ -44,6 +45,8 @@ func Test_Route(t *testing.T) {
 		{"ejholmes/acme-inc to staging", cmds.Deploy, map[string]string{"repo": "ejholmes/acme-inc", "environment": "staging"}},
 		{"ejholmes/acme-inc@topic-branch", cmds.Deploy, map[string]string{"repo": "ejholmes/acme-inc", "ref": "topic-branch"}},
 		{"ejholmes/acme-inc@topic-branch to staging", cmds.Deploy, map[string]string{"repo": "ejholmes/acme-inc", "ref": "topic-branch", "environment": "staging"}},
+		{"where ejholmes/acme-inc?", cmds.Environments, map[string]string{"repo": "ejholmes/acme-inc"}},
+		{"where ejholmes/acme-inc", cmds.Environments, map[string]string{"repo": "ejholmes/acme-inc"}},
 	}
 
 	for _, tt := range tests {
@@ -78,4 +81,9 @@ type mockClient struct {
 func (m *mockClient) CreateDeployment(ctx context.Context, request slashdeploy.DeploymentRequest) (*slashdeploy.Deployment, error) {
 	args := m.Called(request)
 	return args.Get(0).(*slashdeploy.Deployment), args.Error(1)
+}
+
+func (m *mockClient) ListEnvironments(repo string) ([]*slashdeploy.Environment, error) {
+	args := m.Called(repo)
+	return args.Get(0).([]*slashdeploy.Environment), args.Error(1)
 }

@@ -10,9 +10,7 @@ func TestUsersService_FindUser(t *testing.T) {
 	c := newTestClient()
 	defer c.Close()
 
-	s := &UsersService{
-		Client: c,
-	}
+	s := c.Users
 
 	user, err := s.FindUser("1")
 	assert.NoError(t, err)

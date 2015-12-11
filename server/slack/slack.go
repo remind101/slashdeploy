@@ -12,12 +12,14 @@ import (
 // client represents the interface of a slashdeploy.Client that we use.
 type client interface {
 	CreateDeployment(context.Context, slashdeploy.DeploymentRequest) (*slashdeploy.Deployment, error)
+	ListEnvironments(string) ([]*slashdeploy.Environment, error)
 }
 
 // Commands is a slash.Handler for serving the slack slash commands.
 type Commands struct {
-	Help   slash.Handler
-	Deploy *DeployCommand
+	Help         slash.Handler
+	Deploy       *DeployCommand
+	Environments *EnvironmentsCommand
 
 	client client
 }
@@ -26,7 +28,8 @@ type Commands struct {
 func newCommands(c client) *Commands {
 	h := &Commands{client: c}
 	h.Help = HelpCommand
-	h.Deploy = &DeployCommand{Commands: h}
+	h.Deploy = &DeployCommand{client: c}
+	h.Environments = &EnvironmentsCommand{client: c}
 	return h
 }
 
@@ -42,19 +45,23 @@ func newHandler(token string, c client) slash.Handler {
 // routeCommands returns a new slash.Handler for serving commands.
 func routeCommands(token string, c *Commands) slash.Handler {
 	return route(token, handlers{
-		Help:   c.Help,
-		Deploy: c.Deploy,
+		Help:         c.Help,
+		Deploy:       c.Deploy,
+		Environments: c.Environments,
 	})
 }
 
 type handlers struct {
-	Help   slash.Handler
-	Deploy slash.Handler
+	Help         slash.Handler
+	Deploy       slash.Handler
+	Environments slash.Handler
 }
 
 func route(token string, h handlers) slash.Handler {
 	d := slash.NewMux()
 	d.Match(slash.MatchSubcommand("help"), h.Help)
+
+	d.MatchText(regexp.MustCompile(`where (?P<repo>\S+?)\??$`), h.Environments)
 
 	deploy := h.Deploy
 	d.MatchText(regexp.MustCompile(`(?P<repo>\S+?)@(?P<ref>\S+?) to (?P<environment>\S+?)$`), deploy)
