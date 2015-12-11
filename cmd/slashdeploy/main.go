@@ -24,7 +24,13 @@ var cmds = []cli.Command{
 				Name:   "port",
 				Value:  "8080",
 				EnvVar: "PORT",
-				Usage:  "port to bind to",
+				Usage:  "Port to bind to",
+			},
+			cli.StringFlag{
+				Name:   "db",
+				Value:  "8080",
+				EnvVar: "DATABASE_URL",
+				Usage:  "Postgres connection string",
 			},
 			cli.StringFlag{
 				Name:   "state.key",
