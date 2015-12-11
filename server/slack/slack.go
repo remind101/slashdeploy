@@ -9,37 +9,41 @@ import (
 	"golang.org/x/net/context"
 )
 
-// Client represents the interface of a slashdeploy.Client that we use.
-type Client interface {
+// client represents the interface of a slashdeploy.Client that we use.
+type client interface {
 	CreateDeployment(context.Context, slashdeploy.DeploymentRequest) (*slashdeploy.Deployment, error)
 }
 
-// Handler is a slash.Handler for serving the slack slash commands.
-type Handler struct {
+// Commands is a slash.Handler for serving the slack slash commands.
+type Commands struct {
 	Help   slash.Handler
 	Deploy *DeployCommand
 
-	client Client
+	client client
 }
 
-// New returns a new slash.Handler that sets up routes to the subcommands.
-func NewHandler(c Client) *Handler {
-	h := &Handler{client: c}
+// newCommands returns a new slash.Handler that sets up routes to the subcommands.
+func newCommands(c client) *Commands {
+	h := &Commands{client: c}
 	h.Help = HelpCommand
-	h.Deploy = &DeployCommand{Handler: h}
+	h.Deploy = &DeployCommand{Commands: h}
 	return h
 }
 
 // New returns a new slash.Handler to handle the slack slash commands.
-func New(token string, c Client) slash.Handler {
-	return Route(token, NewHandler(c))
+func New(token string, c *slashdeploy.Client) slash.Handler {
+	return newHandler(token, c)
 }
 
-// Route returns a new slash.Handler for serving commands.
-func Route(token string, h *Handler) slash.Handler {
+func newHandler(token string, c client) slash.Handler {
+	return routeCommands(token, newCommands(c))
+}
+
+// routeCommands returns a new slash.Handler for serving commands.
+func routeCommands(token string, c *Commands) slash.Handler {
 	return route(token, handlers{
-		Help:   h.Help,
-		Deploy: h.Deploy,
+		Help:   c.Help,
+		Deploy: c.Deploy,
 	})
 }
 

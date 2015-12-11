@@ -29,7 +29,7 @@ func (e *InvalidRepoError) Error() string {
 // DeployCommand is a slash.Handler that triggers a deployment using the deployments
 // service.
 type DeployCommand struct {
-	*Handler
+	*Commands
 }
 
 func (c *DeployCommand) ServeCommand(ctx context.Context, r slash.Responder, _ slash.Command) (slash.Response, error) {

@@ -14,7 +14,7 @@ import (
 func TestDeployCommand(t *testing.T) {
 	d := new(mockClient)
 	c := &DeployCommand{
-		Handler: &Handler{
+		Commands: &Commands{
 			client: d,
 		},
 	}
@@ -41,7 +41,7 @@ func TestDeployCommand(t *testing.T) {
 func TestDeployCommand_InvalidRepo(t *testing.T) {
 	d := new(mockClient)
 	c := &DeployCommand{
-		Handler: &Handler{
+		Commands: &Commands{
 			client: d,
 		},
 	}

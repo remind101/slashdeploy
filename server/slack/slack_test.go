@@ -11,7 +11,7 @@ import (
 )
 
 func Test_CommandNotFound(t *testing.T) {
-	c := New("token", new(mockClient))
+	c := newHandler("token", new(mockClient))
 
 	_, err := c.ServeCommand(context.Background(), nil, slash.Command{
 		Command: "/foo",
@@ -20,7 +20,7 @@ func Test_CommandNotFound(t *testing.T) {
 }
 
 func Test_InvalidToken(t *testing.T) {
-	c := New("token", new(mockClient))
+	c := newHandler("token", new(mockClient))
 
 	_, err := c.ServeCommand(context.Background(), nil, slash.Command{
 		Command: "/deploy",
