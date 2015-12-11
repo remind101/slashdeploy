@@ -2,9 +2,17 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/codegangsta/cli"
+	"github.com/ejholmes/slashdeploy"
+	"github.com/ejholmes/slashdeploy/server"
+	"github.com/jmoiron/sqlx"
+
+	slackoauth "github.com/ejholmes/slashdeploy/pkg/oauth2/slack"
+	"golang.org/x/oauth2"
+	githuboauth "golang.org/x/oauth2/github"
 )
 
 var cmds = []cli.Command{
@@ -68,9 +76,27 @@ func main() {
 }
 
 func runServer(c *cli.Context) {
-	//port := c.String("port")
-	//f := newFactory(c)
-	//must(http.ListenAndServe(fmt.Sprintf(":%s", port), f.Server()))
+	port := c.String("port")
+	db := sqlx.MustConnect("postgres", c.String("db"))
+	s := server.New(slashdeploy.New(db), server.Config{
+		OAuth: &server.OAuthConfig{
+			Slack: &oauth2.Config{
+				ClientID:     c.String("slack.client.id"),
+				ClientSecret: c.String("slack.client.secret"),
+				Scopes:       []string{"commands"},
+				Endpoint:     slackoauth.Endpoint,
+			},
+			GitHub: &oauth2.Config{
+				ClientID:     c.String("github.client.id"),
+				ClientSecret: c.String("github.client.secret"),
+				Scopes:       []string{"repo_deployment"},
+				Endpoint:     githuboauth.Endpoint,
+			},
+		},
+		StateKey:               []byte(c.String("state.key")),
+		SlackVerificationToken: c.String("slack.verification.token"),
+	})
+	must(http.ListenAndServe(fmt.Sprintf(":%s", port), s))
 }
 
 func must(err error) {

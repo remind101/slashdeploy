@@ -112,7 +112,7 @@ func newServer(t testing.TB) *Server {
 		github: github,
 		Client: c,
 		Handler: server.New(c, server.Config{
-			OAuthConfig: &server.OAuthConfig{
+			OAuth: &server.OAuthConfig{
 				Slack:  slack.Config,
 				GitHub: github.Config,
 			},

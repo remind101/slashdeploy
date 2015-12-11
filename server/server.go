@@ -6,7 +6,7 @@ import (
 
 	"github.com/ejholmes/slash"
 	"github.com/ejholmes/slashdeploy"
-	"github.com/ejholmes/slashdeploy/auth"
+	"github.com/ejholmes/slashdeploy/server/auth"
 	"github.com/ejholmes/slashdeploy/server/slack"
 	"github.com/gorilla/mux"
 
@@ -21,7 +21,7 @@ type OAuthConfig struct {
 
 // Config is passed to new server.
 type Config struct {
-	OAuthConfig *OAuthConfig
+	OAuth *OAuthConfig
 
 	// StateKey is a secret key used to sign the oauth2 state param.
 	StateKey []byte
@@ -43,7 +43,7 @@ func New(c *slashdeploy.Client, config Config) http.Handler {
 	githubAuth := func(h slash.Handler) slash.Handler {
 		return &auth.Authenticator{
 			Users:        c,
-			Config:       config.OAuthConfig.GitHub,
+			Config:       config.OAuth.GitHub,
 			StateEncoder: state,
 			Handler:      h,
 		}
@@ -55,8 +55,8 @@ func New(c *slashdeploy.Client, config Config) http.Handler {
 	r.Handle("/slack", cmds)
 
 	// Mount oauth callbacks.
-	r.Handle("/auth/slack/callback", &auth.SlackAuthCallback{Config: config.OAuthConfig.Slack})
-	r.Handle("/auth/github/callback", &auth.GitHubAuthCallback{Config: config.OAuthConfig.GitHub, Users: c.Users, StateDecoder: state})
+	r.Handle("/auth/slack/callback", &auth.SlackAuthCallback{Config: config.OAuth.Slack})
+	r.Handle("/auth/github/callback", &auth.GitHubAuthCallback{Config: config.OAuth.GitHub, Users: c.Users, StateDecoder: state})
 
 	return r
 }
