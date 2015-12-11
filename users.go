@@ -20,10 +20,6 @@ type UsersService struct {
 	*Client
 }
 
-func newUsersService(c *Client) *UsersService {
-	return &UsersService{Client: c}
-}
-
 // FindUser finds a user by id.
 func (s *UsersService) FindUser(id string) (*User, error) {
 	var user User

@@ -7,7 +7,7 @@ import (
 	"github.com/ejholmes/slash"
 	"github.com/ejholmes/slashdeploy"
 	"github.com/ejholmes/slashdeploy/auth"
-	"github.com/ejholmes/slashdeploy/commands"
+	"github.com/ejholmes/slashdeploy/server/slack"
 	"github.com/gorilla/mux"
 
 	"golang.org/x/oauth2"
@@ -40,17 +40,21 @@ func New(c *slashdeploy.Client, config Config) http.Handler {
 	})
 
 	state := auth.SignedState(config.StateKey)
-	cmds := commands.New(config.SlackVerificationToken, commands.SubCommands{
-		Help: commands.Help,
-		Deploy: &auth.Authenticator{
-			Users:        c.Users,
+	githubAuth := func(h slash.Handler) slash.Handler {
+		return &auth.Authenticator{
+			Users:        c,
 			Config:       config.OAuthConfig.GitHub,
 			StateEncoder: state,
-			Handler:      commands.NewDeploy(c.Deployments),
-		},
-	})
-	r.Handle("/commands", slash.NewServer(cmds))
+			Handler:      h,
+		}
+	}
 
+	// Mount slack commands.
+	cmds := slash.NewServer(githubAuth(slack.New(config.SlackVerificationToken, c)))
+	r.Handle("/commands", cmds)
+	r.Handle("/slack", cmds)
+
+	// Mount oauth callbacks.
 	r.Handle("/auth/slack/callback", &auth.SlackAuthCallback{Config: config.OAuthConfig.Slack})
 	r.Handle("/auth/github/callback", &auth.GitHubAuthCallback{Config: config.OAuthConfig.GitHub, Users: c.Users, StateDecoder: state})
 

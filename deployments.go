@@ -43,10 +43,6 @@ type DeploymentsService struct {
 	*Client
 }
 
-func newDeploymentsService(c *Client) *DeploymentsService {
-	return &DeploymentsService{Client: c}
-}
-
 // CreateDeployment creates a new GitHub deployment as the given user.
 func (s *DeploymentsService) CreateDeployment(ctx context.Context, req DeploymentRequest) (*Deployment, error) {
 	user, ok := UserFromContext(ctx)

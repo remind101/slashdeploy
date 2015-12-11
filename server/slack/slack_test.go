@@ -1,15 +1,17 @@
-package commands
+package slack
 
 import (
 	"testing"
 
 	"github.com/ejholmes/slash"
+	"github.com/ejholmes/slashdeploy"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"golang.org/x/net/context"
 )
 
 func Test_CommandNotFound(t *testing.T) {
-	c := New("token", SubCommands{})
+	c := New("token", new(mockClient))
 
 	_, err := c.ServeCommand(context.Background(), nil, slash.Command{
 		Command: "/foo",
@@ -18,7 +20,7 @@ func Test_CommandNotFound(t *testing.T) {
 }
 
 func Test_InvalidToken(t *testing.T) {
-	c := New("token", SubCommands{})
+	c := New("token", new(mockClient))
 
 	_, err := c.ServeCommand(context.Background(), nil, slash.Command{
 		Command: "/deploy",
@@ -26,8 +28,8 @@ func Test_InvalidToken(t *testing.T) {
 	assert.Equal(t, slash.ErrInvalidToken, err)
 }
 
-func Test_Routes(t *testing.T) {
-	cmds := SubCommands{
+func Test_Route(t *testing.T) {
+	cmds := handlers{
 		Help:   new(recordParamsHandler),
 		Deploy: new(recordParamsHandler),
 	}
@@ -48,7 +50,7 @@ func Test_Routes(t *testing.T) {
 		h := tt.handler.(*recordParamsHandler)
 		h.params = nil // Reset
 
-		c := New("token", cmds)
+		c := route("token", cmds)
 
 		c.ServeCommand(context.Background(), nil, slash.Command{
 			Token:   "token",
@@ -67,4 +69,13 @@ type recordParamsHandler struct {
 func (m *recordParamsHandler) ServeCommand(ctx context.Context, r slash.Responder, c slash.Command) (slash.Response, error) {
 	m.params = slash.Params(ctx)
 	return slash.NoResponse, nil
+}
+
+type mockClient struct {
+	mock.Mock
+}
+
+func (m *mockClient) CreateDeployment(ctx context.Context, request slashdeploy.DeploymentRequest) (*slashdeploy.Deployment, error) {
+	args := m.Called(request)
+	return args.Get(0).(*slashdeploy.Deployment), args.Error(1)
 }

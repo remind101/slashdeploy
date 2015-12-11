@@ -1,4 +1,4 @@
-package commands
+package slack
 
 import (
 	"errors"
@@ -26,23 +26,13 @@ func (e *InvalidRepoError) Error() string {
 	return fmt.Sprintf("%s is not a valid repository", e.Repository)
 }
 
-type deploymentsService interface {
-	CreateDeployment(context.Context, slashdeploy.DeploymentRequest) (*slashdeploy.Deployment, error)
-}
-
-// Deploy is a slash.Handler that triggers a deployment using the deployments
+// DeployCommand is a slash.Handler that triggers a deployment using the deployments
 // service.
-type Deploy struct {
-	deploymentsService
+type DeployCommand struct {
+	*Handler
 }
 
-func NewDeploy(s *slashdeploy.DeploymentsService) *Deploy {
-	return &Deploy{
-		deploymentsService: s,
-	}
-}
-
-func (c *Deploy) ServeCommand(ctx context.Context, r slash.Responder, _ slash.Command) (slash.Response, error) {
+func (c *DeployCommand) ServeCommand(ctx context.Context, r slash.Responder, _ slash.Command) (slash.Response, error) {
 	params := slash.Params(ctx)
 
 	req, err := deploymentRequest(params)
@@ -50,7 +40,7 @@ func (c *Deploy) ServeCommand(ctx context.Context, r slash.Responder, _ slash.Co
 		return slash.NoResponse, err
 	}
 
-	_, err = c.CreateDeployment(ctx, req)
+	_, err = c.client.CreateDeployment(ctx, req)
 	if err != nil {
 		return slash.NoResponse, err
 	}

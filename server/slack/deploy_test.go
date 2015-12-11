@@ -1,4 +1,4 @@
-package commands
+package slack
 
 import (
 	"testing"
@@ -9,12 +9,15 @@ import (
 	"github.com/ejholmes/slash/slashtest"
 	"github.com/ejholmes/slashdeploy"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-func TestDeploy(t *testing.T) {
-	d := new(mockDeploymentsService)
-	c := &Deploy{deploymentsService: d}
+func TestDeployCommand(t *testing.T) {
+	d := new(mockClient)
+	c := &DeployCommand{
+		Handler: &Handler{
+			client: d,
+		},
+	}
 
 	ctx := slash.WithParams(context.Background(), map[string]string{
 		"repo":        "ejholmes/acme-inc",
@@ -35,9 +38,13 @@ func TestDeploy(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestDeploy_InvalidRepo(t *testing.T) {
-	d := new(mockDeploymentsService)
-	c := &Deploy{deploymentsService: d}
+func TestDeployCommand_InvalidRepo(t *testing.T) {
+	d := new(mockClient)
+	c := &DeployCommand{
+		Handler: &Handler{
+			client: d,
+		},
+	}
 
 	ctx := slash.WithParams(context.Background(), map[string]string{})
 	rec := slashtest.NewRecorder()
@@ -45,13 +52,4 @@ func TestDeploy_InvalidRepo(t *testing.T) {
 
 	_, err := c.ServeCommand(ctx, rec, cmd)
 	assert.IsType(t, &InvalidRepoError{}, err)
-}
-
-type mockDeploymentsService struct {
-	mock.Mock
-}
-
-func (m *mockDeploymentsService) CreateDeployment(ctx context.Context, request slashdeploy.DeploymentRequest) (*slashdeploy.Deployment, error) {
-	args := m.Called(request)
-	return args.Get(0).(*slashdeploy.Deployment), args.Error(1)
 }

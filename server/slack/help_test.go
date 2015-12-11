@@ -1,4 +1,4 @@
-package commands
+package slack
 
 import (
 	"testing"
@@ -8,8 +8,8 @@ import (
 	"golang.org/x/net/context"
 )
 
-func TestHelp(t *testing.T) {
-	resp, err := Help.ServeCommand(context.Background(), nil, slash.Command{})
+func TestHelpCommand(t *testing.T) {
+	resp, err := HelpCommand.ServeCommand(context.Background(), nil, slash.Command{})
 	assert.NoError(t, err)
 	assert.Equal(t, HelpText, resp.Text)
 }
