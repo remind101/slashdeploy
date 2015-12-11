@@ -85,6 +85,7 @@ func main() {
 func runServer(c *cli.Context) {
 	port := c.String("port")
 	db := sqlx.MustConnect("postgres", c.String("db"))
+	must(slashdeploy.MigrateUp(db, "postgres"))
 	s := server.New(slashdeploy.New(db), server.Config{
 		OAuth: &server.OAuthConfig{
 			Slack: &oauth2.Config{

@@ -7,6 +7,8 @@ import (
 
 func newTestClient() *Client {
 	db := sqlx.MustConnect("sqlite3", ":memory:")
-	db.MustExec(Schema)
+	if err := MigrateUp(db, "sqlite3"); err != nil {
+		panic(err)
+	}
 	return New(db)
 }

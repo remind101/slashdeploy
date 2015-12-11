@@ -84,7 +84,10 @@ func TestDeployCommand(t *testing.T) {
 
 func newClient(t testing.TB) *slashdeploy.Client {
 	db := sqlx.MustConnect("sqlite3", ":memory:")
-	db.MustExec(slashdeploy.Schema)
+	err := slashdeploy.MigrateUp(db, "sqlite3")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	c := slashdeploy.New(db)
 	c.BuildDeployer = func(*slashdeploy.User) slashdeploy.Deployer {
