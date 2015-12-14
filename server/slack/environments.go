@@ -20,10 +20,16 @@ func (c *EnvironmentsCommand) ServeCommand(ctx context.Context, r slash.Responde
 		return slash.NoResponse, err
 	}
 
-	var lines []string
+	if len(envs) == 0 {
+		return slash.Say(fmt.Sprintf("No known environments for %s", params["repo"])), nil
+	}
+
+	lines := []string{
+		fmt.Sprintf("I know about these environments for %s", params["repo"]),
+	}
 	for _, env := range envs {
 		lines = append(lines, fmt.Sprintf("* %s", env.Name))
 	}
 
-	return slash.Reply(strings.Join(lines, "\n")), nil
+	return slash.Say(strings.Join(lines, "\n")), nil
 }

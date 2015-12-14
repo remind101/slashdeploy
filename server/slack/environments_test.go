@@ -29,6 +29,26 @@ func TestEnvironmentsCommand(t *testing.T) {
 
 	resp, err := c.ServeCommand(ctx, rec, cmd)
 	assert.NoError(t, err)
-	assert.Equal(t, `* production
+	assert.Equal(t, `I know about these environments for ejholmes/acme-inc
+* production
 * staging`, resp.Text)
+}
+
+func TestEnvironmentsCommand_NoEnvironments(t *testing.T) {
+	d := new(mockClient)
+	c := &EnvironmentsCommand{
+		client: d,
+	}
+
+	ctx := slash.WithParams(context.Background(), map[string]string{
+		"repo": "ejholmes/acme-inc",
+	})
+	rec := slashtest.NewRecorder()
+	cmd := slash.Command{}
+
+	d.On("ListEnvironments", "ejholmes/acme-inc").Return([]*slashdeploy.Environment{}, nil)
+
+	resp, err := c.ServeCommand(ctx, rec, cmd)
+	assert.NoError(t, err)
+	assert.Equal(t, `No known environments for ejholmes/acme-inc`, resp.Text)
 }
