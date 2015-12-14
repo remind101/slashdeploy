@@ -11,14 +11,14 @@ import (
 func TestDeploymentsService_CreateDeployment(t *testing.T) {
 	u := &User{}
 	d := new(mockDeployer)
-	s := &DeploymentsService{
-		Client: &Client{
-			BuildDeployer: func(user *User) Deployer {
-				assert.Equal(t, u, user)
-				return d
-			},
-		},
+	c := newTestClient()
+	defer c.Close()
+
+	c.BuildDeployer = func(user *User) Deployer {
+		assert.Equal(t, u, user)
+		return d
 	}
+	s := c.Deployments
 
 	d.On("Deploy", DeploymentRequest{
 		Owner:       "ejholmes",
