@@ -13,7 +13,7 @@ import (
 func Test_CommandNotFound(t *testing.T) {
 	c := newHandler("token", new(mockClient))
 
-	_, err := c.ServeCommand(context.Background(), nil, slash.Command{
+	err := c.ServeCommand(context.Background(), nil, slash.Command{
 		Command: "/foo",
 	})
 	assert.Equal(t, slash.ErrNoHandler, err)
@@ -22,7 +22,7 @@ func Test_CommandNotFound(t *testing.T) {
 func Test_InvalidToken(t *testing.T) {
 	c := newHandler("token", new(mockClient))
 
-	_, err := c.ServeCommand(context.Background(), nil, slash.Command{
+	err := c.ServeCommand(context.Background(), nil, slash.Command{
 		Command: "/deploy",
 	})
 	assert.Equal(t, slash.ErrInvalidToken, err)
@@ -69,9 +69,9 @@ type recordParamsHandler struct {
 	params map[string]string
 }
 
-func (m *recordParamsHandler) ServeCommand(ctx context.Context, r slash.Responder, c slash.Command) (slash.Response, error) {
+func (m *recordParamsHandler) ServeCommand(ctx context.Context, r slash.Responder, c slash.Command) error {
 	m.params = slash.Params(ctx)
-	return slash.NoResponse, nil
+	return nil
 }
 
 type mockClient struct {

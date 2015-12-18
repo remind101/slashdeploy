@@ -15,15 +15,26 @@ func main() {
 	http.ListenAndServe(":8080", s)
 }
 
-func Handle(ctx context.Context, r slash.Responder, command slash.Command) (slash.Response, error) {
-	go func() {
-		for i := 0; i < 5; i++ {
-			<-time.After(time.Second)
-			err := r.Respond(slash.Reply(fmt.Sprintf("Async response %d", i)))
-			if err != nil {
-				fmt.Printf("error: %v\n", err)
-			}
+func Handle(ctx context.Context, r slash.Responder, command slash.Command) error {
+	if err := r.Respond(slash.Reply("Cool beans")); err != nil {
+		return err
+	}
+
+	for i := 0; i < 4; i++ {
+		<-time.After(time.Second)
+		if err := r.Respond(slash.Reply(fmt.Sprintf("Async response %d", i))); err != nil {
+			return err
 		}
-	}()
-	return slash.Reply("Cool beans"), nil
+	}
+
+	return nil
+}
+
+func printErrors(h slash.Handler) slash.Handler {
+	return slash.HandlerFunc(func(ctx context.Context, r slash.Responder, command slash.Command) error {
+		if err := h.ServeCommand(ctx, r, command); err != nil {
+			fmt.Printf("error: %v\n", err)
+		}
+		return nil
+	})
 }

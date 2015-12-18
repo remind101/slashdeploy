@@ -13,8 +13,8 @@ import (
 )
 
 func TestServer_Reply(t *testing.T) {
-	h := HandlerFunc(func(ctx context.Context, r Responder, command Command) (Response, error) {
-		return Reply("ok"), nil
+	h := HandlerFunc(func(ctx context.Context, r Responder, command Command) error {
+		return nil
 	})
 	s := &Server{
 		Handler: h,
@@ -25,12 +25,12 @@ func TestServer_Reply(t *testing.T) {
 
 	s.ServeHTTP(resp, req)
 	assert.Equal(t, http.StatusOK, resp.Code)
-	assert.Equal(t, `{"text":"ok"}`+"\n", resp.Body.String())
+	assert.Equal(t, "", resp.Body.String())
 }
 
 func TestServer_Say(t *testing.T) {
-	h := HandlerFunc(func(ctx context.Context, r Responder, command Command) (Response, error) {
-		return Say("ok"), nil
+	h := HandlerFunc(func(ctx context.Context, r Responder, command Command) error {
+		return nil
 	})
 	s := &Server{
 		Handler: h,
@@ -41,12 +41,12 @@ func TestServer_Say(t *testing.T) {
 
 	s.ServeHTTP(resp, req)
 	assert.Equal(t, http.StatusOK, resp.Code)
-	assert.Equal(t, `{"response_type":"in_channel","text":"ok"}`+"\n", resp.Body.String())
+	assert.Equal(t, "", resp.Body.String())
 }
 
 func TestServer_Err(t *testing.T) {
-	h := HandlerFunc(func(ctx context.Context, r Responder, command Command) (Response, error) {
-		return NoResponse, errors.New("boom")
+	h := HandlerFunc(func(ctx context.Context, r Responder, command Command) error {
+		return errors.New("boom")
 	})
 	s := &Server{
 		Handler: h,
@@ -56,5 +56,5 @@ func TestServer_Err(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/", strings.NewReader(testForm))
 
 	s.ServeHTTP(resp, req)
-	assert.Equal(t, http.StatusBadRequest, resp.Code)
+	assert.Equal(t, http.StatusOK, resp.Code)
 }

@@ -17,7 +17,7 @@
 		},
 		{
 			"ImportPath": "github.com/ejholmes/slash",
-			"Rev": "e0abbac8b127f8f0f283bad65807abe816edb595"
+			"Rev": "832f40765977b9efe1c061460428e7198b4f9ba5"
 		},
 		{
 			"ImportPath": "github.com/google/go-github/github",

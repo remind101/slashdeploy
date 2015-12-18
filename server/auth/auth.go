@@ -34,10 +34,10 @@ type Authenticator struct {
 	*oauth2.Config
 }
 
-func (h *Authenticator) ServeCommand(ctx context.Context, r slash.Responder, c slash.Command) (slash.Response, error) {
+func (h *Authenticator) ServeCommand(ctx context.Context, r slash.Responder, c slash.Command) error {
 	user, err := h.Users.FindUser(c.UserID)
 	if err != nil {
-		return slash.NoResponse, err
+		return err
 	}
 
 	// If the user doesn't exist, give them a url to oauth with the
@@ -47,11 +47,11 @@ func (h *Authenticator) ServeCommand(ctx context.Context, r slash.Responder, c s
 			UserID: c.UserID,
 		})
 		if err != nil {
-			return slash.NoResponse, err
+			return err
 		}
 
 		url := h.AuthCodeURL(state)
-		return slash.NoResponse, &authenticate{URL: url}
+		return &authenticate{URL: url}
 	}
 
 	// Add the user to the context for downstream consumers.

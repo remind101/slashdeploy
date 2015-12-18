@@ -25,7 +25,7 @@ func TestAuthenticator_ServeCommand(t *testing.T) {
 
 	u.On("FindUser", "T1").Return(nil, nil)
 
-	_, err := a.ServeCommand(context.Background(), nil, slash.Command{
+	err := a.ServeCommand(context.Background(), nil, slash.Command{
 		UserID: "T1",
 	})
 	assert.IsType(t, &authenticate{}, err)

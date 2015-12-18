@@ -32,20 +32,20 @@ type DeployCommand struct {
 	client
 }
 
-func (c *DeployCommand) ServeCommand(ctx context.Context, r slash.Responder, _ slash.Command) (slash.Response, error) {
+func (c *DeployCommand) ServeCommand(ctx context.Context, r slash.Responder, _ slash.Command) error {
 	params := slash.Params(ctx)
 
 	req, err := deploymentRequest(params)
 	if err != nil {
-		return slash.NoResponse, err
+		return err
 	}
 
 	_, err = c.CreateDeployment(ctx, req)
 	if err != nil {
-		return slash.NoResponse, err
+		return err
 	}
 
-	return slash.Say(fmt.Sprintf("Created deployment request for %s.", req)), nil
+	return r.Respond(slash.Say(fmt.Sprintf("Created deployment request for %s.", req)))
 }
 
 func deploymentRequest(params map[string]string) (slashdeploy.DeploymentRequest, error) {

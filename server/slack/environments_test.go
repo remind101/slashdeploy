@@ -27,11 +27,11 @@ func TestEnvironmentsCommand(t *testing.T) {
 		{Name: "staging"},
 	}, nil)
 
-	resp, err := c.ServeCommand(ctx, rec, cmd)
+	err := c.ServeCommand(ctx, rec, cmd)
 	assert.NoError(t, err)
 	assert.Equal(t, `I know about these environments for ejholmes/acme-inc
 * production
-* staging`, resp.Text)
+* staging`, (<-rec.Responses).Text)
 }
 
 func TestEnvironmentsCommand_NoEnvironments(t *testing.T) {
@@ -48,7 +48,7 @@ func TestEnvironmentsCommand_NoEnvironments(t *testing.T) {
 
 	d.On("ListEnvironments", "ejholmes/acme-inc").Return([]*slashdeploy.Environment{}, nil)
 
-	resp, err := c.ServeCommand(ctx, rec, cmd)
+	err := c.ServeCommand(ctx, rec, cmd)
 	assert.NoError(t, err)
-	assert.Equal(t, `No known environments for ejholmes/acme-inc`, resp.Text)
+	assert.Equal(t, `No known environments for ejholmes/acme-inc`, (<-rec.Responses).Text)
 }

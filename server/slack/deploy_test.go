@@ -32,7 +32,7 @@ func TestDeployCommand(t *testing.T) {
 		Environment: "staging",
 	}).Return(&slashdeploy.Deployment{}, nil)
 
-	_, err := c.ServeCommand(ctx, rec, cmd)
+	err := c.ServeCommand(ctx, rec, cmd)
 	assert.NoError(t, err)
 }
 
@@ -46,6 +46,6 @@ func TestDeployCommand_InvalidRepo(t *testing.T) {
 	rec := slashtest.NewRecorder()
 	cmd := slash.Command{}
 
-	_, err := c.ServeCommand(ctx, rec, cmd)
+	err := c.ServeCommand(ctx, rec, cmd)
 	assert.IsType(t, &InvalidRepoError{}, err)
 }

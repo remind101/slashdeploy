@@ -32,7 +32,7 @@ func TestMux_Command_Found(t *testing.T) {
 		cmd,
 	).Return(Reply(""), nil)
 
-	_, err := m.ServeCommand(ctx, r, cmd)
+	err := m.ServeCommand(ctx, r, cmd)
 	assert.NoError(t, err)
 
 	h.AssertExpectations(t)
@@ -47,7 +47,7 @@ func TestMux_Command_NotFound(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	_, err := m.ServeCommand(ctx, r, cmd)
+	err := m.ServeCommand(ctx, r, cmd)
 	assert.Equal(t, err, ErrNoHandler)
 }
 
@@ -68,7 +68,7 @@ func TestMux_MatchText_Found(t *testing.T) {
 		cmd,
 	).Return(Reply(""), nil)
 
-	_, err := m.ServeCommand(ctx, r, cmd)
+	err := m.ServeCommand(ctx, r, cmd)
 	assert.NoError(t, err)
 
 	h.AssertExpectations(t)
@@ -80,14 +80,14 @@ func TestValidateToken(t *testing.T) {
 	a := ValidateToken(h, "foo")
 
 	ctx := context.Background()
-	_, err := a.ServeCommand(ctx, r, Command{})
+	err := a.ServeCommand(ctx, r, Command{})
 	assert.Equal(t, ErrInvalidToken, err)
 
 	cmd := Command{
 		Token: "foo",
 	}
 	h.On("ServeCommand", ctx, r, cmd).Return(Reply(""), nil)
-	_, err = a.ServeCommand(ctx, r, cmd)
+	err = a.ServeCommand(ctx, r, cmd)
 	assert.NoError(t, err)
 	h.AssertExpectations(t)
 }
@@ -98,7 +98,7 @@ func TestValidateToken_Empty(t *testing.T) {
 	a := ValidateToken(h, "")
 
 	ctx := context.Background()
-	_, err := a.ServeCommand(ctx, r, Command{})
+	err := a.ServeCommand(ctx, r, Command{})
 	assert.Equal(t, ErrInvalidToken, err)
 }
 
@@ -157,8 +157,8 @@ func TestResponder(t *testing.T) {
 
 func TestResponder_Err(t *testing.T) {
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(500)
-		io.WriteString(w, "error")
+		w.WriteHeader(404)
+		io.WriteString(w, "Used url")
 	}))
 	defer s.Close()
 
@@ -169,5 +169,5 @@ func TestResponder_Err(t *testing.T) {
 	}
 
 	err := r.Respond(Reply("ok"))
-	assert.EqualError(t, err, "unknown response: 500: error")
+	assert.EqualError(t, err, "error sending delayed response: Used url")
 }
