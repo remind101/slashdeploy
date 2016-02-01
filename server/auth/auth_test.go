@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ejholmes/slash"
+	"github.com/ejholmes/slash/slashtest"
 	"github.com/ejholmes/slashdeploy"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -25,10 +26,18 @@ func TestAuthenticator_ServeCommand(t *testing.T) {
 
 	u.On("FindUser", "T1").Return(nil, nil)
 
-	err := a.ServeCommand(context.Background(), nil, slash.Command{
+	rec := slashtest.NewRecorder()
+	err := a.ServeCommand(context.Background(), rec, slash.Command{
 		UserID: "T1",
 	})
-	assert.IsType(t, &authenticate{}, err)
+	assert.NoError(t, err)
+
+	select {
+	case resp := <-rec.Responses:
+		assert.Equal(t, "Please <?client_id=&response_type=code&state=T1|authenticate> then try again.", resp.Text)
+	default:
+		t.Fatal("no responses")
+	}
 }
 
 func TestGitHubAuthCallback(t *testing.T) {

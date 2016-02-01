@@ -8,9 +8,11 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"golang.org/x/oauth2"
 
+	"github.com/ejholmes/slash/slashtest"
 	"github.com/ejholmes/slashdeploy"
 	"github.com/ejholmes/slashdeploy/server"
 	"github.com/jmoiron/sqlx"
@@ -53,33 +55,33 @@ func TestDeployCommand(t *testing.T) {
 	defer s.Close()
 
 	// Attempt to perform a deployment.
-	resp := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/commands", strings.NewReader(`command=/deploy&text=remind101/acme-inc&token=slack_token`))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	s.ServeHTTP(resp, req)
+	responses := s.Command(t, "/deploy remind101/acme-inc")
+	defer responses.Close()
 
 	// We're a new user, so we get a response to authenticate. Click on the
 	// provided link to oauth with GitHub.
-	matches := authURLRegex.FindStringSubmatch(resp.Body.String())
-	authURL := matches[1]
-	req, _ = http.NewRequest("GET", authURL, nil)
-	res, err := http.DefaultTransport.RoundTrip(req) // Use transport to avoid auto redirect.
+	var authURL string
+	select {
+	case authResp := <-responses.Responses:
+		matches := authURLRegex.FindStringSubmatch(authResp.Text)
+		authURL = matches[1]
+	case <-time.After(time.Second):
+		t.Fatal("no response sent")
+	}
+
+	req, _ := http.NewRequest("GET", authURL, nil)
+	httpresp, err := http.DefaultTransport.RoundTrip(req) // Use transport to avoid auto redirect.
 	assert.NoError(t, err)
 
 	// GitHub redirects us back to SlashDeploy.
-	resp = httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", res.Header.Get("Location"), nil)
+	resp := httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", httpresp.Header.Get("Location"), nil)
 	s.ServeHTTP(resp, req)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, resp.Code)
 
 	// Try deploying again, now that we're authenticated.
-	resp = httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", "/commands", strings.NewReader(`command=/deploy&text=remind101/acme-inc&token=slack_token`))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	s.ServeHTTP(resp, req)
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
+	responses = s.Command(t, "/deploy remind101/acme-inc")
 }
 
 func newClient(t testing.TB) *slashdeploy.Client {
@@ -129,6 +131,25 @@ func (s *Server) Close() error {
 	s.github.Close()
 	s.slack.Close()
 	return nil
+}
+
+// Command executes a slash command in SlashDeploy and returns a channel of the
+// responses sent.
+func (s *Server) Command(t testing.TB, command string) *slashtest.Server {
+	parts := strings.SplitN(command, " ", 2)
+
+	responses := slashtest.NewServer()
+	cmd := responses.NewCommand()
+	cmd.Command = parts[0]
+	cmd.Text = parts[1]
+	cmd.Token = slackToken
+
+	resp := httptest.NewRecorder()
+	req, _ := slashtest.NewRequest("POST", "/commands", cmd)
+	s.ServeHTTP(resp, req)
+	assert.Equal(t, http.StatusOK, resp.Code)
+
+	return responses
 }
 
 // fakeOAuthServer wraps an oauth2.Config with a fake http server.

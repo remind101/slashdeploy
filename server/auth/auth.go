@@ -13,14 +13,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type authenticate struct {
-	URL string
-}
-
-func (e *authenticate) Error() string {
-	return fmt.Sprintf("Please <%s|authenticate> then try again.", e.URL)
-}
-
 // Authenticator handles oauth authentication for the commands. If the slack
 // user is not found in the users store, it generates a link for the user to
 // initiate an oauth flow with the provider.
@@ -51,7 +43,7 @@ func (h *Authenticator) ServeCommand(ctx context.Context, r slash.Responder, c s
 		}
 
 		url := h.AuthCodeURL(state)
-		return &authenticate{URL: url}
+		return r.Respond(slash.Reply(fmt.Sprintf("Please <%s|authenticate> then try again.", url)))
 	}
 
 	// Add the user to the context for downstream consumers.

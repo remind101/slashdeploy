@@ -32,7 +32,7 @@ type DeployCommand struct {
 	client
 }
 
-func (c *DeployCommand) ServeCommand(ctx context.Context, r slash.Responder, _ slash.Command) error {
+func (c *DeployCommand) ServeCommand(ctx context.Context, r slash.Responder, cmd slash.Command) error {
 	params := slash.Params(ctx)
 
 	req, err := deploymentRequest(params)
