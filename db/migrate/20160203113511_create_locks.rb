@@ -8,7 +8,6 @@ class CreateLocks < ActiveRecord::Migration
     end
 
     add_reference :locks, :environment, index: true
-    add_foreign_key :locks, :environment
-    add_index :locks, [:environment_id, :active], unique: true, where: 'active'
+    add_index :locks, :environment_id, unique: true, name: 'locked_environment', where: 'active'
   end
 end

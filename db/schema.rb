@@ -30,8 +30,8 @@ ActiveRecord::Schema.define(version: 20160203113511) do
     t.integer  "environment_id"
   end
 
-  add_index "locks", ["environment_id", "active"], name: "index_locks_on_environment_id_and_active", unique: true, where: "active"
   add_index "locks", ["environment_id"], name: "index_locks_on_environment_id"
+  add_index "locks", ["environment_id"], name: "locked_environment", unique: true, where: "active"
 
   create_table "users", id: false, force: :cascade do |t|
     t.string   "id",           null: false
