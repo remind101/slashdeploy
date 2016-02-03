@@ -22,7 +22,7 @@ RSpec.describe SlashDeploy::Commands::Auth do
 
       it 'responds by asking the user to authenticate' do
         stub_request(:post, 'http://localhost/')
-          .with(body: { 'text' => "I don't know who you are on GitHub yet. Please <https://github.com/login/oauth/authorize?client_id=client_id&response_type=code&state=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjpudWxsfQ.3zmU33IdlkHORNs7CcCob6kOme-TI-GY_delFRofJ6g|authenticate> then try again." }.to_json)
+          .with(body: { 'text' => "I don't know who you are on GitHub yet. Please <https://github.com/login/oauth/authorize?client_id=client_id&response_type=code&scope=repo_deployment&state=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjpudWxsfQ.3zmU33IdlkHORNs7CcCob6kOme-TI-GY_delFRofJ6g|authenticate> then try again." }.to_json)
         middleware.call('cmd' => Slash::Command.new(Slash::Request.new response_url: 'http://localhost/'))
       end
     end
