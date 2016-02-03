@@ -12,7 +12,6 @@ module SlashDeploy
     # req - DeploymentRequest object.
     #
     # Returns the id of the created Deployment.
-    # rubocop:disable Metrics/AbcSize
     def create_deployment(user, req)
       req = DeploymentRequest.new(
         repository: req.repository,
@@ -51,6 +50,18 @@ module SlashDeploy
       # TODO: Authorize that this user has access to the repository.
       env = Environment.find_or_create_by(repository: req.repository, name: req.environment)
       env.lock! req.message
+    end
+
+    # Unlocks an environment.
+    #
+    # req - An UnlockRequest.
+    #
+    # Returns nothing
+    def unlock_environment(_user, req)
+      # TODO: Authorize that this user has access to the repository.
+      lock = Lock.for_environment(req.repository, req.environment)
+      return unless lock
+      lock.update_attributes(active: false)
     end
 
     private

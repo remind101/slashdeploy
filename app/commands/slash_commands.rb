@@ -6,13 +6,15 @@ class SlashCommands
     :help,
     :deploy,
     :environments,
-    :lock
+    :lock,
+    :unlock
 
   def initialize(slashdeploy)
     @help = HelpCommand.new slashdeploy
     @deploy = DeployCommand.new slashdeploy
     @environments = EnvironmentsCommand.new slashdeploy
     @lock = LockCommand.new slashdeploy
+    @unlock = UnlockCommand.new slashdeploy
   end
 
   # Route returns the handler that should handle the request.
@@ -24,6 +26,8 @@ class SlashCommands
       [environments, params(Regexp.last_match)]
     when /^lock (?<environment>\S+?) on (?<repository>\S+?)(:(?<message>.*))?$/
       [lock, params(Regexp.last_match)]
+    when /^unlock (?<environment>\S+?) on (?<repository>\S+?)$/
+      [unlock, params(Regexp.last_match)]
     when /^(?<repository>\S+?)(@(?<ref>\S+?))?( to (?<environment>\S+?))?(?<force>!)?$/
       [deploy, params(Regexp.last_match)]
     end

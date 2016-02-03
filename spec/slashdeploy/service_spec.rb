@@ -40,8 +40,20 @@ RSpec.describe SlashDeploy::Service do
     context 'when the environment does not exist yet' do
       it 'creates the environment and locks it' do
         expect do
-          service.lock_environment(user, LockRequest.new(repository: 'remind101/acme-inc', ref: 'staging', message: 'Testing some stuff'))
+          service.lock_environment(user, LockRequest.new(repository: 'remind101/acme-inc', environment: 'staging', message: 'Testing some stuff'))
         end.to change { Lock.count }
+      end
+    end
+  end
+
+  describe '#unlock_environment' do
+    context 'when the environment is locked' do
+      let(:lock) { service.lock_environment(user, LockRequest.new(repository: 'remind101/acme-inc', environment: 'staging', message: 'Testing some stuff')) }
+
+      it 'unlocks it' do
+        expect do
+          service.unlock_environment(user, UnlockRequest.new(repository: 'remind101/acme-inc', environment: 'staging'))
+        end.to change { lock.reload.active }.from(true).to(false)
       end
     end
   end

@@ -10,6 +10,7 @@ RSpec.describe SlashCommands do
       check_route('where remind101/acme-inc', EnvironmentsCommand, 'repository' => 'remind101/acme-inc')
       check_route('lock staging on remind101/acme-inc: Doing stuff', LockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'message' => ' Doing stuff')
       check_route('lock staging on remind101/acme-inc', LockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'message' => nil)
+      check_route('unlock staging on remind101/acme-inc', UnlockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging')
       check_route('remind101/acme-inc', DeployCommand, 'repository' => 'remind101/acme-inc', 'force' => nil, 'ref' => nil, 'environment' => nil)
       check_route('remind101/acme-inc!', DeployCommand, 'repository' => 'remind101/acme-inc', 'force' => '!', 'ref' => nil, 'environment' => nil)
       check_route('remind101/acme-inc@topic', DeployCommand, 'repository' => 'remind101/acme-inc', 'ref' => 'topic', 'force' => nil, 'environment' => nil)
@@ -42,6 +43,16 @@ RSpec.describe SlashCommands do
       expect(slashdeploy).to receive(:lock_environment).with(nil, LockRequest.new(repository: 'remind101/acme-inc', environment: 'staging', message: "I'm testing some stuff"))
       stub = expect_say('Locked `staging` on remind101/acme-inc')
       deploy "lock staging on remind101/acme-inc: I'm testing some stuff"
+      expect(stub).to have_been_requested
+    end
+  end
+
+  describe '/deploy unlock' do
+    it 'locks the environment' do
+      expect_say('Locked staging on remind101/acme-inc')
+      expect(slashdeploy).to receive(:unlock_environment).with(nil, UnlockRequest.new(repository: 'remind101/acme-inc', environment: 'staging'))
+      stub = expect_say('Unlocked `staging` on remind101/acme-inc')
+      deploy 'unlock staging on remind101/acme-inc'
       expect(stub).to have_been_requested
     end
   end
