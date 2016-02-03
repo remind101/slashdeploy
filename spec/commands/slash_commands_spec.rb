@@ -38,12 +38,24 @@ RSpec.describe SlashCommands do
   end
 
   describe '/deploy lock' do
-    it 'locks the environment' do
-      expect_say('Locked staging on remind101/acme-inc')
-      expect(slashdeploy).to receive(:lock_environment).with(nil, LockRequest.new(repository: 'remind101/acme-inc', environment: 'staging', message: "I'm testing some stuff"))
-      stub = expect_say('Locked `staging` on remind101/acme-inc')
-      deploy "lock staging on remind101/acme-inc: I'm testing some stuff"
-      expect(stub).to have_been_requested
+    context 'with a message' do
+      it 'locks the environment' do
+        expect_say('Locked staging on remind101/acme-inc')
+        expect(slashdeploy).to receive(:lock_environment).with(nil, LockRequest.new(repository: 'remind101/acme-inc', environment: 'staging', message: "I'm testing some stuff"))
+        stub = expect_say('Locked `staging` on remind101/acme-inc')
+        deploy "lock staging on remind101/acme-inc: I'm testing some stuff"
+        expect(stub).to have_been_requested
+      end
+    end
+
+    context 'without a message' do
+      it 'locks the environment' do
+        expect_say('Locked staging on remind101/acme-inc')
+        expect(slashdeploy).to receive(:lock_environment).with(nil, LockRequest.new(repository: 'remind101/acme-inc', environment: 'staging'))
+        stub = expect_say('Locked `staging` on remind101/acme-inc')
+        deploy 'lock staging on remind101/acme-inc'
+        expect(stub).to have_been_requested
+      end
     end
   end
 

@@ -4,7 +4,7 @@ class LockCommand < BaseCommand
     req = LockRequest.new(
       repository:  params['repository'],
       environment: params['environment'],
-      message:     params['message'].strip
+      message:     params['message'].try(:strip)
     )
     slashdeploy.lock_environment(user, req)
     Slash.say "Locked `#{req.environment}` on #{req.repository}"
