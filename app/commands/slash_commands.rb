@@ -12,20 +12,20 @@ class SlashCommands
 
   # Route returns the handler that should handle the request.
   #
-  # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
+  # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity
   def route(cmd)
     case cmd.request.text
     when /^help$/
       [help, {}]
     when /^where (?<repository>\S+?)$/
       [environments, params(Regexp.last_match)]
-    when /^(?<repository>\S+?)@(?<ref>\S+?) to (?<environment>\S+?)$/
+    when /^(?<repository>\S+?)@(?<ref>\S+?) to (?<environment>\S+?)(?<force>!)?$/
       [deploy, params(Regexp.last_match)]
-    when /^(?<repository>\S+?) to (?<environment>\S+?)$/
+    when /^(?<repository>\S+?) to (?<environment>\S+?)(?<force>!)?$/
       [deploy, params(Regexp.last_match)]
-    when /^(?<repository>\S+?)@(?<ref>\S+?)$/
+    when /^(?<repository>\S+?)@(?<ref>\S+?)(?<force>!)?$/
       [deploy, params(Regexp.last_match)]
-    when /^(?<repository>\S+?)$/
+    when /^(?<repository>\S+?)(?<force>!)?$/
       [deploy, params(Regexp.last_match)]
     end
   end

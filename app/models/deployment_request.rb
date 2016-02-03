@@ -9,6 +9,8 @@ class DeploymentRequest
     attribute :ref, String
     # The environment to deploy to.
     attribute :environment, String
+    # Whether to "force" the deployment or not (i.e. Ignore commit status contexts).
+    attribute :force, Boolean
   end
 
   def to_s

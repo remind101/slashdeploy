@@ -12,7 +12,6 @@ module SlashDeploy
         @state_encoder = state_encoder
       end
 
-      # rubocop:disable Metrics/MethodLength
       def call(env)
         cmd = env['cmd']
         slack_user_id = cmd.request.user_id

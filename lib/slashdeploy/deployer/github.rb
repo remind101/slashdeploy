@@ -15,13 +15,14 @@ module SlashDeploy
 
       # Creates a new deployment request on github.
       def create_deployment(req)
-        deployment = client.create_deployment(
-          req.repository,
-          req.ref,
+        options = {
           environment: req.environment,
           auto_merge: false,
           task: 'deploy'
-        )
+        }
+        options[:required_contexts] = [] if req.force
+
+        deployment = client.create_deployment(req.repository, req.ref, options)
         deployment.id
       end
     end
