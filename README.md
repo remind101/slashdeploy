@@ -41,13 +41,5 @@ In a nutshell, GitHub Deployments are a way to initialize a deployment **request
 The full test suite can be run with:
 
 ```
-$ godep go test ./...
+$ ./bin/rake
 ```
-
-### Structure
-
-SlashDeploy is organized into multiple subpackages.
-
-* `github.com/ejholmes/slashdeploy`: This is the root package and it's responsible for interacting with the domain models, and serves as a service layer for the control layers.
-* `github.com/ejholmes/slashdeploy/commands`: This maintains the Slack slash commands control layer. It's a consumer of the root package.
-* `github.com/ejholmes/slashdeploy/server`: This is exposes the HTTP api.
