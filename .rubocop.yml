@@ -6,6 +6,7 @@ AllCops:
     - 'db/**/*'
     - 'config/**/*'
     - 'script/**/*'
+    - 'vendor/**/*'
 
 Metrics/LineLength:
   Enabled: false
