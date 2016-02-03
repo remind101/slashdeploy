@@ -30,6 +30,17 @@ module SlashDeploy
     end
   end
 
+  Error = Class.new(StandardError)
+
+  # Raised when an action cannot be performed on the environment because it's locked.
+  class EnvironmentLockedError < Error
+    attr_reader :lock
+
+    def initialize(lock)
+      @lock = lock
+    end
+  end
+
   class << self
     attr_accessor :state
 

@@ -2,12 +2,17 @@
 # commands. This class simply a demuxer that routes requests to the appropriate
 # sub command.
 class SlashCommands
-  attr_reader :help, :deploy, :environments
+  attr_reader \
+    :help,
+    :deploy,
+    :environments,
+    :lock
 
   def initialize(slashdeploy)
     @help = HelpCommand.new slashdeploy
     @deploy = DeployCommand.new slashdeploy
     @environments = EnvironmentsCommand.new slashdeploy
+    @lock = LockCommand.new slashdeploy
   end
 
   # Route returns the handler that should handle the request.
@@ -17,6 +22,8 @@ class SlashCommands
       [help, {}]
     when /^where (?<repository>\S+?)$/
       [environments, params(Regexp.last_match)]
+    when /^lock (?<environment>\S+?) on (?<repository>\S+?)(:(?<message>.*))?$/
+      [lock, params(Regexp.last_match)]
     when /^(?<repository>\S+?)(@(?<ref>\S+?))?( to (?<environment>\S+?))?(?<force>!)?$/
       [deploy, params(Regexp.last_match)]
     end

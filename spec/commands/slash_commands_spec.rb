@@ -8,6 +8,8 @@ RSpec.describe SlashCommands do
     it 'routes to the correct handler' do
       check_route('help', HelpCommand, {})
       check_route('where remind101/acme-inc', EnvironmentsCommand, 'repository' => 'remind101/acme-inc')
+      check_route('lock staging on remind101/acme-inc: Doing stuff', LockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'message' => ' Doing stuff')
+      check_route('lock staging on remind101/acme-inc', LockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'message' => nil)
       check_route('remind101/acme-inc', DeployCommand, 'repository' => 'remind101/acme-inc', 'force' => nil, 'ref' => nil, 'environment' => nil)
       check_route('remind101/acme-inc!', DeployCommand, 'repository' => 'remind101/acme-inc', 'force' => '!', 'ref' => nil, 'environment' => nil)
       check_route('remind101/acme-inc@topic', DeployCommand, 'repository' => 'remind101/acme-inc', 'ref' => 'topic', 'force' => nil, 'environment' => nil)
@@ -31,6 +33,16 @@ RSpec.describe SlashCommands do
     it 'responds with usage' do
       expect_reply(HelpCommand::USAGE)
       deploy 'help'
+    end
+  end
+
+  describe '/deploy lock' do
+    it 'locks the environment' do
+      expect_say('Locked staging on remind101/acme-inc')
+      expect(slashdeploy).to receive(:lock_environment).with(nil, LockRequest.new(repository: 'remind101/acme-inc', environment: 'staging', message: "I'm testing some stuff"))
+      stub = expect_say('Locked `staging` on remind101/acme-inc')
+      deploy "lock staging on remind101/acme-inc: I'm testing some stuff"
+      expect(stub).to have_been_requested
     end
   end
 
@@ -84,6 +96,16 @@ EOF
         stub = expect_say('Created deployment request for remind101/acme-inc@topic to staging')
         expect(slashdeploy).to receive(:create_deployment).with(nil, req).and_return(req)
         deploy 'remind101/acme-inc@topic to staging'
+        expect(stub).to have_been_requested
+      end
+    end
+
+    context 'when the environment is locked' do
+      it 'responds with the lock message' do
+        stub = expect_say('`staging` is locked: Testing stuff')
+        lock = mock_model(Lock, message: 'Testing stuff')
+        expect(slashdeploy).to receive(:create_deployment).with(nil, kind_of(DeploymentRequest)).and_raise(SlashDeploy::EnvironmentLockedError.new(lock))
+        deploy 'remind101/acme-inc to staging'
         expect(stub).to have_been_requested
       end
     end

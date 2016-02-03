@@ -11,9 +11,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160203003510) do
+ActiveRecord::Schema.define(version: 20160203113511) do
 
-  create_table "environments", id: false, force: :cascade do |t|
+  create_table "environments", force: :cascade do |t|
     t.string   "repository"
     t.string   "name"
     t.datetime "created_at", null: false
@@ -21,6 +21,17 @@ ActiveRecord::Schema.define(version: 20160203003510) do
   end
 
   add_index "environments", ["repository", "name"], name: "index_environments_on_repository_and_name", unique: true
+
+  create_table "locks", force: :cascade do |t|
+    t.string   "message"
+    t.boolean  "active",         default: false, null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+    t.integer  "environment_id"
+  end
+
+  add_index "locks", ["environment_id", "active"], name: "index_locks_on_environment_id_and_active", unique: true, where: "active"
+  add_index "locks", ["environment_id"], name: "index_locks_on_environment_id"
 
   create_table "users", id: false, force: :cascade do |t|
     t.string   "id",           null: false

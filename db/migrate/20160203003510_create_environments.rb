@@ -1,6 +1,6 @@
 class CreateEnvironments < ActiveRecord::Migration
   def change
-    create_table :environments, id: false do |t|
+    create_table :environments do |t|
       t.string :repository
       t.string :name
 
