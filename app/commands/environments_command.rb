@@ -4,9 +4,9 @@ class EnvironmentsCommand < BaseCommand
     repo = params['repository']
     environments = slashdeploy.environments(user, repo)
     if environments.empty?
-      Slash.say "I don't know about any environments for #{repo}"
+      say :none, repo: repo
     else
-      Slash.say "I know about these environments for #{repo}:\n#{environments.map { |e| "* #{e.name}" }.join("\n")}"
+      say :list, repo: repo, environments: environments
     end
   end
 end

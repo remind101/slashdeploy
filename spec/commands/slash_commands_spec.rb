@@ -135,7 +135,7 @@ EOF
 
     context 'when there are failing commit status checks' do
       it 'response with a message' do
-        stub = expect_say <<-EOF
+        stub = expect_say <<-EOF.strip
 The following commit status checks failed:
 * container/docker
 You can ignore commit status checks by using `/deploy remind101/acme-inc to staging!`
