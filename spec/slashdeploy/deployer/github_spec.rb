@@ -36,7 +36,7 @@ RSpec.describe SlashDeploy::Deployer::GitHub do
           method: 'POST',
           status: 409,
           body: {
-            errors: {
+            errors: [{
               contexts: [
                 { context: 'ci/circleci', state: 'success' },
                 { context: 'container/docker', state: 'failure' }
@@ -44,7 +44,7 @@ RSpec.describe SlashDeploy::Deployer::GitHub do
               resource: 'Deployment',
               field: 'required_contexts',
               code: 'invalid'
-            }
+            }]
           }
         )
         expect(client).to receive(:create_deployment).and_raise(conflict)
