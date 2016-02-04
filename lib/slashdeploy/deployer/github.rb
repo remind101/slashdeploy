@@ -24,6 +24,18 @@ module SlashDeploy
 
         deployment = client.create_deployment(req.repository, req.ref, options)
         deployment.id
+      rescue Octokit::Conflict => e
+        if e.errors[:field] == 'required_contexts'
+          raise RedCommitError, commit_status_contexts(e.errors[:contexts])
+        else
+          raise
+        end
+      end
+
+      private
+
+      def commit_status_contexts(hash)
+        hash.map { |h| CommitStatusContext.new(context: h[:context], state: h[:state]) }
       end
     end
   end

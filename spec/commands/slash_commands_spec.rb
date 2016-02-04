@@ -132,6 +132,22 @@ EOF
         expect(stub).to have_been_requested
       end
     end
+
+    context 'when there are failing commit status checks' do
+      it 'response with a message' do
+        stub = expect_say <<-EOF
+The following commit status checks failed:
+* container/docker
+You can ignore commit status checks by using `/deploy remind101/acme-inc to staging!`
+EOF
+        expect(slashdeploy).to receive(:create_deployment).and_raise(SlashDeploy::RedCommitError.new([
+          CommitStatusContext.new(context: 'ci/circleci', state: 'success'),
+          CommitStatusContext.new(context: 'container/docker', state: 'failure')
+        ]))
+        deploy 'remind101/acme-inc to staging'
+        expect(stub).to have_been_requested
+      end
+    end
   end
 
   def expect_reply(text)
