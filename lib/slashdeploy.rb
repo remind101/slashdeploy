@@ -41,6 +41,20 @@ module SlashDeploy
     end
   end
 
+  # RedCommitError is an error that's returned when the commit someone is
+  # trying to deploy is not green.
+  class RedCommitError < Error
+    attr_reader :contexts
+
+    def initialize(contexts = [])
+      @contexts = contexts
+    end
+
+    def failing_contexts
+      contexts.select(&:bad?)
+    end
+  end
+
   class << self
     attr_accessor :state
 
