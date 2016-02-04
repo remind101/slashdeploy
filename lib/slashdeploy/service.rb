@@ -16,7 +16,8 @@ module SlashDeploy
       req = DeploymentRequest.new(
         repository: req.repository,
         environment: req.environment || config.default_environment,
-        ref: req.ref || config.default_ref
+        ref: req.ref || config.default_ref,
+        force: req.force
       )
 
       # Check if the environment we're deploying to is locked.
