@@ -9,15 +9,11 @@ class DeployCommand < BaseCommand
     )
     begin
       req = slashdeploy.create_deployment(user, req)
-      Slash.say("Created deployment request for #{req}")
+      say :created, req: req
     rescue SlashDeploy::RedCommitError => e
-      Slash.say <<-EOF
-The following commit status checks failed:
-#{e.failing_contexts.map { |ctx| "* #{ctx.context}" }.join("\n")}
-You can ignore commit status checks by using `#{cmd.request.command} #{cmd.request.text}!`
-EOF
+      say :red_commit, req: cmd.request, failing_contexts: e.failing_contexts
     rescue SlashDeploy::EnvironmentLockedError => e
-      Slash.say("`#{req.environment}` is locked: #{e.lock.message}")
+      say :locked, req: req, message: e.lock.message
     end
   end
 end

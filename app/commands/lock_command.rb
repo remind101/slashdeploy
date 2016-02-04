@@ -7,6 +7,6 @@ class LockCommand < BaseCommand
       message:     params['message'].try(:strip)
     )
     slashdeploy.lock_environment(user, req)
-    Slash.say "Locked `#{req.environment}` on #{req.repository}"
+    say :locked, req: req
   end
 end

@@ -6,6 +6,6 @@ class UnlockCommand < BaseCommand
       environment: params['environment']
     )
     slashdeploy.unlock_environment(user, req)
-    Slash.say "Unlocked `#{req.environment}` on #{req.repository}"
+    say :unlocked, req: req
   end
 end

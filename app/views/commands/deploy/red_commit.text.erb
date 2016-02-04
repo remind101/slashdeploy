@@ -1,0 +1,5 @@
+The following commit status checks failed:
+<% @failing_contexts.each do |context| %>
+* <%= context.context %>
+<% end %>
+You can ignore commit status checks by using `<%= @req.command %> <%= @req.text %>!`
