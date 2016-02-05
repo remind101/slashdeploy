@@ -18,7 +18,7 @@ module SlashDeploy
         # Attempt to find the user by their slack user id. This is sufficient
         # to authenticate the user, because we're trusting that the request is
         # coming from Slack.
-        user = User.find_by_slack_user_id(cmd.request.user_id)
+        user = User.find_by_slack(cmd.request.user_id)
         if user
           env['user'] = user
           handler.call(env)

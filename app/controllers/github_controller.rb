@@ -35,11 +35,11 @@ class GithubController < ApplicationController
   end
 
   def user_from_github
-    User.find_by_github_user_id(github_user['id'])
+    User.find_by_github(github_user['id'])
   end
 
   def user_from_slack
-    User.find_by_slack_user_id(slack_user['user_id'])
+    User.find_by_slack(slack_user['user_id'])
   end
 
   def slack_user

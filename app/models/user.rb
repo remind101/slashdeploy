@@ -3,14 +3,14 @@ class User < ActiveRecord::Base
   has_many :github_accounts
   has_many :slack_accounts
 
-  def self.find_by_slack_user_id(slack_user_id)
-    account = SlackAccount.where(id: slack_user_id).first
+  def self.find_by_slack(id)
+    account = SlackAccount.where(id: id).first
     return unless account
     account.user
   end
 
-  def self.find_by_github_user_id(github_user_id)
-    account = GithubAccount.where(id: github_user_id).first
+  def self.find_by_github(id)
+    account = GithubAccount.where(id: id).first
     return unless account
     account.user
   end
