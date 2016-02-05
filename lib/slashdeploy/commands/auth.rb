@@ -14,13 +14,11 @@ module SlashDeploy
 
       def call(env)
         cmd = env['cmd']
-        slack_user_id = cmd.request.user_id
-        slack_user_name = cmd.request.user_name
 
         # Attempt to find the user by their slack user id. This is sufficient
         # to authenticate the user, because we're trusting that the request is
         # coming from Slack.
-        user = User.find_by_slack_user_id(slack_user_id)
+        user = User.find_by_slack_user_id(cmd.request.user_id)
         if user
           env['user'] = user
           handler.call(env)
@@ -29,7 +27,12 @@ module SlashDeploy
           # with GitHub. We encode and sign the Slack user id within the state
           # param so we know what slack user they are when the hit the GitHub
           # callback.
-          state = state_encoder.encode(user_id: slack_user_id, user_name: slack_user_name)
+          state = state_encoder.encode(
+            user_id:     cmd.request.user_id,
+            user_name:   cmd.request.user_name,
+            team_id:     cmd.request.team_id,
+            team_domain: cmd.request.team_domain
+          )
           url = client.auth_code.authorize_url(state: state, scope: 'repo_deployment')
           Slash.reply("I don't know who you are on GitHub yet. Please <#{url}|authenticate> then try again.")
         end
