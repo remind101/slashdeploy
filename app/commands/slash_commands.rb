@@ -34,6 +34,8 @@ class SlashCommands
       [unlock, params(Regexp.last_match)]
     when /^#{repo}(@#{ref})?( to #{env})?(?<force>!)?$/
       [deploy, params(Regexp.last_match)]
+    else
+      [help, 'not_found' => true]
     end
   end
 
@@ -46,9 +48,6 @@ class SlashCommands
   end
 
   private
-
-  def match_repository
-  end
 
   def params(matches)
     Hash[matches.names.zip(matches.captures)]

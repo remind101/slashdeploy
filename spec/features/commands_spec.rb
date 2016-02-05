@@ -27,6 +27,11 @@ RSpec.feature 'Slash Commands' do
     get '/auth/github/callback', state: state, code: 'code'
   end
 
+  scenario 'entering an unknown command' do
+    command '/deploy foo', as: slack_accounts(:david)
+    expect(response.text).to eq "I don't know that command. Here's what I do know:\n#{HelpCommand::USAGE}".strip
+  end
+
   scenario 'performing a simple deployment' do
     command '/deploy remind101/acme-inc', as: slack_accounts(:david)
     expect(deployment_requests).to eq [

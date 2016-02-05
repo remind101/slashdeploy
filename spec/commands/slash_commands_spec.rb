@@ -30,13 +30,6 @@ RSpec.describe SlashCommands do
     end
   end
 
-  describe '/deploy help' do
-    it 'responds with usage' do
-      expect_reply(HelpCommand::USAGE)
-      deploy 'help'
-    end
-  end
-
   describe '/deploy lock' do
     context 'with a message' do
       it 'locks the environment' do

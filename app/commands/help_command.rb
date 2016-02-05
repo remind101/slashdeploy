@@ -11,7 +11,7 @@ To lock an environment: /deploy lock ENVIRONMENT on REPO: MESSAGE
 To unlock a previously locked environment: /deploy unlock ENVIRONMENT on REPO
 EOF
 
-  def run(_user, _cmd, _params)
-    Slash.reply USAGE
+  def run(_user, _cmd, params)
+    say :usage, not_found: params['not_found'], usage: USAGE
   end
 end
