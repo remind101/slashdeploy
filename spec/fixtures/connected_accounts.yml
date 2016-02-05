@@ -2,6 +2,7 @@ david@slack:
   user: david
   type: "SlackAccount"
   foreign_id: "U012AB1AB"
+  username: david
 david@github:
   user: david
   type: 'GithubAccount'
@@ -11,6 +12,7 @@ steve@slack:
   user: steve
   type: "SlackAccount"
   foreign_id: "U123BC2BD"
+  username: steve
 steve@github:
   user: steve
   type: 'GithubAccount'

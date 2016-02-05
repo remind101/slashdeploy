@@ -3,7 +3,14 @@ class LockResponse
   include Virtus.value_object
 
   values do
+    # The new lock
     attribute :lock, Lock
-    attribute :stolen, Boolean
+
+    # The previous lock, or nil if there was none.
+    attribute :stolen, Lock
+  end
+
+  def stolen?
+    previous_lock.present?
   end
 end

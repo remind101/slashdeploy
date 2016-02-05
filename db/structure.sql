@@ -290,6 +290,13 @@ CREATE UNIQUE INDEX index_connected_accounts_on_type_and_foreign_id ON connected
 
 
 --
+-- Name: index_connected_accounts_on_type_and_user_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_connected_accounts_on_type_and_user_id ON connected_accounts USING btree (type, user_id);
+
+
+--
 -- Name: index_connected_accounts_on_user_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 

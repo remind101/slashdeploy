@@ -23,7 +23,13 @@ class CreateConnectedAccounts < ActiveRecord::Migration
 
     add_index :connected_accounts, :type
     add_index :connected_accounts, :user_id
+
+    # Don't allow the same account to be created.
     add_index :connected_accounts, [:type, :foreign_id], unique: true
+
+    # Only allow one of each type of account per user.
+    add_index :connected_accounts, [:type, :user_id], unique: true
+
     add_foreign_key :connected_accounts, :users
   end
 end

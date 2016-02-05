@@ -62,7 +62,7 @@ EOF
     expect do
       command '/deploy remind101/acme-inc to staging', as: 'steve'
     end.to_not change { deployment_requests }
-    expect(response.text).to eq '`staging` is locked'
+    expect(response.text).to eq '`staging` is locked by @david'
 
     # But david should be able to deploy.
     expect do
@@ -78,7 +78,7 @@ EOF
     expect(response.text).to eq '`staging` is already locked'
 
     command '/deploy lock staging on remind101/acme-inc', as: 'steve'
-    expect(response.text).to eq 'Locked `staging` on remind101/acme-inc (stolen)'
+    expect(response.text).to eq 'Locked `staging` on remind101/acme-inc (stolen from @david)'
 
     expect do
       command '/deploy remind101/acme-inc to staging', as: 'david'

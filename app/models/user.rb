@@ -20,4 +20,18 @@ class User < ActiveRecord::Base
         account.foreign_id == connected_account.foreign_id
     end
   end
+
+  def slack_username
+    account = slack_account
+    return unless slack_account
+    account.username
+  end
+
+  def slack_account
+    connected_accounts.find { |account| account.type == 'SlackAccount' }
+  end
+
+  def github_account
+    connected_accounts.find { |account| account.type == 'GithubAccount' }
+  end
 end
