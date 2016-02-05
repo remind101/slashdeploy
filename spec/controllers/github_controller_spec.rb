@@ -28,7 +28,7 @@ RSpec.describe GithubController do
       end
 
       it 'creates a new user and authenticates them' do
-        state = SlashDeploy.state.encode('user_id' => '1')
+        state = SlashDeploy.state.encode('user_id' => '1', 'user_name' => 'david')
         expect(warden).to receive(:set_user).with(kind_of(User))
         expect { get :callback, state: state, code: 'code' }.to change { User.count }
       end

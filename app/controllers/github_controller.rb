@@ -4,12 +4,13 @@ class GithubController < ApplicationController
 
   def callback
     t = access_token
-    user = User.find_by_slack_user_id(user_id)
+    user = User.find_by_slack_user_id(slack_user['user_id'])
     unless user
       User.transaction do
         user = User.create!
         user.connected_accounts << SlackAccount.new(
-          foreign_id: user_id
+          foreign_id: slack_user['user_id'],
+          username:   slack_user['user_name']
         )
         user.connected_accounts << GithubAccount.new(
           foreign_id: github_user['id'],
@@ -24,11 +25,8 @@ class GithubController < ApplicationController
 
   private
 
-  def user_id
-    @user_id ||= begin
-                   data = state_decoder.decode(params[:state])
-                   data['user_id']
-                 end
+  def slack_user
+    @slack_user ||= state_decoder.decode(params[:state])
   end
 
   def github_user
