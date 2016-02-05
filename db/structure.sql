@@ -71,7 +71,7 @@ CREATE TABLE locks (
     active boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    environment_id integer
+    environment_id integer NOT NULL
 );
 
 
@@ -174,6 +174,14 @@ CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (v
 
 
 --
+-- Name: fk_rails_31d9175b41; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY locks
+    ADD CONSTRAINT fk_rails_31d9175b41 FOREIGN KEY (environment_id) REFERENCES environments(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -184,4 +192,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160203003153');
 INSERT INTO schema_migrations (version) VALUES ('20160203003510');
 
 INSERT INTO schema_migrations (version) VALUES ('20160203113511');
+
+INSERT INTO schema_migrations (version) VALUES ('20160205012702');
 
