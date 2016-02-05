@@ -30,41 +30,6 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: connected_accounts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE connected_accounts (
-    id integer NOT NULL,
-    user_id integer NOT NULL,
-    foreign_id character varying NOT NULL,
-    type character varying NOT NULL,
-    token character varying,
-    username character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: connected_accounts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE connected_accounts_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: connected_accounts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE connected_accounts_id_seq OWNED BY connected_accounts.id;
-
-
---
 -- Name: environments; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -107,7 +72,7 @@ CREATE TABLE locks (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     environment_id integer NOT NULL,
-    user_id integer NOT NULL
+    user_id character varying NOT NULL
 );
 
 
@@ -175,36 +140,11 @@ CREATE TABLE schema_migrations (
 --
 
 CREATE TABLE users (
-    id integer NOT NULL,
+    id character varying NOT NULL,
+    github_token character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
-
-
---
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE users_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE users_id_seq OWNED BY users.id;
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY connected_accounts ALTER COLUMN id SET DEFAULT nextval('connected_accounts_id_seq'::regclass);
 
 
 --
@@ -226,21 +166,6 @@ ALTER TABLE ONLY locks ALTER COLUMN id SET DEFAULT nextval('locks_id_seq'::regcl
 --
 
 ALTER TABLE ONLY repositories ALTER COLUMN id SET DEFAULT nextval('repositories_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
-
-
---
--- Name: connected_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY connected_accounts
-    ADD CONSTRAINT connected_accounts_pkey PRIMARY KEY (id);
 
 
 --
@@ -268,46 +193,17 @@ ALTER TABLE ONLY repositories
 
 
 --
--- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY users
-    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
-
-
---
--- Name: index_connected_accounts_on_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE INDEX index_connected_accounts_on_type ON connected_accounts USING btree (type);
-
-
---
--- Name: index_connected_accounts_on_type_and_foreign_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE UNIQUE INDEX index_connected_accounts_on_type_and_foreign_id ON connected_accounts USING btree (type, foreign_id);
-
-
---
--- Name: index_connected_accounts_on_type_and_user_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE UNIQUE INDEX index_connected_accounts_on_type_and_user_id ON connected_accounts USING btree (type, user_id);
-
-
---
--- Name: index_connected_accounts_on_user_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE INDEX index_connected_accounts_on_user_id ON connected_accounts USING btree (user_id);
-
-
---
 -- Name: index_locks_on_environment_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX index_locks_on_environment_id ON locks USING btree (environment_id);
+
+
+--
+-- Name: index_users_on_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_users_on_id ON users USING btree (id);
 
 
 --
@@ -341,14 +237,6 @@ ALTER TABLE ONLY locks
 
 
 --
--- Name: fk_rails_b9795ad9a7; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY connected_accounts
-    ADD CONSTRAINT fk_rails_b9795ad9a7 FOREIGN KEY (user_id) REFERENCES users(id);
-
-
---
 -- Name: fk_rails_f7496bfdf1; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -373,6 +261,4 @@ INSERT INTO schema_migrations (version) VALUES ('20160205012702');
 INSERT INTO schema_migrations (version) VALUES ('20160205013625');
 
 INSERT INTO schema_migrations (version) VALUES ('20160205060045');
-
-INSERT INTO schema_migrations (version) VALUES ('20160205063654');
 

@@ -1,5 +1,5 @@
 class CreateConnectedAccounts < ActiveRecord::Migration
-  def change
+  def up
     execute 'DELETE FROM locks WHERE 1 = 1'
 
     remove_foreign_key :locks, :users
@@ -31,5 +31,22 @@ class CreateConnectedAccounts < ActiveRecord::Migration
     add_index :connected_accounts, [:type, :user_id], unique: true
 
     add_foreign_key :connected_accounts, :users
+  end
+
+  def down
+    drop_table :connected_accounts
+
+    remove_foreign_key :locks, :users
+    drop_table :users
+    create_table :users, id: false do |t|
+      t.string :id, null: false
+      t.string :github_token, null: false
+
+      t.timestamps null: false
+    end
+    add_index :users, :id, unique: true
+    remove_column :locks, :user_id
+    add_column :locks, :user_id, :string, null: false
+    add_foreign_key :locks, :users
   end
 end
