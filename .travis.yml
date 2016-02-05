@@ -1,4 +1,5 @@
 language: ruby
 rvm:
   - 2.2.4
+before_script: ./bin/rake db:setup
 script: ./bin/rake
