@@ -20,7 +20,6 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.0'
   gem 'rspec-activemodel-mocks'
   gem 'rubocop'
-  gem 'sqlite3'
 end
 
 group :test do
