@@ -125,8 +125,8 @@ EOF
 
     context 'when the environment is locked' do
       it 'responds with the lock message' do
-        stub = expect_say('`staging` is locked: Testing stuff')
-        lock = mock_model(Lock, message: 'Testing stuff')
+        stub = expect_say('`staging` is locked by @david: Testing stuff')
+        lock = mock_model(Lock, message: 'Testing stuff', user: mock_model('User', slack_username: 'david'))
         expect(slashdeploy).to receive(:create_deployment).with(nil, kind_of(DeploymentRequest)).and_raise(SlashDeploy::EnvironmentLockedError.new(lock))
         deploy 'remind101/acme-inc to staging'
         expect(stub).to have_been_requested

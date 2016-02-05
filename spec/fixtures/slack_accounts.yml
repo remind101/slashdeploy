@@ -1,0 +1,12 @@
+david:
+  user: david
+  id: "U012AB1AB"
+  user_name: david
+  team_id: "1"
+  team_domain: "acme"
+steve:
+  user: steve
+  id: "U123BC2BD"
+  user_name: steve
+  team_id: "1"
+  team_domain: "acme"

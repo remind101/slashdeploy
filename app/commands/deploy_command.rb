@@ -13,7 +13,8 @@ class DeployCommand < BaseCommand
     rescue SlashDeploy::RedCommitError => e
       say :red_commit, req: cmd.request, failing_contexts: e.failing_contexts
     rescue SlashDeploy::EnvironmentLockedError => e
-      say :locked, req: req, message: e.lock.message
+      locker = e.lock.user.slack_username(cmd.request.team_id)
+      say :locked, req: req, lock: e.lock, locker: locker
     end
   end
 end

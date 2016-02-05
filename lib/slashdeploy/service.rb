@@ -52,7 +52,6 @@ module SlashDeploy
     #
     # Returns a Lock.
     def lock_environment(user, req)
-      stolen = false
       # TODO: Authorize that this user has access to the repository.
       transaction do
         repo = Repository.with_name(req.repository)
@@ -61,13 +60,15 @@ module SlashDeploy
 
         if lock
           return if lock.user == user # Already locked, nothing to do.
-          stolen = true
           lock.unlock!
         end
 
+        stolen = lock
         lock = env.lock! user, req.message
 
-        LockResponse.new lock: lock, stolen: stolen
+        LockResponse.new \
+          lock: lock,
+          stolen: stolen
       end
     end
 

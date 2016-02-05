@@ -1,6 +1,2 @@
-david:
-  id: "U012AB1AB"
-  github_token: "05e567b87752821edcb615552f8917c7"
-steve:
-  id: "U123BC2BD"
-  github_token: "ff878051fd34eb72a002190a9111508c"
+david: {}
+steve: {}
