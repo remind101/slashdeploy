@@ -79,7 +79,7 @@ EOF
     context 'simple' do
       it 'triggers a deployment' do
         req = DeploymentRequest.new repository: 'remind101/acme-inc'
-        stub = expect_say('Created deployment request for remind101/acme-inc')
+        stub = expect_reply('Created deployment request for remind101/acme-inc')
         expect(slashdeploy).to receive(:create_deployment).with(nil, req).and_return(req)
         deploy 'remind101/acme-inc'
         expect(stub).to have_been_requested
@@ -89,7 +89,7 @@ EOF
     context 'with environment' do
       it 'triggers a deployment' do
         req = DeploymentRequest.new repository: 'remind101/acme-inc', environment: 'staging'
-        stub = expect_say('Created deployment request for remind101/acme-inc to staging')
+        stub = expect_reply('Created deployment request for remind101/acme-inc to staging')
         expect(slashdeploy).to receive(:create_deployment).with(nil, req).and_return(req)
         deploy 'remind101/acme-inc to staging'
         expect(stub).to have_been_requested
@@ -99,7 +99,7 @@ EOF
     context 'with ref' do
       it 'triggers a deployment' do
         req = DeploymentRequest.new repository: 'remind101/acme-inc', ref: 'topic'
-        stub = expect_say('Created deployment request for remind101/acme-inc@topic')
+        stub = expect_reply('Created deployment request for remind101/acme-inc@topic')
         expect(slashdeploy).to receive(:create_deployment).with(nil, req).and_return(req)
         deploy 'remind101/acme-inc@topic'
         expect(stub).to have_been_requested
@@ -109,7 +109,7 @@ EOF
     context 'with ref and environment' do
       it 'triggers a deployment' do
         req = DeploymentRequest.new repository: 'remind101/acme-inc', ref: 'topic', environment: 'staging'
-        stub = expect_say('Created deployment request for remind101/acme-inc@topic to staging')
+        stub = expect_reply('Created deployment request for remind101/acme-inc@topic to staging')
         expect(slashdeploy).to receive(:create_deployment).with(nil, req).and_return(req)
         deploy 'remind101/acme-inc@topic to staging'
         expect(stub).to have_been_requested
@@ -118,7 +118,7 @@ EOF
 
     context 'when the environment is locked' do
       it 'responds with the lock message' do
-        stub = expect_say('`staging` is locked by @david: Testing stuff')
+        stub = expect_reply('`staging` is locked by @david: Testing stuff')
         lock = mock_model(Lock, message: 'Testing stuff', user: mock_model('User', slack_username: 'david'))
         expect(slashdeploy).to receive(:create_deployment).with(nil, kind_of(DeploymentRequest)).and_raise(SlashDeploy::EnvironmentLockedError.new(lock))
         deploy 'remind101/acme-inc to staging'
@@ -128,7 +128,7 @@ EOF
 
     context 'when there are failing commit status checks' do
       it 'response with a message' do
-        stub = expect_say <<-EOF.strip
+        stub = expect_reply <<-EOF.strip
 The following commit status checks failed:
 * container/docker
 You can ignore commit status checks by using `/deploy remind101/acme-inc to staging!`

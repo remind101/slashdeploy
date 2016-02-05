@@ -9,12 +9,12 @@ class DeployCommand < BaseCommand
     )
     begin
       req = slashdeploy.create_deployment(user, req)
-      say :created, req: req
+      reply :created, req: req
     rescue SlashDeploy::RedCommitError => e
-      say :red_commit, req: cmd.request, failing_contexts: e.failing_contexts
+      reply :red_commit, req: cmd.request, failing_contexts: e.failing_contexts
     rescue SlashDeploy::EnvironmentLockedError => e
       locker = e.lock.user.slack_username(cmd.request.team_id)
-      say :locked, req: req, lock: e.lock, locker: locker
+      reply :locked, req: req, lock: e.lock, locker: locker
     end
   end
 end
