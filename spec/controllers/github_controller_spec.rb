@@ -22,6 +22,11 @@ RSpec.describe GithubController do
     end
 
     context 'when the user does not exist' do
+      before do
+        stub_request(:get, 'https://api.github.com/user')
+          .to_return(status: 200, body: { 'id' => 1, 'login' => 'david' }.to_json, headers: { 'Content-Type' => 'application/json' })
+      end
+
       it 'creates a new user and authenticates them' do
         state = SlashDeploy.state.encode('user_id' => '1')
         expect(warden).to receive(:set_user).with(kind_of(User))
@@ -31,11 +36,13 @@ RSpec.describe GithubController do
 
     context 'when the user already exists' do
       before do
-        User.create(id: '1', github_token: 'abcd')
+        user = User.create!
+        user.connected_accounts << SlackAccount.new(foreign_id: 'U01')
+        user.save!
       end
 
       it 'logs the user in' do
-        state = SlashDeploy.state.encode('user_id' => '1')
+        state = SlashDeploy.state.encode('user_id' => 'U01')
         expect(warden).to receive(:set_user).with(kind_of(User))
         expect { get :callback, state: state, code: 'code' }.to_not change { User.count }
       end

@@ -1,0 +1,2 @@
+class SlackAccount < ConnectedAccount
+end

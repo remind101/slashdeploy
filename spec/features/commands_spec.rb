@@ -96,7 +96,7 @@ EOF
       command: command,
       text: text.join(' '),
       token: Rails.configuration.x.slack.verification_token,
-      user_id: users(options[:as].to_sym).id,
+      user_id: connected_accounts("#{options[:as]}@slack".to_sym).foreign_id,
       user_name: options[:as]
   end
 

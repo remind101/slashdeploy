@@ -1,0 +1,18 @@
+david@slack:
+  user: david
+  type: "SlackAccount"
+  foreign_id: "U012AB1AB"
+david@github:
+  user: david
+  type: 'GithubAccount'
+  foreign_id: '36412047'
+  token: "05e567b87752821edcb615552f8917c7"
+steve@slack:
+  user: steve
+  type: "SlackAccount"
+  foreign_id: "U123BC2BD"
+steve@github:
+  user: steve
+  type: 'GithubAccount'
+  foreign_id: '28462522'
+  token: "ff878051fd34eb72a002190a9111508c"

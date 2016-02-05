@@ -4,8 +4,19 @@ class GithubController < ApplicationController
 
   def callback
     t = access_token
-    user = User.find_or_create_by(id: user_id) do |u|
-      u.github_token = t.token
+    user = User.find_by_slack_user_id(user_id)
+    unless user
+      User.transaction do
+        user = User.create!
+        user.connected_accounts << SlackAccount.new(
+          foreign_id: user_id
+        )
+        user.connected_accounts << GithubAccount.new(
+          foreign_id: github_user['id'],
+          username:   github_user['login'],
+          token:      t.token
+        )
+      end
     end
     warden.set_user user
     redirect_to '/'
@@ -14,8 +25,14 @@ class GithubController < ApplicationController
   private
 
   def user_id
-    data = state_decoder.decode(params[:state])
-    data['user_id']
+    @user_id ||= begin
+                   data = state_decoder.decode(params[:state])
+                   data['user_id']
+                 end
+  end
+
+  def github_user
+    @github_user ||= access_token.get('/user').parsed
   end
 
   def client
@@ -23,7 +40,7 @@ class GithubController < ApplicationController
   end
 
   def access_token
-    client.auth_code.get_token(params[:code])
+    @access_token ||= client.auth_code.get_token(params[:code])
   end
 
   def state_decoder
