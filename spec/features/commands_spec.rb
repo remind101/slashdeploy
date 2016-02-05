@@ -29,6 +29,7 @@ RSpec.feature 'Slash Commands' do
 
   scenario 'entering an unknown command' do
     command '/deploy foo', as: slack_accounts(:david)
+    expect(response.in_channel).to be_falsey
     expect(response.text).to eq "I don't know that command. Here's what I do know:\n#{HelpCommand::USAGE}".strip
   end
 

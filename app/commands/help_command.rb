@@ -12,6 +12,6 @@ To unlock a previously locked environment: /deploy unlock ENVIRONMENT on REPO
 EOF
 
   def run(_user, _cmd, params)
-    say :usage, not_found: params['not_found'], usage: USAGE
+    reply :usage, not_found: params['not_found'], usage: USAGE
   end
 end
