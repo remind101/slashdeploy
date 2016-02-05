@@ -25,7 +25,7 @@ RSpec.describe GithubController do
 
     context 'when the slack account does not exist' do
       it 'creates a new user and authenticates them' do
-        state = SlashDeploy.state.encode('user_id' => '1', 'user_name' => 'david')
+        state = SlashDeploy.state.encode('user_id' => 'U01', 'user_name' => 'david', 'team_id' => '1234', 'team_domain' => 'acme')
         expect(warden).to receive(:set_user).with(kind_of(User))
         expect { get :callback, state: state, code: 'code' }.to change { User.count }
       end
@@ -35,24 +35,24 @@ RSpec.describe GithubController do
       let(:user) { User.create! }
 
       before do
-        user.connected_accounts << GithubAccount.new(foreign_id: '1')
+        user.github_accounts << GithubAccount.new(id: '1', login: 'david', token: 'abcd')
       end
 
       it 'links this slack account to the existing user' do
-        state = SlashDeploy.state.encode('user_id' => 'U01', 'user_name' => 'david')
+        state = SlashDeploy.state.encode('user_id' => 'U01', 'user_name' => 'david', 'team_id' => '1234', 'team_domain' => 'acme')
         expect(warden).to receive(:set_user).with(kind_of(User))
-        expect { get :callback, state: state, code: 'code' }.to change { user.connected_accounts.count }.by(1)
+        expect { get :callback, state: state, code: 'code' }.to change { user.slack_accounts.count }.by(1)
       end
     end
 
     context 'when the slack account already exists' do
       before do
         user = User.create!
-        user.connected_accounts << SlackAccount.new(foreign_id: 'U01')
+        user.slack_accounts << SlackAccount.new(id: 'U01', user_name: 'david', team_id: '1234', team_domain: 'acme')
       end
 
       it 'logs the user in' do
-        state = SlashDeploy.state.encode('user_id' => 'U01')
+        state = SlashDeploy.state.encode('user_id' => 'U01', 'user_name' => 'david', 'team_id' => '1234', 'team_domain' => 'acme')
         expect(warden).to receive(:set_user).with(kind_of(User))
         expect { get :callback, state: state, code: 'code' }.to_not change { User.count }
       end

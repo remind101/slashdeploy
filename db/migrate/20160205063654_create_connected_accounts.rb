@@ -11,30 +11,31 @@ class CreateConnectedAccounts < ActiveRecord::Migration
     add_column :locks, :user_id, :integer, null: false
     add_foreign_key :locks, :users
 
-    create_table :connected_accounts do |t|
-      t.integer :user_id, null: false
-      t.string :foreign_id, null: false
-      t.string :type, null: false
-      t.string :token
-      t.string :username
-
-      t.timestamps null: false
+    create_table :github_accounts, id: false do |t|
+      t.integer :user_id
+      t.integer :id, null: false, primary_key: true
+      t.string :login, null: false
+      t.string :token, null: false
     end
 
-    add_index :connected_accounts, :type
-    add_index :connected_accounts, :user_id
+    add_index :github_accounts, :id, unique: true
+    add_foreign_key :github_accounts, :users
 
-    # Don't allow the same account to be created.
-    add_index :connected_accounts, [:type, :foreign_id], unique: true
+    create_table :slack_accounts, id: false do |t|
+      t.integer :user_id
+      t.string :id, null: false, primary_key: true
+      t.string :user_name, null: false
+      t.string :team_id, null: false
+      t.string :team_domain, null: false
+    end
 
-    # Only allow one of each type of account per user.
-    add_index :connected_accounts, [:type, :user_id], unique: true
-
-    add_foreign_key :connected_accounts, :users
+    add_index :slack_accounts, :id, unique: true
+    add_foreign_key :slack_accounts, :users
   end
 
   def down
-    drop_table :connected_accounts
+    drop_table :github_accounts
+    drop_table :slack_accounts
 
     remove_foreign_key :locks, :users
     drop_table :users

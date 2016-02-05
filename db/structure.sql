@@ -30,41 +30,6 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: connected_accounts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE connected_accounts (
-    id integer NOT NULL,
-    user_id integer NOT NULL,
-    foreign_id character varying NOT NULL,
-    type character varying NOT NULL,
-    token character varying,
-    username character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: connected_accounts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE connected_accounts_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: connected_accounts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE connected_accounts_id_seq OWNED BY connected_accounts.id;
-
-
---
 -- Name: environments; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -94,6 +59,18 @@ CREATE SEQUENCE environments_id_seq
 --
 
 ALTER SEQUENCE environments_id_seq OWNED BY environments.id;
+
+
+--
+-- Name: github_accounts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE github_accounts (
+    user_id integer,
+    id integer NOT NULL,
+    login character varying NOT NULL,
+    token character varying NOT NULL
+);
 
 
 --
@@ -171,6 +148,19 @@ CREATE TABLE schema_migrations (
 
 
 --
+-- Name: slack_accounts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE slack_accounts (
+    user_id integer,
+    id character varying NOT NULL,
+    user_name character varying NOT NULL,
+    team_id character varying NOT NULL,
+    team_domain character varying NOT NULL
+);
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -204,13 +194,6 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY connected_accounts ALTER COLUMN id SET DEFAULT nextval('connected_accounts_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
 ALTER TABLE ONLY environments ALTER COLUMN id SET DEFAULT nextval('environments_id_seq'::regclass);
 
 
@@ -236,19 +219,19 @@ ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regcl
 
 
 --
--- Name: connected_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY connected_accounts
-    ADD CONSTRAINT connected_accounts_pkey PRIMARY KEY (id);
-
-
---
 -- Name: environments_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY environments
     ADD CONSTRAINT environments_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: github_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY github_accounts
+    ADD CONSTRAINT github_accounts_pkey PRIMARY KEY (id);
 
 
 --
@@ -268,6 +251,14 @@ ALTER TABLE ONLY repositories
 
 
 --
+-- Name: slack_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY slack_accounts
+    ADD CONSTRAINT slack_accounts_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -276,31 +267,10 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: index_connected_accounts_on_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_github_accounts_on_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE INDEX index_connected_accounts_on_type ON connected_accounts USING btree (type);
-
-
---
--- Name: index_connected_accounts_on_type_and_foreign_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE UNIQUE INDEX index_connected_accounts_on_type_and_foreign_id ON connected_accounts USING btree (type, foreign_id);
-
-
---
--- Name: index_connected_accounts_on_type_and_user_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE UNIQUE INDEX index_connected_accounts_on_type_and_user_id ON connected_accounts USING btree (type, user_id);
-
-
---
--- Name: index_connected_accounts_on_user_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE INDEX index_connected_accounts_on_user_id ON connected_accounts USING btree (user_id);
+CREATE UNIQUE INDEX index_github_accounts_on_id ON github_accounts USING btree (id);
 
 
 --
@@ -308,6 +278,13 @@ CREATE INDEX index_connected_accounts_on_user_id ON connected_accounts USING btr
 --
 
 CREATE INDEX index_locks_on_environment_id ON locks USING btree (environment_id);
+
+
+--
+-- Name: index_slack_accounts_on_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_slack_accounts_on_id ON slack_accounts USING btree (id);
 
 
 --
@@ -341,11 +318,19 @@ ALTER TABLE ONLY locks
 
 
 --
--- Name: fk_rails_b9795ad9a7; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: fk_rails_877068538c; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY connected_accounts
-    ADD CONSTRAINT fk_rails_b9795ad9a7 FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE ONLY github_accounts
+    ADD CONSTRAINT fk_rails_877068538c FOREIGN KEY (user_id) REFERENCES users(id);
+
+
+--
+-- Name: fk_rails_a29af68464; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY slack_accounts
+    ADD CONSTRAINT fk_rails_a29af68464 FOREIGN KEY (user_id) REFERENCES users(id);
 
 
 --

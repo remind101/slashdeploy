@@ -90,14 +90,18 @@ EOF
   end
 
   def command(text, options = {})
+    slack_account = slack_accounts(options[:as])
+
     command, *text = text.split(' ')
     post \
       '/commands',
       command: command,
       text: text.join(' '),
       token: Rails.configuration.x.slack.verification_token,
-      user_id: connected_accounts("#{options[:as]}@slack".to_sym).foreign_id,
-      user_name: options[:as]
+      user_id: slack_account.id,
+      user_name: slack_account.user_name,
+      team_id: slack_account.team_id,
+      team_domain: slack_account.team_domain
   end
 
   def response
