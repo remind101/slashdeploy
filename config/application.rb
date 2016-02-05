@@ -25,6 +25,9 @@ module SlashDeploy
 
     config.autoload_paths << Rails.root.join('lib')
 
+    # Dump schema in sql format.
+    config.active_record.schema_format = :sql
+
     config.middleware.use Warden::Manager do |config|
     end
 

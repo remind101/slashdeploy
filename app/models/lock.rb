@@ -2,7 +2,5 @@
 class Lock < ActiveRecord::Base
   belongs_to :environment
 
-  def self.for_environment(repository, environment)
-    where(environments: { repository: repository, name: environment }, active: true).includes(:environment).first
-  end
+  scope :active, -> { where(active: true) }
 end
