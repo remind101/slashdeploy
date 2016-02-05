@@ -1,7 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe SlashDeploy::Service do
-  let(:user) { mock_model(User) }
+  fixtures :users
+
+  let(:user) { users(:david) }
   let(:deployer) { double('Deployer') }
   let(:service) do
     described_class.new.tap do |service|
@@ -30,7 +32,7 @@ RSpec.describe SlashDeploy::Service do
 
       it 'raises an exception' do
         expect do
-          service.create_deployment(user, DeploymentRequest.new(repository: 'remind101/acme-inc', environment: 'staging'))
+          service.create_deployment(users(:steve), DeploymentRequest.new(repository: 'remind101/acme-inc', environment: 'staging'))
         end.to raise_exception SlashDeploy::EnvironmentLockedError
       end
     end
@@ -48,7 +50,7 @@ RSpec.describe SlashDeploy::Service do
 
   describe '#unlock_environment' do
     context 'when the environment is locked' do
-      let(:lock) { service.lock_environment(user, LockRequest.new(repository: 'remind101/acme-inc', environment: 'staging', message: 'Testing some stuff')) }
+      let(:lock) { service.lock_environment(user, LockRequest.new(repository: 'remind101/acme-inc', environment: 'staging', message: 'Testing some stuff')).lock }
 
       it 'unlocks it' do
         expect do

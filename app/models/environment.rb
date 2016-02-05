@@ -9,8 +9,8 @@ class Environment < ActiveRecord::Base
   end
 
   # Marks this environment as locked with the given message.
-  def lock!(message = nil)
-    locks.create!(message: message, active: true)
+  def lock!(user, message = nil)
+    locks.active.create!(user: user, message: message)
   end
 
   # Returns the currently active lock for this environment, or nil if there is none.

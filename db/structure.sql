@@ -71,7 +71,8 @@ CREATE TABLE locks (
     active boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    environment_id integer NOT NULL
+    environment_id integer NOT NULL,
+    user_id character varying NOT NULL
 );
 
 
@@ -199,6 +200,13 @@ CREATE INDEX index_locks_on_environment_id ON locks USING btree (environment_id)
 
 
 --
+-- Name: index_users_on_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_users_on_id ON users USING btree (id);
+
+
+--
 -- Name: locked_environment; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -218,6 +226,14 @@ CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (v
 
 ALTER TABLE ONLY locks
     ADD CONSTRAINT fk_rails_31d9175b41 FOREIGN KEY (environment_id) REFERENCES environments(id);
+
+
+--
+-- Name: fk_rails_426f571216; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY locks
+    ADD CONSTRAINT fk_rails_426f571216 FOREIGN KEY (user_id) REFERENCES users(id);
 
 
 --
@@ -243,4 +259,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160203113511');
 INSERT INTO schema_migrations (version) VALUES ('20160205012702');
 
 INSERT INTO schema_migrations (version) VALUES ('20160205013625');
+
+INSERT INTO schema_migrations (version) VALUES ('20160205060045');
 

@@ -1,8 +1,8 @@
 SlashDeploy.service.deployer = case Rails.configuration.x.deployer
                                when 'github'
-                                 SlashDeploy::Deployer::GitHub 
+                                 SlashDeploy::Deployer.github
                                else
-                                 SlashDeploy::Deployer::Fake
+                                 SlashDeploy::Deployer.fake
                                end
 
 # Used to encode and sign the oauth state param for keeping track of a slack

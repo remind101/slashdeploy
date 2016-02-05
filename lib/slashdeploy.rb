@@ -11,6 +11,16 @@ module SlashDeploy
   module Deployer
     autoload :GitHub, 'slashdeploy/deployer/github'
     autoload :Fake,   'slashdeploy/deployer/fake'
+
+    class << self
+      def github
+        GitHub
+      end
+
+      def fake
+        Fake.new
+      end
+    end
   end
 
   # Rack apps for handling slash commands.
