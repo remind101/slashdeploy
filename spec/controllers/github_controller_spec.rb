@@ -38,7 +38,6 @@ RSpec.describe GithubController do
       before do
         user = User.create!
         user.connected_accounts << SlackAccount.new(foreign_id: 'U01')
-        user.save!
       end
 
       it 'logs the user in' do

@@ -7,8 +7,4 @@ class User < ActiveRecord::Base
     return unless account
     account.user
   end
-
-  def slack_account
-    connected_accounts.where(type: 'SlackAccount').first
-  end
 end
