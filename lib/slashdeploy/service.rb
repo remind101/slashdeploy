@@ -21,12 +21,13 @@ module SlashDeploy
       )
 
       # Check if the environment we're deploying to is locked.
-      lock = Lock.for_environment(req.repository, req.environment)
+      repo = Repository.with_name(req.repository)
+      env  = repo.environment(req.environment)
+      lock = env.active_lock
       if lock
         fail EnvironmentLockedError, lock
       else
         deployer = self.deployer.call(user)
-        Environment.used(req.repository, req.environment)
         deployer.create_deployment(req)
         req
       end
@@ -39,7 +40,8 @@ module SlashDeploy
     # Returns an Array of Environments
     def environments(_user, repository)
       # TODO: Authorize that this user has access to the repository.
-      Environment.where(repository: repository)
+      repo = Repository.with_name(repository)
+      repo.environments
     end
 
     # Attempts to lock the repository on the repo.
@@ -49,7 +51,8 @@ module SlashDeploy
     # Returns a Lock.
     def lock_environment(_user, req)
       # TODO: Authorize that this user has access to the repository.
-      env = Environment.find_or_create_by(repository: req.repository, name: req.environment)
+      repo = Repository.with_name(req.repository)
+      env  = repo.environment(req.environment)
       env.lock! req.message
     end
 
@@ -60,7 +63,9 @@ module SlashDeploy
     # Returns nothing
     def unlock_environment(_user, req)
       # TODO: Authorize that this user has access to the repository.
-      lock = Lock.for_environment(req.repository, req.environment)
+      repo = Repository.find_or_create_by(name: req.repository)
+      env  = repo.environments.find_or_create_by(name: req.environment)
+      lock = env.active_lock
       return unless lock
       lock.update_attributes(active: false)
     end

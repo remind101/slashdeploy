@@ -1,14 +1,20 @@
 # Environment represents a known environment that a repository can be deployed to.
 class Environment < ActiveRecord::Base
   has_many :locks
+  belongs_to :repository
 
-  # Marks the environment as "used" (e.g. someone just triggered a deployment to it).
-  def self.used(repository, environment)
-    Environment.find_or_create_by(repository: repository, name: environment)
+  # Finds the environment with the given name, creating it if necessary.
+  def self.with_name(name)
+    find_or_create_by(name: name)
   end
 
   # Marks this environment as locked with the given message.
-  def lock!(message)
-    locks.create(message: message, active: true)
+  def lock!(message = nil)
+    locks.create!(message: message, active: true)
+  end
+
+  # Returns the currently active lock for this environment, or nil if there is none.
+  def active_lock
+    locks.active.first
   end
 end

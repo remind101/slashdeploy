@@ -35,10 +35,10 @@ SET default_with_oids = false;
 
 CREATE TABLE environments (
     id integer NOT NULL,
-    repository character varying,
     name character varying,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    repository_id integer NOT NULL
 );
 
 
@@ -95,6 +95,37 @@ ALTER SEQUENCE locks_id_seq OWNED BY locks.id;
 
 
 --
+-- Name: repositories; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE repositories (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: repositories_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE repositories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: repositories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE repositories_id_seq OWNED BY repositories.id;
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -130,6 +161,13 @@ ALTER TABLE ONLY locks ALTER COLUMN id SET DEFAULT nextval('locks_id_seq'::regcl
 
 
 --
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY repositories ALTER COLUMN id SET DEFAULT nextval('repositories_id_seq'::regclass);
+
+
+--
 -- Name: environments_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -146,10 +184,11 @@ ALTER TABLE ONLY locks
 
 
 --
--- Name: index_environments_on_repository_and_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: repositories_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE UNIQUE INDEX index_environments_on_repository_and_name ON environments USING btree (repository, name);
+ALTER TABLE ONLY repositories
+    ADD CONSTRAINT repositories_pkey PRIMARY KEY (id);
 
 
 --
@@ -182,6 +221,14 @@ ALTER TABLE ONLY locks
 
 
 --
+-- Name: fk_rails_f7496bfdf1; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY environments
+    ADD CONSTRAINT fk_rails_f7496bfdf1 FOREIGN KEY (repository_id) REFERENCES repositories(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -194,4 +241,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160203003510');
 INSERT INTO schema_migrations (version) VALUES ('20160203113511');
 
 INSERT INTO schema_migrations (version) VALUES ('20160205012702');
+
+INSERT INTO schema_migrations (version) VALUES ('20160205013625');
 

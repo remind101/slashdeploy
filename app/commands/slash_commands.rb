@@ -19,16 +19,20 @@ class SlashCommands
 
   # Route returns the handler that should handle the request.
   def route(cmd)
+    repo = /(?<repository>#{SlashDeploy::GITHUB_REPO_REGEX})/
+    env  = /(?<environment>\S+?)/
+    ref  = /(?<ref>\S+?)/
+
     case cmd.request.text
     when /^help$/
       [help, {}]
-    when /^where (?<repository>\S+?)$/
+    when /^where #{repo}$/
       [environments, params(Regexp.last_match)]
-    when /^lock (?<environment>\S+?) on (?<repository>\S+?)(:(?<message>.*))?$/
+    when /^lock #{env} on #{repo}(:(?<message>.*))?$/
       [lock, params(Regexp.last_match)]
-    when /^unlock (?<environment>\S+?) on (?<repository>\S+?)$/
+    when /^unlock #{env} on #{repo}$/
       [unlock, params(Regexp.last_match)]
-    when /^(?<repository>\S+?)(@(?<ref>\S+?))?( to (?<environment>\S+?))?(?<force>!)?$/
+    when /^#{repo}(@#{ref})?( to #{env})?(?<force>!)?$/
       [deploy, params(Regexp.last_match)]
     end
   end
@@ -42,6 +46,9 @@ class SlashCommands
   end
 
   private
+
+  def match_repository
+  end
 
   def params(matches)
     Hash[matches.names.zip(matches.captures)]
