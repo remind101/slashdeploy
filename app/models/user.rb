@@ -32,4 +32,10 @@ class User < ActiveRecord::Base
     return unless account
     account.user_name
   end
+
+  def github_token
+    account = github_accounts.first
+    return unless account
+    account.token
+  end
 end
