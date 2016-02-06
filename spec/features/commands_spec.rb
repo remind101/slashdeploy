@@ -22,9 +22,15 @@ RSpec.feature 'Slash Commands' do
       team_id: 1,
       team_domain: 'acme'
     )
+
     command '/deploy help', as: account
     state = response.text.gsub(/^.*state=(.*?)\|.*$/, '\\1')
-    get '/auth/github/callback', state: state, code: 'code'
+    expect do
+      visit "/auth/github/callback?state=#{state}&code=code"
+    end.to change { User.count }.by(1)
+
+    command '/deploy help', as: account
+    expect(response.text).to eq HelpCommand::USAGE.strip
   end
 
   scenario 'entering an unknown command' do
