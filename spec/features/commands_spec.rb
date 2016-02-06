@@ -59,11 +59,11 @@ RSpec.feature 'Slash Commands' do
       command '/deploy remind101/acme-inc@failing', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
 
-    expect(response.text).to eq <<-EOF.strip
-The following commit status checks failed:
-* ci
-You can ignore commit status checks by using `/deploy remind101/acme-inc@failing!`
-EOF
+    expect(response.text).to eq <<-TEXT.strip_heredoc.strip
+    The following commit status checks failed:
+    * ci
+    You can ignore commit status checks by using `/deploy remind101/acme-inc@failing!`
+    TEXT
 
     expect do
       command '/deploy remind101/acme-inc@failing!', as: slack_accounts(:david)
@@ -84,6 +84,25 @@ EOF
     expect do
       command '/deploy remind101/acme-inc to staging', as: slack_accounts(:david)
     end.to change { deployment_requests.count }.by(1)
+
+    command '/deploy unlock staging on remind101/acme-inc', as: slack_accounts(:david)
+    expect(response.text).to eq 'Unlocked `staging` on remind101/acme-inc'
+
+    # Now other users should be able to deploy
+    expect do
+      command '/deploy remind101/acme-inc to staging', as: slack_accounts(:steve)
+    end.to change { deployment_requests.count }.by(1)
+  end
+
+  scenario 'locking a branch with a message' do
+    command "/deploy lock staging on remind101/acme-inc: I'm testing some stuff", as: slack_accounts(:david)
+    expect(response.text).to eq 'Locked `staging` on remind101/acme-inc'
+
+    # Other users shouldn't be able to deploy now.
+    expect do
+      command '/deploy remind101/acme-inc to staging', as: slack_accounts(:steve)
+    end.to_not change { deployment_requests }
+    expect(response.text).to eq "`staging` is locked by @david: I'm testing some stuff"
   end
 
   scenario 'stealing a lock' do
@@ -99,6 +118,19 @@ EOF
     expect do
       command '/deploy remind101/acme-inc to staging', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
+  end
+
+  scenario 'finding the environments I can deploy a repo to' do
+    command '/deploy where remind101/acme-inc', as: slack_accounts(:david)
+    expect(response.text).to eq "I don't know about any environments for remind101/acme-inc"
+
+    command '/deploy remind101/acme-inc to staging', as: slack_accounts(:david)
+
+    command '/deploy where remind101/acme-inc', as: slack_accounts(:david)
+    expect(response.text).to eq <<-TEXT.strip_heredoc.strip
+    I know about these environments for remind101/acme-inc:
+    * staging
+    TEXT
   end
 
   def deployment_requests
