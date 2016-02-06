@@ -1,8 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe SlashDeploy::Deployer::GitHub do
-  let(:client) { double('GitHub Client') }
-  let(:deployer) { described_class.new client }
+  let(:client) { double(Octokit::Client) }
+  let(:user) { stub_model(User, github_client: client) }
+  let(:deployer) { described_class.new }
 
   describe '#create_deployment' do
     it 'creates the github deployment' do
@@ -20,7 +21,7 @@ RSpec.describe SlashDeploy::Deployer::GitHub do
         auto_merge: false
       ).and_return(double('GitHub Deployment', id: 1))
 
-      id = deployer.create_deployment req
+      id = deployer.create_deployment user, req
       expect(id).to eq 1
     end
 
@@ -50,7 +51,7 @@ RSpec.describe SlashDeploy::Deployer::GitHub do
         expect(client).to receive(:create_deployment).and_raise(conflict)
         expect do
           begin
-            deployer.create_deployment req
+            deployer.create_deployment user, req
           rescue SlashDeploy::RedCommitError => e
             expect(e.contexts).to eq [
               CommitStatusContext.new(context: 'ci/circleci', state: 'success'),

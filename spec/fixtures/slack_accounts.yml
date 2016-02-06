@@ -10,3 +10,9 @@ steve:
   user_name: steve
   team_id: "1"
   team_domain: "acme"
+bob:
+  user: bob
+  id: "U987AD3CD"
+  user_name: bob
+  team_id: "2"
+  team_domain: "skynet"

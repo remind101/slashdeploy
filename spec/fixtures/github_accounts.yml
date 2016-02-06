@@ -8,3 +8,8 @@ steve:
   id: 28462522
   token: "ff878051fd34eb72a002190a9111508c"
   login: steve
+bob:
+  user: bob
+  id: 19744705
+  token: "3970a23cd8975706ce2efa4260b2f655"
+  login: bob

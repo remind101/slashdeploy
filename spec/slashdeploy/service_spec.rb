@@ -4,10 +4,12 @@ RSpec.describe SlashDeploy::Service do
   fixtures :users
 
   let(:user) { users(:david) }
-  let(:deployer) { double('Deployer') }
+  let(:deployer) { double(SlashDeploy::Deployer) }
+  let(:authorizer) { double(SlashDeploy::Authorizer, authorized?: true) }
   let(:service) do
     described_class.new.tap do |service|
-      service.deployer = -> (_user) { deployer }
+      service.deployer   = deployer
+      service.authorizer = authorizer
     end
   end
 
@@ -19,7 +21,7 @@ RSpec.describe SlashDeploy::Service do
           environment: 'production',
           ref: 'master'
         )
-        expect(deployer).to receive(:create_deployment).with(req)
+        expect(deployer).to receive(:create_deployment).with(user, req)
 
         service.create_deployment(user, DeploymentRequest.new(repository: 'remind101/acme-inc'))
       end

@@ -33,9 +33,23 @@ class User < ActiveRecord::Base
     account.user_name
   end
 
+  def github_account
+    github_accounts.first
+  end
+
   def github_token
-    account = github_accounts.first
+    account = github_account
     return unless account
     account.token
+  end
+
+  def github_login
+    account = github_account
+    return unless account
+    account.login
+  end
+
+  def github_client
+    @client ||= Octokit::Client.new(access_token: github_token)
   end
 end
