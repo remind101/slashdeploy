@@ -12,12 +12,11 @@ module SlashDeploy
     autoload :GitHub, 'slashdeploy/deployer/github'
     autoload :Fake,   'slashdeploy/deployer/fake'
 
-    class << self
-      def github
+    def self.new(kind)
+      case kind.try(:to_sym)
+      when :github
         GitHub
-      end
-
-      def fake
+      else
         Fake.new
       end
     end
