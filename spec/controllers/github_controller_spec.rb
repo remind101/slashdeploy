@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe GithubController do
+RSpec.describe GithubController, type: :controller do
   let(:warden) { double('warden') }
 
   before do

@@ -10,6 +10,13 @@
  * defined in the other CSS/SCSS files in this directory. It is generally better to create a new
  * file per style scope.
  *
+ *= require bootstrap
+ *= require flat-ui
  *= require_tree .
  *= require_self
  */
+
+#intro {
+  margin-top: 40px;
+  margin-bottom: 80px;
+}
