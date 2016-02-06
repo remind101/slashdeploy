@@ -19,7 +19,7 @@ module Slash
         else
           [200, {}, ['']]
         end
-      rescue UnverifiedError => e
+      rescue UnverifiedError
         [403, {}, ['']]
       end
     end
