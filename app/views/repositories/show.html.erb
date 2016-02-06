@@ -1,0 +1,29 @@
+<h4><%= @repository.name %></h4>
+<form role="form">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="default_ref">Default ref</label>
+        <input type="text" class="form-control" id="default_ref" placeholder="<%= Rails.configuration.x.default_ref %>">
+        <p class="help-block">This is the default git ref (which can be a branch, tag or commit sha) that will be used when you deploy without specifying a ref.</p>
+      </div>
+      <div class="form-group">
+        <label for="default_environment">Required Status Contexts</label>
+        <input name="tagsinput" class="tagsinput" data-role="tagsinput" value="ci/circleci, container/docker" />
+        <p class="help-block">These are commit status contexts that are required to deploy.</p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="default_environment">Default environment</label>
+        <input type="password" class="form-control" id="default_environment" placeholder="<%= Rails.configuration.x.default_environment %>">
+        <p class="help-block">This is the default environment that will be deployed to when you don't specify one.</p>
+      </div>
+    </div>
+  </div><!-- /.row -->
+  <div class="row">
+    <div class="col-md-6">
+      <button type="submit" class="btn btn-primary btn-embossed btn-wide">Save</button>
+    </div>
+  </div>
+</form>

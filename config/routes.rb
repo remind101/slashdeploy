@@ -5,6 +5,7 @@ Rails.application.routes.draw do
 
   get '/slack/installed' => 'slack#installed', as: :installed
   get '/slack/install' => 'slack#install', as: :install
+  get '/:owner/:repo' => 'repositories#show'
 
   mount SlashDeploy::Commands.slack, at: '/commands'
 
