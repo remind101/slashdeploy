@@ -3,6 +3,9 @@ class User < ActiveRecord::Base
   has_many :github_accounts
   has_many :slack_accounts
 
+  # Raised if the user doesn't have a github account.
+  MissingGitHubAccount = Class.new(StandardError)
+
   def self.find_by_slack(id)
     account = SlackAccount.where(id: id).first
     return unless account
@@ -33,9 +36,23 @@ class User < ActiveRecord::Base
     account.user_name
   end
 
+  def github_account
+    github_accounts.first || fail(MissingGitHubAccount)
+  end
+
   def github_token
-    account = github_accounts.first
+    account = github_account
     return unless account
     account.token
+  end
+
+  def github_login
+    account = github_account
+    return unless account
+    account.login
+  end
+
+  def github_client
+    @client ||= Octokit::Client.new(access_token: github_token)
   end
 end

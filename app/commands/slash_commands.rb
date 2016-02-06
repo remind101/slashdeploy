@@ -2,6 +2,8 @@
 # commands. This class simply a demuxer that routes requests to the appropriate
 # sub command.
 class SlashCommands
+  include SlashDeploy::Commands::Rendering
+
   attr_reader \
     :help,
     :deploy,
@@ -45,6 +47,8 @@ class SlashCommands
 
     handler, params = route(cmd)
     handler.run(user, cmd, params)
+  rescue SlashDeploy::RepoUnauthorized => e
+    reply :unauthorized, repository: e.repository
   end
 
   private

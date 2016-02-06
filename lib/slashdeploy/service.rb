@@ -7,6 +7,10 @@ module SlashDeploy
     # object. Should return something that implements the Deployer interface.
     attr_accessor :deployer
 
+    # A SlashDeploy::Authorizer implementation, which will be used to ensure
+    # that the user has permissions to perform actions against a repository.
+    attr_accessor :authorizer
+
     # Creates a new deployment request as the given user.
     #
     # req - DeploymentRequest object.
@@ -28,8 +32,7 @@ module SlashDeploy
         if lock && lock.user != user
           fail EnvironmentLockedError, lock
         else
-          deployer = self.deployer.call(user)
-          deployer.create_deployment(req)
+          deployer.create_deployment(user, req)
           req
         end
       end
@@ -40,8 +43,9 @@ module SlashDeploy
     # repository - The name of the repository.
     #
     # Returns an Array of Environments
-    def environments(_user, repository)
-      # TODO: Authorize that this user has access to the repository.
+    def environments(user, repository)
+      authorize! user, repository
+
       repo = Repository.with_name(repository)
       repo.environments
     end
@@ -52,7 +56,8 @@ module SlashDeploy
     #
     # Returns a Lock.
     def lock_environment(user, req)
-      # TODO: Authorize that this user has access to the repository.
+      authorize! user, req.repository
+
       transaction do
         repo = Repository.with_name(req.repository)
         env  = repo.environment(req.environment)
@@ -77,8 +82,9 @@ module SlashDeploy
     # req - An UnlockRequest.
     #
     # Returns nothing
-    def unlock_environment(_user, req)
-      # TODO: Authorize that this user has access to the repository.
+    def unlock_environment(user, req)
+      authorize! user, req.repository
+
       transaction do
         repo = Repository.find_or_create_by(name: req.repository)
         env  = repo.environments.find_or_create_by(name: req.environment)
@@ -89,6 +95,10 @@ module SlashDeploy
     end
 
     private
+
+    def authorize!(user, repository)
+      fail RepoUnauthorized, repository unless authorizer.authorized?(user, repository)
+    end
 
     def transaction(*args, &block)
       ActiveRecord::Base.transaction(*args, &block)

@@ -7,6 +7,21 @@ module SlashDeploy
   autoload :Service, 'slashdeploy/service'
   autoload :State,   'slashdeploy/state'
 
+  # Authorizer is used to check if the user has access to a repo.
+  module Authorizer
+    autoload :GitHub, 'slashdeploy/authorizer/github'
+    autoload :Fake,   'slashdeploy/authorizer/fake'
+
+    def self.new(kind)
+      case kind.try(:to_sym)
+      when :github
+        GitHub.new
+      else
+        Fake.new
+      end
+    end
+  end
+
   # Deployer represents something that can create a new deployment request.
   module Deployer
     autoload :GitHub, 'slashdeploy/deployer/github'
@@ -15,7 +30,7 @@ module SlashDeploy
     def self.new(kind)
       case kind.try(:to_sym)
       when :github
-        GitHub
+        GitHub.new
       else
         Fake.new
       end
@@ -24,7 +39,8 @@ module SlashDeploy
 
   # Rack apps for handling slash commands.
   module Commands
-    autoload :Auth, 'slashdeploy/commands/auth'
+    autoload :Auth,      'slashdeploy/commands/auth'
+    autoload :Rendering, 'slashdeploy/commands/rendering'
 
     # Returns a Rack app for handling the slack slash commands.
     def self.slack_handler
@@ -44,6 +60,15 @@ module SlashDeploy
   end
 
   Error = Class.new(StandardError)
+
+  # Raised when a user doesn't have access to the given repo.
+  class RepoUnauthorized < Error
+    attr_reader :repository
+
+    def initialize(repo)
+      @repository = repo
+    end
+  end
 
   # Raised when an action cannot be performed on the environment because it's locked.
   class EnvironmentLockedError < Error
