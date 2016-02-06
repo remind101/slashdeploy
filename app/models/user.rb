@@ -3,6 +3,9 @@ class User < ActiveRecord::Base
   has_many :github_accounts
   has_many :slack_accounts
 
+  # Raised if the user doesn't have a github account.
+  MissingGitHubAccount = Class.new(StandardError)
+
   def self.find_by_slack(id)
     account = SlackAccount.where(id: id).first
     return unless account
@@ -34,7 +37,7 @@ class User < ActiveRecord::Base
   end
 
   def github_account
-    github_accounts.first
+    github_accounts.first || fail(MissingGitHubAccount)
   end
 
   def github_token
