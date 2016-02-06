@@ -6,6 +6,8 @@ Rails.application.routes.draw do
   get '/slack/installed' => 'slack#installed', as: :installed
   get '/slack/install' => 'slack#install', as: :install
 
+  mount SlashDeploy::Commands.slack, at: '/commands'
+
   root 'pages#index'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

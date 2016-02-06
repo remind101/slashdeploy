@@ -101,16 +101,7 @@ module SlashDeploy
     end
 
     def app
-      Rack::Builder.app do
-        # Slack will post slash commands here.
-        map '/commands' do
-          run SlashDeploy::Commands.slack
-        end
-
-        map '/' do
-          run Rails.application
-        end
-      end
+      Rails.application
     end
   end
 end
