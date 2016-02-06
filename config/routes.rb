@@ -3,7 +3,9 @@ Rails.application.routes.draw do
   get '/auth/github/callback' => 'github#callback'
   get '/auth/slack/callback' => 'slack#callback'
 
-  root 'root#index'
+  get '/slack/installed' => 'slack#installed', as: :installed
+
+  root 'pages#index'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
