@@ -3,8 +3,12 @@ class SlackController < ApplicationController
   skip_before_filter :verify_authenticity_token
 
   def callback
-    p access_token
+    access_token
     redirect_to installed_path
+  end
+
+  def install
+    redirect_to client.auth_code.authorize_url(scope: 'commands')
   end
 
   def installed

@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   get '/auth/slack/callback' => 'slack#callback'
 
   get '/slack/installed' => 'slack#installed', as: :installed
+  get '/slack/install' => 'slack#install', as: :install
 
   root 'pages#index'
   # The priority is based upon order of creation: first created -> highest priority.
