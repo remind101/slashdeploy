@@ -8,6 +8,10 @@ gem 'turbolinks'
 gem 'octokit'
 gem 'virtus'
 gem 'pg'
+gem 'oj'
+
+# Exceptions
+gem 'rollbar'
 
 # Auth
 gem 'jwt'
