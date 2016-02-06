@@ -11,6 +11,10 @@ module Slash
       @request = request
     end
 
+    def ===(other)
+      request == other.request
+    end
+
     def respond(response)
       uri = URI.parse(request.response_url)
       http = Net::HTTP.new(uri.host, uri.port)
