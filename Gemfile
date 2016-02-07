@@ -10,6 +10,7 @@ gem 'virtus'
 gem 'pg'
 gem 'oj'
 gem 'puma'
+gem 'sass'
 
 # Exceptions
 gem 'rollbar'

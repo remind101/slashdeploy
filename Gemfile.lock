@@ -178,6 +178,7 @@ GEM
       tins (<= 1.6.0)
     ruby-progressbar (1.7.5)
     safe_yaml (1.0.4)
+    sass (3.4.21)
     sawyer (0.6.0)
       addressable (~> 2.3.5)
       faraday (~> 0.8, < 0.10)
@@ -236,6 +237,7 @@ DEPENDENCIES
   rspec-activemodel-mocks
   rspec-rails (~> 3.0)
   rubocop
+  sass
   spring
   turbolinks
   uglifier (>= 1.3.0)
