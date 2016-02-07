@@ -22,10 +22,6 @@ module SlashDeploy
 
     # https://devcenter.heroku.com/articles/rails-4-asset-pipeline#serve-assets
     config.serve_static_files = true
-    config.assets.version = '2'
-    config.assets.paths << Rails.root.join('app', 'assets', 'fonts')
-    config.assets.paths << Rails.root.join('vendor', 'assets', 'fonts')
-    config.assets.precompile << /\.(?:svg|eot|woff|ttf)\z/
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
