@@ -1,1 +1,1 @@
-Created deployment request for <%= @req.to_s %>
+Created deployment request for <%= @resp.to_s %><% if @resp.diff_url %> (<<%= @resp.diff_url %>|diff>)<% end %>

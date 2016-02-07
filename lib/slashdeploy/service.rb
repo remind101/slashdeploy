@@ -33,7 +33,6 @@ module SlashDeploy
           fail EnvironmentLockedError, lock
         else
           deployer.create_deployment(user, req)
-          req
         end
       end
     end

@@ -6,7 +6,12 @@ RSpec.feature 'Slash Commands' do
   let(:app) { SlashDeploy.app }
 
   before do
-    deployment_requests.clear
+    deployer.reset
+
+    # Set the HEAD commits for some fake branches.
+    HEAD('remind101/acme-inc', 'master',  'ad80a1b3e1a94b98ce99b71a48f811f1')
+    HEAD('remind101/acme-inc', 'topic',   '4c7b474c6e1c81553a16d1082cebfa60')
+    HEAD('remind101/acme-inc', 'failing', '46c2acc4e588924340adcd108cfc948b')
   end
 
   scenario 'authenticating' do
@@ -44,6 +49,13 @@ RSpec.feature 'Slash Commands' do
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'master', environment: 'production')]
     ]
+    expect(response.text).to eq 'Created deployment request for remind101/acme-inc@master to production'
+
+    # David commits something new
+    HEAD('remind101/acme-inc', 'master', 'f5c0df18526b90b9698816ee4b6606e0')
+
+    command '/deploy remind101/acme-inc', as: slack_accounts(:david)
+    expect(response.text).to eq 'Created deployment request for remind101/acme-inc@master to production (<https://github.com/remind101/acme-inc/compare/ad80a1...f5c0df|diff>)'
   end
 
   scenario 'performing a deployment to a specific environment' do
@@ -145,7 +157,16 @@ RSpec.feature 'Slash Commands' do
   end
 
   def deployment_requests
-    SlashDeploy.service.deployer.requests
+    deployer.requests
+  end
+
+  def deployer
+    SlashDeploy.service.deployer
+  end
+
+  # rubocop:disable Style/MethodName
+  def HEAD(repository, ref, sha)
+    deployer.HEAD(repository, ref, sha)
   end
 
   def command(text, options = {})

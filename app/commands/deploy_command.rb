@@ -8,8 +8,8 @@ class DeployCommand < BaseCommand
       force:       params['force']
     )
     begin
-      req = slashdeploy.create_deployment(user, req)
-      reply :created, req: req
+      resp = slashdeploy.create_deployment(user, req)
+      reply :created, resp: resp
     rescue SlashDeploy::RedCommitError => e
       reply :red_commit, req: cmd.request, failing_contexts: e.failing_contexts
     rescue SlashDeploy::EnvironmentLockedError => e

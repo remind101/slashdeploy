@@ -12,11 +12,4 @@ class DeploymentRequest
     # Whether to "force" the deployment or not (i.e. Ignore commit status contexts).
     attribute :force, Boolean
   end
-
-  def to_s
-    s = "#{repository}"
-    s = "#{s}@#{ref}" if ref
-    s = "#{s} to #{environment}" if environment
-    s
-  end
 end
