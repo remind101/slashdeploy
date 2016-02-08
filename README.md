@@ -1,4 +1,4 @@
-# SlashDeploy [![Build Status](https://travis-ci.org/ejholmes/slashdeploy.svg?branch=master)](https://travis-ci.org/ejholmes/slashdeploy)
+# SlashDeploy [![Build Status](https://travis-ci.org/ejholmes/slashdeploy.svg?branch=master)](https://travis-ci.org/ejholmes/slashdeploy) [![Code Climate](https://codeclimate.com/github/ejholmes/slashdeploy/badges/gpa.svg)](https://codeclimate.com/github/ejholmes/slashdeploy)
 
 [SlashDeploy](https://slashdeploy.herokuapp.com) is a web app for triggering [GitHub Deployments](https://developer.github.com/v3/repos/deployments/) via a `/deploy` command in Slack.
 
