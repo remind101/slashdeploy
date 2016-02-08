@@ -1,6 +1,10 @@
 language: ruby
 cache: bundler
 rvm:
-  - 2.2.4
-before_script: ./bin/rake db:setup
-script: ./bin/rake
+- 2.2.4
+before_script: "./bin/rake db:setup"
+script: "./bin/rake"
+notifications:
+  email: false
+  slack:
+    secure: uDLpvU5cXO1XbuviHlOVWLJF3ZAIvvmFtruUQ5s6yjyDJsMqd1d33LJyaOwttvI8tDkFxuzzkirgDkqSpguGq1wVtmM3q1RjfzbJZq80vFZz9Vx4tj1eWon/+IKmz2c17cHoeMmzBOkrAPBW5qF/RVz7FdomSGo3vI2xlWdBOxfGVTA9uuvkMo+BKR6MCdQvTyRQVamJyQK2ORCzz6QXa7oIQIigSWo7trxt117mythgaC2cK9KgFmkgllnmpz5SUck7FYmGUF7pKEOIQ84dMgAIM3oum+LTu+s5GuLY4nk+NAGFzZ615S7Az4AatUntZVtTaO14jdcY83dFtrCgLYAdrHDcPqFaSMv7gwWbvpAvf3hIkcZGesySEhgymwZxS58ux0z8A+0pxfsIigF+EeZvd2IKivW5XZy9oqVRujgl7cvQ64nampn+L7lUDqniLN0VfjlkJUWzM36VFsh/27xvo6boUaTUCTDu72Iu7DWacJYSNNeyDt2GELtfIj0RY8Ba804y0/8zNTpc504VDuqeZy5glu63C7dtRg7j0Usrr6+DfvcHIN95ZM0T5xydYj+hXcTWQsQ+uWNcNil5ioQYOnYj9Tfk0EJXTG0H9r32gAKMKQJgmcHDnoTbq4FM6nboceHN0u5bsgZC590i0+4QUEm8FnouTJhzdjWLWmI=
