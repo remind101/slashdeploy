@@ -1,4 +1,8 @@
+require 'codeclimate-test-reporter'
+CodeClimate::TestReporter.start
+
 require 'webmock/rspec'
+WebMock.disable_net_connect!(allow: 'codeclimate.com')
 require 'slash'
 require 'slashdeploy'
 
