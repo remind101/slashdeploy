@@ -5,4 +5,5 @@ require File.expand_path('../config/application', __FILE__)
 
 Rails.application.load_tasks
 
-task default: [:rubocop, :spec]
+task security: [:'brakeman:run']
+task default: [:rubocop, :spec, :security]
