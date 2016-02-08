@@ -40,3 +40,4 @@ exclude_paths:
 - db/
 - spec/
 - vendor/
+- lib/assets
