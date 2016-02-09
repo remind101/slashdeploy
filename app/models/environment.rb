@@ -2,6 +2,7 @@
 class Environment < ActiveRecord::Base
   has_many :locks
   belongs_to :repository
+  belongs_to :auto_deploy_user, class_name: :User, foreign_key: :auto_deploy_user_id
 
   # Validate that an alias doesn't match a different environment.
   validates_with UniqueEnvironment
@@ -40,6 +41,15 @@ class Environment < ActiveRecord::Base
   # the environment.
   def aliases=(aliases)
     super((aliases || []).select { |a| a != name })
+  end
+
+  # Configures this environment to auto deploy the given branch.
+  def configure_auto_deploy(branch, options = {})
+    self.update_attributes!(auto_deploy_branch: branch, auto_deploy_user: options[:user])
+  end
+
+  def auto_deploy?(branch)
+    auto_deploy_branch == branch
   end
 
   # The default git ref to deploy when none is provided for this environment.
