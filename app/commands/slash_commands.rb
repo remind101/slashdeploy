@@ -22,6 +22,7 @@ class SlashCommands
   end
 
   # Route returns the handler that should handle the request.
+  # rubocop:disable Metrics/CyclomaticComplexity
   def route(cmd)
     repo = /(?<repository>#{SlashDeploy::GITHUB_REPO_REGEX})/
     env  = /(?<environment>\S+?)/
