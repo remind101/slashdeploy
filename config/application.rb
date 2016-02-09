@@ -68,5 +68,4 @@ module SlashDeploy
   end
 end
 
-require 'slash'
 require 'slashdeploy'
