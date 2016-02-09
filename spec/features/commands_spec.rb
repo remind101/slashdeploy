@@ -157,6 +157,11 @@ RSpec.feature 'Slash Commands' do
     TEXT
   end
 
+  scenario 'debugging exception tracking' do
+    command '/deploy boom', as: slack_accounts(:david)
+    expect(response.text).to eq "Oops! We had a problem running your command, but we've been notified"
+  end
+
   def deployment_requests
     deployer.requests
   end

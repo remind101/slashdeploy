@@ -9,7 +9,8 @@ class SlashCommands
     :deploy,
     :environments,
     :lock,
-    :unlock
+    :unlock,
+    :boom
 
   def initialize(slashdeploy)
     @help = HelpCommand.new slashdeploy
@@ -17,6 +18,7 @@ class SlashCommands
     @environments = EnvironmentsCommand.new slashdeploy
     @lock = LockCommand.new slashdeploy
     @unlock = UnlockCommand.new slashdeploy
+    @boom = BoomCommand.new slashdeploy
   end
 
   # Route returns the handler that should handle the request.
@@ -36,6 +38,8 @@ class SlashCommands
       [unlock, params(Regexp.last_match)]
     when /^#{repo}(@#{ref})?( to #{env})?(?<force>!)?$/
       [deploy, params(Regexp.last_match)]
+    when /^boom$/
+      [boom, {}]
     else
       [help, 'not_found' => true]
     end
@@ -49,6 +53,9 @@ class SlashCommands
     handler.run(user, cmd, params)
   rescue SlashDeploy::RepoUnauthorized => e
     reply :unauthorized, repository: e.repository
+  rescue StandardError => e
+    Rollbar.error(e)
+    reply :error
   end
 
   private
