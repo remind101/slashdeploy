@@ -57,7 +57,7 @@ module SlashDeploy
     #
     # Returns a Lock.
     def lock_environment(user, environment, message = nil)
-      authorize! user, environment.repository.to_s
+      authorize! user, environment.repository
 
       lock = environment.active_lock
 
@@ -80,7 +80,7 @@ module SlashDeploy
     #
     # Returns nothing
     def unlock_environment(user, environment)
-      authorize! user, environment.repository.to_s
+      authorize! user, environment.repository
 
       lock = environment.active_lock
       return unless lock
@@ -90,7 +90,7 @@ module SlashDeploy
     private
 
     def authorize!(user, repository)
-      fail RepoUnauthorized, repository unless authorizer.authorized?(user, repository)
+      fail RepoUnauthorized, repository unless authorizer.authorized?(user, repository.to_s)
     end
   end
 end
