@@ -6,6 +6,10 @@ class User < ActiveRecord::Base
   # Raised if the user doesn't have a github account.
   MissingGitHubAccount = Class.new(StandardError)
 
+  def username
+    github_account.login
+  end
+
   def self.find_by_slack(id)
     account = SlackAccount.where(id: id).first
     return unless account

@@ -49,13 +49,22 @@ class SlashCommands
     cmd  = env['cmd']
     user = env['user']
 
-    handler, params = route(cmd)
-    handler.run(user, cmd, params)
-  rescue SlashDeploy::RepoUnauthorized => e
-    reply :unauthorized, repository: e.repository
-  rescue StandardError => e
-    Rollbar.error(e)
-    reply :error
+    scope = {
+      person: { id: user.id, username: user.username },
+      command: cmd.request
+    }
+
+    Rollbar.scoped(scope) do
+      begin
+        handler, params = route(cmd)
+        handler.run(user, cmd, params)
+      rescue SlashDeploy::RepoUnauthorized => e
+        reply :unauthorized, repository: e.repository
+      rescue StandardError => e
+        Rollbar.error(e)
+        reply :error
+      end
+    end
   end
 
   private
