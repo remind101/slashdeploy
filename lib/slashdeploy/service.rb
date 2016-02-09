@@ -47,9 +47,7 @@ module SlashDeploy
     # Returns an Array of Environments
     def environments(user, repository)
       authorize! user, repository
-
-      repo = Repository.with_name(repository)
-      repo.environments
+      repository.environments
     end
 
     # Attempts to lock the environment on the repo.

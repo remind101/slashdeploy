@@ -1,4 +1,8 @@
-I know about these environments for <%= @repo %>:
-<% @environments.each do |environment| %>
+<% if @environments.empty? %>
+I don't know about any environments for <%= @repository %>
+<% else %>
+I know about these environments for <%= @repository %>:
+  <% @environments.each do |environment| %>
 * <%= environment.name %>
+  <% end %>
 <% end %>
