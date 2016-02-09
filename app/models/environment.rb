@@ -25,6 +25,11 @@ class Environment < ActiveRecord::Base
     locks.active.first
   end
 
+  # The default git ref to deploy when none is provided for this environment.
+  def default_ref
+    Rails.configuration.x.default_ref
+  end
+
   def to_s
     name
   end

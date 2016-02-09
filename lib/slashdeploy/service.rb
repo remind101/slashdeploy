@@ -27,7 +27,7 @@ module SlashDeploy
       req = DeploymentRequest.new(
         repository:  repository.to_s,
         environment: environment.to_s,
-        ref:         ref || config.default_ref,
+        ref:         ref || environment.default_ref,
         force:       options[:force]
       )
 
@@ -93,14 +93,6 @@ module SlashDeploy
 
     def authorize!(user, repository)
       fail RepoUnauthorized, repository unless authorizer.authorized?(user, repository)
-    end
-
-    def transaction(*args, &block)
-      ActiveRecord::Base.transaction(*args, &block)
-    end
-
-    def config
-      Rails.configuration.x
     end
   end
 end
