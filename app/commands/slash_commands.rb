@@ -50,8 +50,7 @@ class SlashCommands
     user = env['user']
 
     scope = {
-      person: { id: user.id, username: user.username },
-      command: cmd.request
+      person: { id: user.id, username: user.username }
     }
 
     Rollbar.scoped(scope) do
