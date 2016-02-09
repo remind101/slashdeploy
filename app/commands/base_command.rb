@@ -12,4 +12,8 @@ class BaseCommand
   def run(_user, _cmd, _params)
     fail NotImplementedError
   end
+
+  private
+
+  delegate :transaction, to: :'ActiveRecord::Base'
 end

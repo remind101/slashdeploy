@@ -1,11 +1,12 @@
 # UnlockCommand handles the `/deploy unlock` command.
 class UnlockCommand < BaseCommand
   def run(user, _cmd, params)
-    req = UnlockRequest.new(
-      repository:  params['repository'],
-      environment: params['environment']
-    )
-    slashdeploy.unlock_environment(user, req)
-    say :unlocked, req: req
+    transaction do
+      repo = Repository.with_name(params['repository'])
+      env  = repo.environment(params['environment'])
+
+      slashdeploy.unlock_environment(user, env)
+      say :unlocked, repository: repo, environment: env
+    end
   end
 end

@@ -49,6 +49,7 @@ RSpec.feature 'Slash Commands' do
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'master', environment: 'production')]
     ]
+    expect(response).to be_in_channel
     expect(response.text).to eq 'Created deployment request for remind101/acme-inc@master to production'
 
     # David commits something new

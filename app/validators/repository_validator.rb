@@ -6,6 +6,6 @@ class RepositoryValidator < ActiveModel::EachValidator
 
   def validate_each(record, attribute, value)
     return if self.class.check(value)
-    record.errors[attribute] << 'is not a valid GitHub repository'
+    record.errors.add(attribute, :invalid_repository)
   end
 end

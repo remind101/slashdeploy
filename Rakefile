@@ -6,4 +6,9 @@ require File.expand_path('../config/application', __FILE__)
 Rails.application.load_tasks
 
 task security: [:'brakeman:run']
-task default: [:rubocop, :spec, :security]
+
+if ENV['CI']
+  task default: [:rubocop, :spec, :security]
+else
+  task default: [:rubocop, :spec]
+end

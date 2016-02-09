@@ -13,27 +13,30 @@ module SlashDeploy
 
     # Creates a new deployment request as the given user.
     #
-    # req - DeploymentRequest object.
+    # user        - The User requesting the deployment.
+    # environment - The Environment to be deployed to.
+    # ref         - A String git ref. If none is provided, defaults to the
+    #               default ref.
+    # options     - A Hash of extra options.
+    #               :force - "force" the deployment, ignoring commit status contexts.
     #
-    # Returns the id of the created Deployment.
-    def create_deployment(user, req)
+    # Returns a DeploymentResponse.
+    def create_deployment(user, environment, ref = nil, options = {})
+      repository = environment.repository
+
       req = DeploymentRequest.new(
-        repository: req.repository,
-        environment: req.environment || config.default_environment,
-        ref: req.ref || config.default_ref,
-        force: req.force
+        repository:  repository.to_s,
+        environment: environment.to_s,
+        ref:         ref || config.default_ref,
+        force:       options[:force]
       )
 
       # Check if the environment we're deploying to is locked.
-      transaction do
-        repo = Repository.with_name(req.repository)
-        env  = repo.environment(req.environment)
-        lock = env.active_lock
-        if lock && lock.user != user
-          fail EnvironmentLockedError, lock
-        else
-          deployer.create_deployment(user, req)
-        end
+      lock = environment.active_lock
+      if lock && lock.user != user
+        fail EnvironmentLockedError, lock
+      else
+        deployer.create_deployment(user, req)
       end
     end
 
@@ -49,48 +52,41 @@ module SlashDeploy
       repo.environments
     end
 
-    # Attempts to lock the repository on the repo.
+    # Attempts to lock the environment on the repo.
     #
-    # req - A LockRequest.
+    # environment - An Environment to lock.
+    # message     - An option message.
     #
     # Returns a Lock.
-    def lock_environment(user, req)
-      authorize! user, req.repository
+    def lock_environment(user, environment, message = nil)
+      authorize! user, environment.repository.to_s
 
-      transaction do
-        repo = Repository.with_name(req.repository)
-        env  = repo.environment(req.environment)
-        lock = env.active_lock
+      lock = environment.active_lock
 
-        if lock
-          return if lock.user == user # Already locked, nothing to do.
-          lock.unlock!
-        end
-
-        stolen = lock
-        lock = env.lock! user, req.message
-
-        LockResponse.new \
-          lock: lock,
-          stolen: stolen
+      if lock
+        return if lock.user == user # Already locked, nothing to do.
+        lock.unlock!
       end
+
+      stolen = lock
+      lock = environment.lock! user, message
+
+      LockResponse.new \
+        lock: lock,
+        stolen: stolen
     end
 
     # Unlocks an environment.
     #
-    # req - An UnlockRequest.
+    # environment - An Environment to unlock
     #
     # Returns nothing
-    def unlock_environment(user, req)
-      authorize! user, req.repository
+    def unlock_environment(user, environment)
+      authorize! user, environment.repository.to_s
 
-      transaction do
-        repo = Repository.find_or_create_by(name: req.repository)
-        env  = repo.environments.find_or_create_by(name: req.environment)
-        lock = env.active_lock
-        return unless lock
-        lock.update_attributes(active: false)
-      end
+      lock = environment.active_lock
+      return unless lock
+      lock.unlock!
     end
 
     private

@@ -6,6 +6,6 @@ class Lock < ActiveRecord::Base
   scope :active, -> { where(active: true) }
 
   def unlock!
-    update_attributes(active: false)
+    update_attributes!(active: false)
   end
 end

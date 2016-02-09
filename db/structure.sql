@@ -38,7 +38,8 @@ CREATE TABLE environments (
     name character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    repository_id integer NOT NULL
+    repository_id integer NOT NULL,
+    in_channel boolean DEFAULT false NOT NULL
 );
 
 
@@ -360,4 +361,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160205013625');
 INSERT INTO schema_migrations (version) VALUES ('20160205060045');
 
 INSERT INTO schema_migrations (version) VALUES ('20160205063654');
+
+INSERT INTO schema_migrations (version) VALUES ('20160209012632');
 
