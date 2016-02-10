@@ -48,7 +48,7 @@ RSpec.describe GithubController, type: :controller do
     context 'when the slack account already exists' do
       before do
         user = User.create!
-        user.slack_accounts << SlackAccount.new(id: 'U01', user_name: 'david', team_id: '1234', team_domain: 'acme')
+        user.slack_accounts << SlackAccount.new(id: 'U01', user_name: 'david', slack_team: SlackTeam.new(id: '1234', domain: 'acme'))
       end
 
       it 'logs the user in' do

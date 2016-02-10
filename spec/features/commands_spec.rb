@@ -22,10 +22,9 @@ RSpec.feature 'Slash Commands' do
       .to_return(status: 200, body: { 'id' => 1, 'login' => 'joe' }.to_json, headers: { 'Content-Type' => 'application/json' })
 
     account = SlackAccount.new(
-      id: 'UABCD',
-      user_name: 'joe',
-      team_id: 1,
-      team_domain: 'acme'
+      id:         'UABCD',
+      user_name:  'joe',
+      slack_team: slack_teams(:acme)
     )
 
     command '/deploy help', as: account
