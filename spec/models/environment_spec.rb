@@ -52,14 +52,21 @@ RSpec.describe Environment, type: :model do
       expect(environment.aliases).to eq %w(prod)
     end
 
-    it 'does not allow you to create aliases that match a different environment for the same repository' do
+    it 'does not allow you to create aliases that match a different environment for the same repository', focus: true do
       repo = Repository.with_name('remind101/acme-inc')
-      production = repo.environment('production')
-      production.update_attributes! aliases: %w(prod)
+      repo.environments.create!(name: 'production', aliases: %w(prod))
 
-      staging = repo.environment('staging')
+      staging = repo.environments.create!(name: 'staging')
       staging.update_attributes aliases: %w(prod)
       expect(staging.errors[:aliases]).to eq ['includes the name of an existing environment for this repository']
+    end
+
+    it 'does not allow you to create an environment that matches the alias of an existing environment' do
+      repo = Repository.with_name('remind101/acme-inc')
+      repo.environments.create!(name: 'production', aliases: %w(prod))
+
+      staging = repo.environments.create(name: 'prod')
+      expect(staging.errors[:name]).to eq ['includes the name of an existing environment for this repository']
     end
   end
 end

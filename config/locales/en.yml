@@ -31,3 +31,5 @@ en:
           attributes:
             aliases:
               matches_existing_environment: "includes the name of an existing environment for this repository"
+            name:
+              matches_existing_environment: "includes the name of an existing environment for this repository"
