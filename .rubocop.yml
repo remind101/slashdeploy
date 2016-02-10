@@ -1,4 +1,6 @@
 AllCops:
+  DisplayCopNames: true
+  ExtraDetails: true
   Include:
     - '**/Rakefile'
     - '**/config.ru'
@@ -19,3 +21,9 @@ Metrics/AbcSize:
 
 Style/Documentation:
   Enabled: false
+
+Style/Lambda:
+  Enabled: false
+
+Style/Send:
+  Enabled: true

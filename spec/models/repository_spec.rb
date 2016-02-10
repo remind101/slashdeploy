@@ -5,7 +5,7 @@ RSpec.describe Repository, type: :model do
     it 'gets validated as a GitHub repository name' do
       repo = Repository.new(name: 'foo')
       expect(repo).to be_invalid
-      expect(repo.errors[:name]).to eq ['invalid GitHub repository']
+      expect(repo.errors[:name]).to eq ['is not a valid GitHub repository']
     end
   end
 

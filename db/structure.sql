@@ -39,7 +39,8 @@ CREATE TABLE environments (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     repository_id integer NOT NULL,
-    in_channel boolean DEFAULT false NOT NULL
+    in_channel boolean DEFAULT false NOT NULL,
+    aliases text[] DEFAULT '{}'::text[]
 );
 
 
@@ -268,6 +269,13 @@ ALTER TABLE ONLY users
 
 
 --
+-- Name: index_environments_on_repository_id_and_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_environments_on_repository_id_and_name ON environments USING btree (repository_id, name);
+
+
+--
 -- Name: index_github_accounts_on_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -363,4 +371,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160205060045');
 INSERT INTO schema_migrations (version) VALUES ('20160205063654');
 
 INSERT INTO schema_migrations (version) VALUES ('20160209012632');
+
+INSERT INTO schema_migrations (version) VALUES ('20160210071446');
 

@@ -66,6 +66,18 @@ RSpec.feature 'Slash Commands' do
     ]
   end
 
+  scenario 'performing a deployment to an aliased environment' do
+    repo = Repository.with_name('remind101/acme-inc')
+    env  = repo.environment('staging')
+    env.aliases = ['stage']
+    env.save!
+
+    command '/deploy remind101/acme-inc to stage', as: slack_accounts(:david)
+    expect(deployment_requests).to eq [
+      [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'master', environment: 'staging')]
+    ]
+  end
+
   scenario 'performing a deployment of a topic branch' do
     command '/deploy remind101/acme-inc@topic', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
