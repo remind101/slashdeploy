@@ -23,8 +23,8 @@ class SlashCommands
 
   # Route returns the handler that should handle the request.
   # rubocop:disable Metrics/CyclomaticComplexity
-  def route(cmd)
-    repo = /(?<repository>#{SlashDeploy::GITHUB_REPO_REGEX})/
+  def route(slack_user, cmd)
+    repo = /(?<repository>\S+?)/
     env  = /(?<environment>\S+?)/
     ref  = /(?<ref>\S+?)/
 
@@ -37,10 +37,23 @@ class SlashCommands
       [lock, params(Regexp.last_match)]
     when /^unlock #{env} on #{repo}$/
       [unlock, params(Regexp.last_match)]
-    when /^#{repo}(@#{ref})?( to #{env})?(?<force>!)?$/
-      [deploy, params(Regexp.last_match)]
     when /^boom$/
       [boom, {}]
+    when /^#{repo}(@#{ref})?( to #{env})?(?<force>!)?$/
+      params = params(Regexp.last_match)
+
+      team = slack_user.slack_team
+
+      unless params['repository'].include?('/')
+        if team.github_organization.present?
+          params['repository'] = "#{team.github_organization}/#{params['repository']}"
+        else
+          # At this point it's not a valid repository (missing owner), return the help.
+          return [help, {}]
+        end
+      end
+
+      [deploy, params]
     else
       [help, 'not_found' => true]
     end
@@ -49,6 +62,10 @@ class SlashCommands
   def call(env)
     cmd  = env['cmd']
     user = env['user']
+    team = SlackTeam.find_or_initialize_by(id: cmd.request.team_id) do |t|
+      t.domain = cmd.request.team_domain
+    end
+    slack_user = SlackUser.new(user, team)
 
     scope = {
       person: { id: user.id, username: user.username }
@@ -56,8 +73,8 @@ class SlashCommands
 
     Rollbar.scoped(scope) do
       begin
-        handler, params = route(cmd)
-        handler.run(user, cmd, params)
+        handler, params = route(slack_user, cmd)
+        handler.run(slack_user, cmd, params)
       rescue SlashDeploy::RepoUnauthorized => e
         reply :unauthorized, repository: e.repository
       rescue StandardError => e

@@ -1,1 +1,1 @@
-`<%= @environment %>` is locked by <@<%= @locker %>><% if @lock.message %>: <%= @lock.message %><% end %>
+`<%= @environment %>` is locked by <@<%= @locker.slack_username %>><% if @lock.message %>: <%= @lock.message %><% end %>

@@ -1,13 +1,13 @@
 # DeployCommand handles creating deployments.
 class DeployCommand < BaseCommand
-  def run(user, cmd, params)
+  def run(slack_user, cmd, params)
     transaction do
       repo = Repository.with_name(params['repository'])
       env  = repo.environment(params['environment'])
 
       begin
         resp = slashdeploy.create_deployment(
-          user,
+          slack_user.user,
           env,
           params['ref'],
           force: params['force']
@@ -16,7 +16,7 @@ class DeployCommand < BaseCommand
       rescue SlashDeploy::RedCommitError => e
         reply :red_commit, req: cmd.request, failing_contexts: e.failing_contexts
       rescue SlashDeploy::EnvironmentLockedError => e
-        locker = e.lock.user.slack_username(cmd.request.team_id)
+        locker = SlackUser.new(e.lock.user, slack_user.slack_team)
         reply :locked, environment: env, lock: e.lock, locker: locker
       end
     end

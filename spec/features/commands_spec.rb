@@ -37,7 +37,7 @@ RSpec.feature 'Slash Commands' do
     expect(response.text).to eq HelpCommand::USAGE.strip
   end
 
-  scenario 'entering an unknown command' do
+  xscenario 'entering an unknown command' do
     command '/deploy foo', as: slack_accounts(:david)
     expect(response.in_channel).to be_falsey
     expect(response.text).to eq "I don't know that command. Here's what I do know:\n#{HelpCommand::USAGE}".strip
@@ -74,6 +74,13 @@ RSpec.feature 'Slash Commands' do
     command '/deploy remind101/acme-inc to stage', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'master', environment: 'staging')]
+    ]
+  end
+
+  scenario 'performing a deployment using only the repo name' do
+    command '/deploy acme-inc@topic', as: slack_accounts(:david)
+    expect(deployment_requests).to eq [
+      [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'topic', environment: 'production')]
     ]
   end
 

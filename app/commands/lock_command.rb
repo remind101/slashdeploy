@@ -1,13 +1,13 @@
 # LockCommand handles the `/deploy lock` command.
 class LockCommand < BaseCommand
-  def run(user, cmd, params)
+  def run(slack_user, _cmd, params)
     transaction do
       repo = Repository.with_name(params['repository'])
       env  = repo.environment(params['environment'])
-      resp = slashdeploy.lock_environment(user, env, params['message'].try(:strip))
+      resp = slashdeploy.lock_environment(slack_user.user, env, params['message'].try(:strip))
       if resp
-        stolen = resp.stolen ? resp.stolen.user.slack_username(cmd.request.team_id) : nil
-        say :locked, environment: env, repository: repo, stolen: stolen
+        stealer = resp.stolen ? SlackUser.new(resp.stolen.user, slack_user.slack_team) : nil
+        say :locked, environment: env, repository: repo, stealer: stealer
       else
         say :already_locked, environment: env, repository: repo
       end

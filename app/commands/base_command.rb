@@ -9,7 +9,7 @@ class BaseCommand
     @slashdeploy = slashdeploy
   end
 
-  def run(_user, _cmd, _params)
+  def run(_slack_user, _team, _cmd, _params)
     fail NotImplementedError
   end
 
