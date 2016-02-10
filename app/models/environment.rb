@@ -39,7 +39,7 @@ class Environment < ActiveRecord::Base
   # Override the aliases setter to filter out aliases that match the name of
   # the environment.
   def aliases=(aliases)
-    super(aliases.select { |a| a != name })
+    super((aliases || []).select { |a| a != name })
   end
 
   # The default git ref to deploy when none is provided for this environment.
