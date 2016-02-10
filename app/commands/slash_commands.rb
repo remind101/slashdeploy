@@ -4,6 +4,9 @@
 class SlashCommands
   include SlashDeploy::Commands::Rendering
 
+  # Should never be raised outside of this class.
+  InvalidRepository = Class.new(StandardError)
+
   attr_reader \
     :help,
     :deploy,
@@ -32,31 +35,20 @@ class SlashCommands
     when /^help$/
       [help, {}]
     when /^where #{repo}$/
-      [environments, params(Regexp.last_match)]
+      [environments, params(slack_user, Regexp.last_match)]
     when /^lock #{env} on #{repo}(:(?<message>.*))?$/
-      [lock, params(Regexp.last_match)]
+      [lock, params(slack_user, Regexp.last_match)]
     when /^unlock #{env} on #{repo}$/
-      [unlock, params(Regexp.last_match)]
+      [unlock, params(slack_user, Regexp.last_match)]
     when /^boom$/
       [boom, {}]
     when /^#{repo}(@#{ref})?( to #{env})?(?<force>!)?$/
-      params = params(Regexp.last_match)
-
-      team = slack_user.slack_team
-
-      unless params['repository'].include?('/')
-        if team.github_organization.present?
-          params['repository'] = "#{team.github_organization}/#{params['repository']}"
-        else
-          # At this point it's not a valid repository (missing owner), return the help.
-          return [help, {}]
-        end
-      end
-
-      [deploy, params]
+      [deploy, params(slack_user, Regexp.last_match)]
     else
       [help, 'not_found' => true]
     end
+  rescue InvalidRepository
+    [help, {}]
   end
 
   def call(env)
@@ -86,7 +78,20 @@ class SlashCommands
 
   private
 
-  def params(matches)
-    Hash[matches.names.zip(matches.captures)]
+  def params(slack_user, matches)
+    p = Hash[matches.names.zip(matches.captures)]
+
+    # Coerce the repository param to include this slack teams default github org.
+    if p['repository'].present? && !p['repository'].include?('/')
+      team = slack_user.slack_team
+      if team.github_organization.present?
+        p['repository'] = "#{team.github_organization}/#{p['repository']}"
+      else
+        # At this point it's not a valid repository (missing owner), return the help.
+        fail InvalidRepository
+      end
+    end
+
+    p
   end
 end

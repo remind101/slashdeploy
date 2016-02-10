@@ -10,11 +10,19 @@ RSpec.describe SlashCommands do
       b = double(SlackUser, slack_team: stub_model(SlackTeam, github_organization: nil))
 
       check_route(a, 'help', HelpCommand, {})
+
       check_route(a, 'where remind101/acme-inc', EnvironmentsCommand, 'repository' => 'remind101/acme-inc')
+      check_route(a, 'where acme-inc', EnvironmentsCommand, 'repository' => 'remind101/acme-inc')
+
       check_route(a, 'lock staging on remind101/acme-inc: Doing stuff', LockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'message' => ' Doing stuff')
       check_route(a, 'lock staging on remind101/acme-inc', LockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'message' => nil)
+      check_route(a, 'lock staging on acme-inc', LockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'message' => nil)
+
       check_route(a, 'unlock staging on remind101/acme-inc', UnlockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging')
+      check_route(a, 'unlock staging on acme-inc', UnlockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging')
+
       check_route(a, 'boom', BoomCommand, {})
+
       check_route(a, 'remind101/acme-inc', DeployCommand, 'repository' => 'remind101/acme-inc', 'force' => nil, 'ref' => nil, 'environment' => nil)
       check_route(a, 'remind101/acme-inc!', DeployCommand, 'repository' => 'remind101/acme-inc', 'force' => '!', 'ref' => nil, 'environment' => nil)
       check_route(a, 'remind101/acme-inc@topic', DeployCommand, 'repository' => 'remind101/acme-inc', 'ref' => 'topic', 'force' => nil, 'environment' => nil)
