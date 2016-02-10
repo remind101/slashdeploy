@@ -269,6 +269,13 @@ ALTER TABLE ONLY users
 
 
 --
+-- Name: index_environments_on_repository_id_and_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_environments_on_repository_id_and_name ON environments USING btree (repository_id, name);
+
+
+--
 -- Name: index_github_accounts_on_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
