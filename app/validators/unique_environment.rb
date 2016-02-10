@@ -10,13 +10,22 @@ class UniqueEnvironment < ActiveModel::Validator
   end
 
   def validate(environment)
+    # First step, check the aliases in this environment and make sure there's
+    # no other environment that matches.
     # TODO: This is N+1 for each environment.
     environment.aliases.each do |name|
-      existing = environment.other_environments_named(name).first
-      environment.errors.add(:aliases, :matches_existing_environment, name: existing.name) if existing
+      check environment, :aliases, name
     end
 
-    existing = environment.other_environments_named(environment.name).first
-    environment.errors.add(:name, :matches_existing_environment, name: existing.name) if existing
+    # Second step, check the name of this environment and make sure there's not
+    # other environment that matches.
+    check environment, :name, environment.name
+  end
+
+  private
+
+  def check(environment, field, name)
+    existing = environment.other_environments_named(name).first
+    environment.errors.add(field, :matches_existing_environment, name: existing.name) if existing
   end
 end

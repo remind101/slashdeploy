@@ -52,7 +52,7 @@ RSpec.describe Environment, type: :model do
       expect(environment.aliases).to eq %w(prod)
     end
 
-    it 'does not allow you to create aliases that match a different environment for the same repository', focus: true do
+    it 'does not allow you to create aliases that match a different environment for the same repository' do
       repo = Repository.with_name('remind101/acme-inc')
       repo.environments.create!(name: 'production', aliases: %w(prod))
 
