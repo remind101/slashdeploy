@@ -1,6 +1,6 @@
 # UnlockCommand handles the `/deploy unlock` command.
 class UnlockCommand < BaseCommand
-  def run(user, _cmd, params)
+  def run
     transaction do
       repo = Repository.with_name(params['repository'])
       env  = repo.environment(params['environment'])

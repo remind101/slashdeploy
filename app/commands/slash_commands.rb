@@ -10,32 +10,25 @@ class SlashCommands
 
   attr_reader :router
 
-  def self.route(slashdeploy)
-    help         = HelpCommand.new slashdeploy
-    environments = EnvironmentsCommand.new slashdeploy
-    lock         = LockCommand.new slashdeploy
-    unlock       = UnlockCommand.new slashdeploy
-    deploy       = DeployCommand.new slashdeploy
-    boom         = BoomCommand.new slashdeploy
-
+  def self.route
     router = Slash::Router.new
-    router.match match_regexp(/^help$/), help
-    router.match match_regexp(/^where #{REPO}$/), environments
-    router.match match_regexp(/^lock #{ENV} on #{REPO}(:(?<message>.*))?$/), lock
-    router.match match_regexp(/^unlock #{ENV} on #{REPO}$/), unlock
-    router.match match_regexp(/^boom$/), boom
-    router.match match_regexp(/^#{REPO}(@#{REF})?( to #{ENV})?(?<force>!)?$/), deploy
+    router.match match_regexp(/^help$/), HelpCommand
+    router.match match_regexp(/^where #{REPO}$/), EnvironmentsCommand
+    router.match match_regexp(/^lock #{ENV} on #{REPO}(:(?<message>.*))?$/), LockCommand
+    router.match match_regexp(/^unlock #{ENV} on #{REPO}$/), UnlockCommand
+    router.match match_regexp(/^boom$/), BoomCommand
+    router.match match_regexp(/^#{REPO}(@#{REF})?( to #{ENV})?(?<force>!)?$/), DeployCommand
 
     router.not_found = -> (env) do
       env['params'] = { 'not_found' => true }
-      help.call(env)
+      HelpCommand.call(env)
     end
 
     router
   end
 
-  def self.build(slashdeploy)
-    new route(slashdeploy)
+  def self.build
+    new route
   end
 
   # Returns a Slash::Matcher::Regexp matcher that will also normalize the

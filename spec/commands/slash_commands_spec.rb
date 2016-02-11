@@ -38,11 +38,11 @@ RSpec.describe SlashCommands do
 
     def check_route(user, text, expected_handler, expected_params)
       env = { 'cmd' => Slash::Command.from_params(text: text), 'user' => user }
-      router = SlashCommands.route(slashdeploy)
+      router = SlashCommands.route
       route = router.route(env)
 
       expect(route.match(env)).to eq expected_params
-      expect(route.handler).to be_a expected_handler
+      expect(route.handler).to eq expected_handler
     end
   end
 end
