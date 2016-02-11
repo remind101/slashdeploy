@@ -34,12 +34,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def slack_username(team_id)
-    account = slack_accounts.find { |a| a.team_id == team_id }
-    return unless account
-    account.user_name
-  end
-
   def github_account
     github_accounts.first || fail(MissingGitHubAccount)
   end

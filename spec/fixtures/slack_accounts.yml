@@ -2,17 +2,14 @@ david:
   user: david
   id: "U012AB1AB"
   user_name: david
-  team_id: "1"
-  team_domain: "acme"
+  slack_team: acme
 steve:
   user: steve
   id: "U123BC2BD"
   user_name: steve
-  team_id: "1"
-  team_domain: "acme"
+  slack_team: acme
 bob:
   user: bob
   id: "U987AD3CD"
   user_name: bob
-  team_id: "2"
-  team_domain: "skynet"
+  slack_team: skynet

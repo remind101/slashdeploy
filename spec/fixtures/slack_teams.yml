@@ -1,0 +1,5 @@
+acme:
+  domain: "acme"
+  github_organization: "remind101"
+skynet:
+  domain: "skynet"

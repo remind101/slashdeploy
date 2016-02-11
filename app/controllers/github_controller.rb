@@ -14,11 +14,13 @@ class GithubController < ApplicationController
   private
 
   def slack_account
+    team = SlackTeam.find_or_initialize_by(id: slack_user['team_id']) do |t|
+      t.domain = slack_user['team_domain']
+    end
     SlackAccount.new(
-      id:          slack_user['user_id'],
-      user_name:   slack_user['user_name'],
-      team_id:     slack_user['team_id'],
-      team_domain: slack_user['team_domain']
+      id:         slack_user['user_id'],
+      user_name:  slack_user['user_name'],
+      slack_team: team
     )
   end
 

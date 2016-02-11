@@ -3,17 +3,43 @@
 class BaseCommand
   include SlashDeploy::Commands::Rendering
 
+  attr_reader :env
   attr_reader :slashdeploy
 
-  def initialize(slashdeploy)
+  def self.call(env)
+    new(env, ::SlashDeploy.service).run
+  end
+
+  def initialize(env, slashdeploy)
+    @env = env
     @slashdeploy = slashdeploy
   end
 
-  def run(_user, _cmd, _params)
+  def run
     fail NotImplementedError
   end
 
+  def render(template, assigns = {})
+    super template, assigns.merge(user: user, params: params, request: request)
+  end
+
   private
+
+  def user
+    env['user']
+  end
+
+  def cmd
+    env['cmd']
+  end
+
+  def request
+    cmd.request
+  end
+
+  def params
+    env['params']
+  end
 
   delegate :transaction, to: :'ActiveRecord::Base'
 end

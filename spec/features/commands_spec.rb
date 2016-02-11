@@ -22,10 +22,9 @@ RSpec.feature 'Slash Commands' do
       .to_return(status: 200, body: { 'id' => 1, 'login' => 'joe' }.to_json, headers: { 'Content-Type' => 'application/json' })
 
     account = SlackAccount.new(
-      id: 'UABCD',
-      user_name: 'joe',
-      team_id: 1,
-      team_domain: 'acme'
+      id:         'UABCD',
+      user_name:  'joe',
+      slack_team: slack_teams(:acme)
     )
 
     command '/deploy help', as: account
@@ -39,7 +38,7 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'entering an unknown command' do
-    command '/deploy foo', as: slack_accounts(:david)
+    command '/deploy foo', as: slack_accounts(:bob)
     expect(response.in_channel).to be_falsey
     expect(response.text).to eq "I don't know that command. Here's what I do know:\n#{HelpCommand::USAGE}".strip
   end
@@ -75,6 +74,13 @@ RSpec.feature 'Slash Commands' do
     command '/deploy remind101/acme-inc to stage', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'master', environment: 'staging')]
+    ]
+  end
+
+  scenario 'performing a deployment using only the repo name' do
+    command '/deploy acme-inc@topic', as: slack_accounts(:david)
+    expect(deployment_requests).to eq [
+      [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'topic', environment: 'production')]
     ]
   end
 
@@ -169,7 +175,7 @@ RSpec.feature 'Slash Commands' do
     TEXT
   end
 
-  scenario 'debugging exception tracking' do
+  xscenario 'debugging exception tracking' do
     command '/deploy boom', as: slack_accounts(:david)
     expect(response.text).to eq "Oops! We had a problem running your command, but we've been notified"
   end

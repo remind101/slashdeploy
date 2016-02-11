@@ -157,8 +157,20 @@ CREATE TABLE slack_accounts (
     user_id integer,
     id character varying NOT NULL,
     user_name character varying NOT NULL,
-    team_id character varying NOT NULL,
-    team_domain character varying NOT NULL
+    slack_team_id character varying NOT NULL
+);
+
+
+--
+-- Name: slack_teams; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE slack_teams (
+    id character varying NOT NULL,
+    domain character varying NOT NULL,
+    github_organization character varying,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -261,6 +273,14 @@ ALTER TABLE ONLY slack_accounts
 
 
 --
+-- Name: slack_teams_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY slack_teams
+    ADD CONSTRAINT slack_teams_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -297,6 +317,13 @@ CREATE UNIQUE INDEX index_slack_accounts_on_id ON slack_accounts USING btree (id
 
 
 --
+-- Name: index_slack_teams_on_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_slack_teams_on_id ON slack_teams USING btree (id);
+
+
+--
 -- Name: locked_environment; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -324,6 +351,14 @@ ALTER TABLE ONLY locks
 
 ALTER TABLE ONLY locks
     ADD CONSTRAINT fk_rails_426f571216 FOREIGN KEY (user_id) REFERENCES users(id);
+
+
+--
+-- Name: fk_rails_4a418d4e27; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY slack_accounts
+    ADD CONSTRAINT fk_rails_4a418d4e27 FOREIGN KEY (slack_team_id) REFERENCES slack_teams(id);
 
 
 --
@@ -373,4 +408,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160205063654');
 INSERT INTO schema_migrations (version) VALUES ('20160209012632');
 
 INSERT INTO schema_migrations (version) VALUES ('20160210071446');
+
+INSERT INTO schema_migrations (version) VALUES ('20160210094548');
 

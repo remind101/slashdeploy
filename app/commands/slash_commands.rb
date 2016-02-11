@@ -4,50 +4,46 @@
 class SlashCommands
   include SlashDeploy::Commands::Rendering
 
-  attr_reader \
-    :help,
-    :deploy,
-    :environments,
-    :lock,
-    :unlock,
-    :boom
+  REPO = /(?<repository>\S+?)/
+  ENV  = /(?<environment>\S+?)/
+  REF  = /(?<ref>\S+?)/
 
-  def initialize(slashdeploy)
-    @help = HelpCommand.new slashdeploy
-    @deploy = DeployCommand.new slashdeploy
-    @environments = EnvironmentsCommand.new slashdeploy
-    @lock = LockCommand.new slashdeploy
-    @unlock = UnlockCommand.new slashdeploy
-    @boom = BoomCommand.new slashdeploy
+  attr_reader :router
+
+  def self.route
+    router = Slash::Router.new
+    router.match match_regexp(/^help$/), HelpCommand
+    router.match match_regexp(/^where #{REPO}$/), EnvironmentsCommand
+    router.match match_regexp(/^lock #{ENV} on #{REPO}(:(?<message>.*))?$/), LockCommand
+    router.match match_regexp(/^unlock #{ENV} on #{REPO}$/), UnlockCommand
+    router.match match_regexp(/^boom$/), BoomCommand
+    router.match match_regexp(/^#{REPO}(@#{REF})?( to #{ENV})?(?<force>!)?$/), DeployCommand
+
+    router.not_found = -> (env) do
+      env['params'] = { 'not_found' => true }
+      HelpCommand.call(env)
+    end
+
+    router
   end
 
-  # Route returns the handler that should handle the request.
-  # rubocop:disable Metrics/CyclomaticComplexity
-  def route(cmd)
-    repo = /(?<repository>#{SlashDeploy::GITHUB_REPO_REGEX})/
-    env  = /(?<environment>\S+?)/
-    ref  = /(?<ref>\S+?)/
+  def self.build
+    new route
+  end
 
-    case cmd.request.text
-    when /^help$/
-      [help, {}]
-    when /^where #{repo}$/
-      [environments, params(Regexp.last_match)]
-    when /^lock #{env} on #{repo}(:(?<message>.*))?$/
-      [lock, params(Regexp.last_match)]
-    when /^unlock #{env} on #{repo}$/
-      [unlock, params(Regexp.last_match)]
-    when /^#{repo}(@#{ref})?( to #{env})?(?<force>!)?$/
-      [deploy, params(Regexp.last_match)]
-    when /^boom$/
-      [boom, {}]
-    else
-      [help, 'not_found' => true]
-    end
+  # Returns a Slash::Matcher::Regexp matcher that will also normalize the
+  # `repository` param to include the full name of the repository, if the user
+  # specifies the short form.
+  def self.match_regexp(re)
+    matcher = Slash.match_regexp(re)
+    RepositoryMatcher.new(matcher)
+  end
+
+  def initialize(router)
+    @router = router
   end
 
   def call(env)
-    cmd  = env['cmd']
     user = env['user']
 
     scope = {
@@ -56,20 +52,14 @@ class SlashCommands
 
     Rollbar.scoped(scope) do
       begin
-        handler, params = route(cmd)
-        handler.run(user, cmd, params)
+        router.call(env)
       rescue SlashDeploy::RepoUnauthorized => e
         reply :unauthorized, repository: e.repository
       rescue StandardError => e
         Rollbar.error(e)
+        raise e if Rails.env.test?
         reply :error
       end
     end
-  end
-
-  private
-
-  def params(matches)
-    Hash[matches.names.zip(matches.captures)]
   end
 end

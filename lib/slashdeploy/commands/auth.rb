@@ -20,7 +20,10 @@ module SlashDeploy
         # coming from Slack.
         user = User.find_by_slack(cmd.request.user_id)
         if user
-          env['user'] = user
+          team = SlackTeam.find_or_initialize_by(id: cmd.request.team_id) do |t|
+            t.domain = cmd.request.team_domain
+          end
+          env['user'] = SlackUser.new(user, team)
           handler.call(env)
         else
           # If we don't know this slack user, we'll ask them to authenticate
