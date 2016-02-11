@@ -30,6 +30,17 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: early_accesses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE early_accesses (
+    email character varying NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: environments; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -421,4 +432,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160210071446');
 INSERT INTO schema_migrations (version) VALUES ('20160210094548');
 
 INSERT INTO schema_migrations (version) VALUES ('20160211061750');
+
+INSERT INTO schema_migrations (version) VALUES ('20160211161702');
 

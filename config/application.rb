@@ -41,6 +41,7 @@ module SlashDeploy
     config.x.authorizer = ENV['AUTHORIZER']
     config.x.default_environment = 'production'
     config.x.default_ref = 'master'
+    config.x.beta = ENV['BETA'].present?
 
     # The shared token between slack and SlashDeploy. Used to verify that slash
     # commands actually came from Slack.

@@ -12,7 +12,9 @@
   <nav class="navbar navbar-static-top navbar-lg" role="navigation">
     <div class="container">
       <div class="navbar-header">
-        <%= link_to 'SlashDeploy', root_url, class: 'navbar-brand' %>
+        <%= link_to root_url, class: 'navbar-brand' do %>
+          SlashDeploy<small class="beta">beta</small>
+        <% end %>
       </div>
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="navbar-collapse-3">

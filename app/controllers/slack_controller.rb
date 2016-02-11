@@ -8,7 +8,11 @@ class SlackController < ApplicationController
   end
 
   def install
-    redirect_to client.auth_code.authorize_url(scope: 'commands')
+    redirect_to client.auth_code.authorize_url(scope: 'commands') unless beta?
+  end
+
+  def early_access
+    EarlyAccess.create(email: params[:email])
   end
 
   def installed
@@ -22,5 +26,9 @@ class SlackController < ApplicationController
 
   def client
     Rails.configuration.x.oauth.slack
+  end
+
+  def beta?
+    Rails.configuration.x.beta
   end
 end
