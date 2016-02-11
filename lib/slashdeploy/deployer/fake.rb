@@ -14,6 +14,7 @@ module SlashDeploy
       # rubocop:disable Style/MethodName
       def HEAD(repo, ref, commit)
         commits[repo][ref] = commit
+        commits[repo][commit] = commit
       end
 
       def create_deployment(user, req)

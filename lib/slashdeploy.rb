@@ -1,4 +1,5 @@
 require 'slash'
+require 'hookshot'
 
 # SlashDeployer is the core API of the SlashDeploy service.
 module SlashDeploy
@@ -100,6 +101,16 @@ module SlashDeploy
 
     def service
       @service ||= Service.new
+    end
+
+    def slack_commands
+      Commands.slack
+    end
+
+    def github_webhooks
+      router = Hookshot::Router.new
+      router.handle :push, PushEvent
+      router
     end
 
     def app

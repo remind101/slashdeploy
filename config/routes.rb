@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   get '/slack/install' => 'slack#install', as: :install
 
   mount SlashDeploy::Commands.slack, at: '/commands'
+  post '/', to: SlashDeploy.github_webhooks, constraints: Hookshot.constraint
 
   root 'pages#index'
   # The priority is based upon order of creation: first created -> highest priority.
