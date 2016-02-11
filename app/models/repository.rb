@@ -23,10 +23,10 @@ class Repository < ActiveRecord::Base
     super.presence || self.class.default_environment
   end
 
-  # Returns the environment that's configured to auto deploy this branch.
-  # Returns nil if there is not environment configured for this branch.
-  def auto_deploy_environment_for_branch(branch)
-    environments.find { |env| env.auto_deploy?(branch) }
+  # Returns the environment that's configured to auto deploy this ref.
+  # Returns nil if there is no environment configured for this branch.
+  def auto_deploy_environment_for_ref(ref)
+    environments.find { |env| env.auto_deploy?(ref) }
   end
 
   # The name of the default environment for a repository.

@@ -44,12 +44,12 @@ class Environment < ActiveRecord::Base
   end
 
   # Configures this environment to auto deploy the given branch.
-  def configure_auto_deploy(branch, options = {})
-    self.update_attributes!(auto_deploy_branch: branch, auto_deploy_user: options[:fallback_user])
+  def configure_auto_deploy(ref, options = {})
+    self.update_attributes!(auto_deploy_ref: ref, auto_deploy_user: options[:fallback_user])
   end
 
-  def auto_deploy?(branch)
-    auto_deploy_branch == branch
+  def auto_deploy?(ref)
+    auto_deploy_ref == ref
   end
 
   # The default git ref to deploy when none is provided for this environment.

@@ -42,7 +42,7 @@ CREATE TABLE environments (
     in_channel boolean DEFAULT false NOT NULL,
     aliases text[] DEFAULT '{}'::text[],
     default_ref character varying,
-    auto_deploy_branch character varying,
+    auto_deploy_ref character varying,
     auto_deploy_user_id integer
 );
 

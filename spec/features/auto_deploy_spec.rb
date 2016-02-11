@@ -24,7 +24,7 @@ RSpec.feature 'Slash Commands' do
   scenario 'receiving a `push` event from GitHub when the production environment is configured to auto deploy the master branch' do
     repo = Repository.with_name('remind101/acme-inc')
     environment = repo.environment('production')
-    environment.configure_auto_deploy('master')
+    environment.configure_auto_deploy('refs/heads/master')
 
     HEAD('remind101/acme-inc', 'master', '338e2fca7e65fa01f41f415b3add48af')
 
@@ -50,7 +50,7 @@ RSpec.feature 'Slash Commands' do
   scenario 'receiving a `push` event from GitHub from a user that has never logged into slashdeploy' do
     repo = Repository.with_name('remind101/acme-inc')
     environment = repo.environment('production')
-    environment.configure_auto_deploy('master', fallback_user: users(:steve))
+    environment.configure_auto_deploy('refs/heads/master', fallback_user: users(:steve))
 
     HEAD('remind101/acme-inc', 'master', '338e2fca7e65fa01f41f415b3add48af')
 

@@ -9,13 +9,8 @@ class PushEvent < GithubEventHandler
 
   private
 
-  def branch
-    # TODO: tags? forks?
-    @branch ||= event['ref'].gsub('refs/heads/', '')
-  end
-
   def environment
-    @environment = repository.auto_deploy_environment_for_branch(branch)
+    @environment = repository.auto_deploy_environment_for_ref(event['ref'])
   end
 
   def deployer
