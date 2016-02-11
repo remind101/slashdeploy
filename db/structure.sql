@@ -40,7 +40,8 @@ CREATE TABLE environments (
     updated_at timestamp without time zone NOT NULL,
     repository_id integer NOT NULL,
     in_channel boolean DEFAULT false NOT NULL,
-    aliases text[] DEFAULT '{}'::text[]
+    aliases text[] DEFAULT '{}'::text[],
+    default_ref character varying
 );
 
 
@@ -117,7 +118,8 @@ CREATE TABLE repositories (
     id integer NOT NULL,
     name character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    default_environment character varying
 );
 
 
@@ -410,4 +412,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160209012632');
 INSERT INTO schema_migrations (version) VALUES ('20160210071446');
 
 INSERT INTO schema_migrations (version) VALUES ('20160210094548');
+
+INSERT INTO schema_migrations (version) VALUES ('20160211061750');
 

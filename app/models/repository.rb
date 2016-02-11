@@ -11,7 +11,12 @@ class Repository < ActiveRecord::Base
   # Finds the associated environment with the given name, creating it if
   # necessary. If name is nil, returns the default environment.
   def environment(name = nil)
-    environments.with_name(name || self.class.default_environment)
+    environments.with_name(name || default_environment)
+  end
+
+  # The default environment to deploy to when one is not specified.
+  def default_environment
+    super.presence || self.class.default_environment
   end
 
   # The name of the default environment for a repository.

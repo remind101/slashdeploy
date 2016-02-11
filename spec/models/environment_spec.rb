@@ -80,4 +80,23 @@ RSpec.describe Environment, type: :model do
       expect(staging.errors[:name]).to eq ['includes the name of an existing environment for this repository']
     end
   end
+
+  describe '#default_ref' do
+    context 'when the environment has a default ref provided' do
+      it 'returns that value' do
+        environment = Environment.new(default_ref: 'develop')
+        expect(environment.default_ref).to eq 'develop'
+      end
+    end
+
+    context 'when the environment does not have a default ref' do
+      it 'returns the global default' do
+        environment = Environment.new(default_ref: '')
+        expect(environment.default_ref).to eq 'master'
+
+        environment = Environment.new
+        expect(environment.default_ref).to eq 'master'
+      end
+    end
+  end
 end

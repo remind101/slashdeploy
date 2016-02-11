@@ -44,6 +44,10 @@ class Environment < ActiveRecord::Base
 
   # The default git ref to deploy when none is provided for this environment.
   def default_ref
+    super.presence || self.class.default_ref
+  end
+
+  def self.default_ref
     Rails.configuration.x.default_ref
   end
 
