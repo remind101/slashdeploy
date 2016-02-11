@@ -49,13 +49,13 @@ RSpec.feature 'Slash Commands' do
       [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'master', environment: 'production')]
     ]
     expect(response).to be_in_channel
-    expect(response.text).to eq 'Created deployment request for remind101/acme-inc@master to production'
+    expect(response.text).to eq 'Created deployment request for <https://github.com/remind101/acme-inc|remind101/acme-inc>@<https://github.com/remind101/acme-inc/commits/ad80a1b3e1a94b98ce99b71a48f811f1|master> to production (no change)'
 
     # David commits something new
     HEAD('remind101/acme-inc', 'master', 'f5c0df18526b90b9698816ee4b6606e0')
 
     command '/deploy remind101/acme-inc', as: slack_accounts(:david)
-    expect(response.text).to eq 'Created deployment request for remind101/acme-inc@master to production (<https://github.com/remind101/acme-inc/compare/ad80a1...f5c0df|diff>)'
+    expect(response.text).to eq 'Created deployment request for <https://github.com/remind101/acme-inc|remind101/acme-inc>@<https://github.com/remind101/acme-inc/commits/f5c0df18526b90b9698816ee4b6606e0|master> to production (<https://github.com/remind101/acme-inc/compare/ad80a1...f5c0df|diff>)'
   end
 
   scenario 'performing a deployment to a specific environment' do

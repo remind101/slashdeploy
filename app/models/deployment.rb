@@ -16,8 +16,8 @@ class Deployment
   end
 
   def to_s
-    s = "#{repository}"
-    s = "#{s}@#{ref}" if ref
+    s = "<https://github.com/#{repository}|#{repository}>"
+    s = "#{s}@<https://github.com/#{repository}/commits/#{sha}|#{ref}>" if ref
     s = "#{s} to #{environment}" if environment
     s
   end
