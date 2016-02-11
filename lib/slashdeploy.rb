@@ -46,7 +46,7 @@ module SlashDeploy
 
     # Returns a Rack app for handling the slack slash commands.
     def self.slack_handler
-      handler = SlashCommands.new(::SlashDeploy.service)
+      handler = SlashCommands.build(::SlashDeploy.service)
 
       # Ensure that users are authorized
       handler = Auth.new(handler, Rails.configuration.x.oauth.github, ::SlashDeploy.state)

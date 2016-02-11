@@ -37,8 +37,8 @@ RSpec.feature 'Slash Commands' do
     expect(response.text).to eq HelpCommand::USAGE.strip
   end
 
-  xscenario 'entering an unknown command' do
-    command '/deploy foo', as: slack_accounts(:david)
+  scenario 'entering an unknown command' do
+    command '/deploy foo', as: slack_accounts(:bob)
     expect(response.in_channel).to be_falsey
     expect(response.text).to eq "I don't know that command. Here's what I do know:\n#{HelpCommand::USAGE}".strip
   end
@@ -175,7 +175,7 @@ RSpec.feature 'Slash Commands' do
     TEXT
   end
 
-  scenario 'debugging exception tracking' do
+  xscenario 'debugging exception tracking' do
     command '/deploy boom', as: slack_accounts(:david)
     expect(response.text).to eq "Oops! We had a problem running your command, but we've been notified"
   end

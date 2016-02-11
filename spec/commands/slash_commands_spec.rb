@@ -7,7 +7,6 @@ RSpec.describe SlashCommands do
   describe '#route' do
     it 'routes to the correct handler' do
       a = double(SlackUser, slack_team: stub_model(SlackTeam, github_organization: 'remind101'))
-      b = double(SlackUser, slack_team: stub_model(SlackTeam, github_organization: nil))
 
       check_route(a, 'help', HelpCommand, {})
 
@@ -35,13 +34,15 @@ RSpec.describe SlashCommands do
       check_route(a, 'remind101/acme-inc@topic to staging!', DeployCommand, 'repository' => 'remind101/acme-inc', 'ref' => 'topic', 'environment' => 'staging', 'force' => '!')
 
       check_route(a, 'acme-inc to staging', DeployCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
-      check_route(b, 'acme-inc to staging', HelpCommand, {})
     end
 
     def check_route(user, text, expected_handler, expected_params)
-      h, params = handler.route(user, Slash::Command.from_params(text: text))
-      expect(h).to be_a expected_handler
-      expect(params).to eq expected_params
+      env = { 'cmd' => Slash::Command.from_params(text: text), 'user' => user }
+      router = SlashCommands.route(slashdeploy)
+      route = router.route(env)
+
+      expect(route.match(env)).to eq expected_params
+      expect(route.handler).to be_a expected_handler
     end
   end
 end
