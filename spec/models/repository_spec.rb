@@ -28,4 +28,23 @@ RSpec.describe Repository, type: :model do
       end
     end
   end
+
+  describe '#default_environment' do
+    context 'when the repository has a default environment provided' do
+      it 'returns that value' do
+        repo = Repository.new(default_environment: 'staging')
+        expect(repo.default_environment).to eq 'staging'
+      end
+    end
+
+    context 'when the repository does not have a default environment' do
+      it 'returns production' do
+        repo = Repository.new(default_environment: '')
+        expect(repo.default_environment).to eq 'production'
+
+        repo = Repository.new
+        expect(repo.default_environment).to eq 'production'
+      end
+    end
+  end
 end
