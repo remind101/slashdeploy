@@ -27,3 +27,6 @@ Style/Lambda:
 
 Style/Send:
   Enabled: true
+
+Style/NumericLiterals:
+  Enabled: false

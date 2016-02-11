@@ -6,7 +6,16 @@ class PushEvent < GithubEventHandler
     transaction do
       environment = repository.auto_deploy_environment_for_branch(branch)
       return unless environment
-      slashdeploy.create_deployment environment.auto_deploy_user, environment, event['head']
+      user = deployer(event['sender']['id'], environment.auto_deploy_user)
+      slashdeploy.create_deployment user, environment, event['head']
     end
+  end
+
+  private
+
+  def deployer(sender_id, fallback)
+    account = GithubAccount.find_by(id: sender_id)
+    return fallback unless account
+    account.user
   end
 end

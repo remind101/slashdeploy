@@ -45,7 +45,7 @@ class Environment < ActiveRecord::Base
 
   # Configures this environment to auto deploy the given branch.
   def configure_auto_deploy(branch, options = {})
-    self.update_attributes!(auto_deploy_branch: branch, auto_deploy_user: options[:user])
+    self.update_attributes!(auto_deploy_branch: branch, auto_deploy_user: options[:fallback_user])
   end
 
   def auto_deploy?(branch)

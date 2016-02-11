@@ -24,7 +24,7 @@ RSpec.feature 'Slash Commands' do
   scenario 'receiving a `push` event from GitHub when the production environment is configured to auto deploy the master branch' do
     repo = Repository.with_name('remind101/acme-inc')
     environment = repo.environment('production')
-    environment.configure_auto_deploy('master', user: users(:david))
+    environment.configure_auto_deploy('master')
 
     HEAD('remind101/acme-inc', 'master', '338e2fca7e65fa01f41f415b3add48af')
 
@@ -36,11 +36,40 @@ RSpec.feature 'Slash Commands' do
         head: '338e2fca7e65fa01f41f415b3add48af',
         repository: {
           full_name: 'remind101/acme-inc'
+        },
+        sender: {
+          id: github_accounts(:david).id
         }
     end.to change { deployment_requests.count }.by(1)
     expect(last_response.status).to eq 200
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: '338e2fca7e65fa01f41f415b3add48af', environment: 'production')]
+    ]
+  end
+
+  scenario 'receiving a `push` event from GitHub from a user that has never logged into slashdeploy' do
+    repo = Repository.with_name('remind101/acme-inc')
+    environment = repo.environment('production')
+    environment.configure_auto_deploy('master', fallback_user: users(:steve))
+
+    HEAD('remind101/acme-inc', 'master', '338e2fca7e65fa01f41f415b3add48af')
+
+    expect do
+      event \
+        :push,
+        'secret',
+        ref: 'refs/heads/master',
+        head: '338e2fca7e65fa01f41f415b3add48af',
+        repository: {
+          full_name: 'remind101/acme-inc'
+        },
+        sender: {
+          id: 1234567
+        }
+    end.to change { deployment_requests.count }.by(1)
+    expect(last_response.status).to eq 200
+    expect(deployment_requests).to eq [
+      [users(:steve), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: '338e2fca7e65fa01f41f415b3add48af', environment: 'production')]
     ]
   end
 
