@@ -1,21 +1,28 @@
 # Handles the push event from github.
 class PushEvent < GithubEventHandler
-  def run(repository, event)
-    branch = event['ref'].gsub('refs/heads/', '')
-
+  def run
     transaction do
-      environment = repository.auto_deploy_environment_for_branch(branch)
       return unless environment
-      user = deployer(event['sender']['id'], environment.auto_deploy_user)
-      slashdeploy.create_deployment user, environment, event['head']
+      slashdeploy.create_deployment deployer, environment, event['head']
     end
   end
 
   private
 
-  def deployer(sender_id, fallback)
-    account = GithubAccount.find_by(id: sender_id)
-    return fallback unless account
-    account.user
+  def branch
+    # TODO: tags? forks?
+    @branch ||= event['ref'].gsub('refs/heads/', '')
+  end
+
+  def environment
+    @environment = repository.auto_deploy_environment_for_branch(branch)
+  end
+
+  def deployer
+    @deployer ||= begin
+                    account = GithubAccount.find_by(id: event['sender']['id'])
+                    return environment.auto_deploy_user unless account
+                    account.user
+                  end
   end
 end

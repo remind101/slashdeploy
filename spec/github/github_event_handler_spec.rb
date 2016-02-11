@@ -1,16 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe GithubEventHandler do
-  let(:slashdeploy) { double(SlashDeploy::Service) }
   let(:handler) do
     Class.new(GithubEventHandler) do
-      attr_reader :repository, :event
-
-      def run(repository, event)
-        @repository = repository
-        @event = event
+      def run
       end
-    end.new slashdeploy
+    end
   end
 
   describe '#call' do
@@ -51,7 +46,7 @@ RSpec.describe GithubEventHandler do
 
     context 'when the signature matches' do
       it 'returns a 200 and calls the handler' do
-        repo = Repository.create!(name: 'remind101/acme-inc', github_secret: 'secret')
+        Repository.create!(name: 'remind101/acme-inc', github_secret: 'secret')
         req = Rack::MockRequest.new(handler)
         resp = req.post \
           '/',
@@ -63,8 +58,6 @@ RSpec.describe GithubEventHandler do
           'CONTENT_TYPE' => 'application/json',
           'HTTP_X_HUB_SIGNATURE' => 'sha1=692ed45ae7de94533457e9d4931389f02a189e1f'
         expect(resp.status).to eq 200
-        expect(handler.repository).to eq repo
-        expect(handler.event['repository']['full_name']).to eq 'remind101/acme-inc'
       end
     end
   end

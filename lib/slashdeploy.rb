@@ -109,7 +109,7 @@ module SlashDeploy
 
     def github_webhooks
       router = Hookshot::Router.new
-      router.handle :push, PushEvent.new(service)
+      router.handle :push, PushEvent
       router
     end
 
