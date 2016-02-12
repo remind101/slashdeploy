@@ -39,5 +39,7 @@ class AutoDeployment < ActiveRecord::Base
       return false unless status
       return false unless status.success?
     end
+
+    true
   end
 end
