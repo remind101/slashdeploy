@@ -37,6 +37,17 @@ RSpec.feature 'Slash Commands' do
     push_event 'secret', sender: { id: github_accounts(:david).id }
   end
 
+  scenario 'receiving a `push` event when the environment is locked' do
+    repo = Repository.with_name('baxterthehacker/public-repo')
+    environment = repo.environment('production')
+    environment.configure_auto_deploy('refs/heads/master')
+    environment.lock! users(:david)
+
+    expect do
+      push_event 'secret', sender: { id: github_accounts(:david).id }
+    end.to raise_error SlashDeploy::EnvironmentLockedError
+  end
+
   scenario 'receiving a `push` event from GitHub from a user that has never logged into slashdeploy' do
     repo = Repository.with_name('baxterthehacker/public-repo')
     environment = repo.environment('production')
