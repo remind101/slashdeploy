@@ -92,8 +92,12 @@ module SlashDeploy
     end
 
     def failing_contexts
-      contexts.select(&:bad?)
+      contexts.select(&:failure?)
     end
+  end
+
+  # Can be raised when there is no user to perform an auto deployment.
+  class NoAutoDeployUser < Error
   end
 
   class << self
@@ -109,7 +113,8 @@ module SlashDeploy
 
     def github_webhooks
       router = Hookshot::Router.new
-      router.handle :push, PushEvent
+      router.handle :push,   PushEvent
+      router.handle :status, StatusEvent
       router
     end
 
