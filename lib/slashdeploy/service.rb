@@ -87,6 +87,23 @@ module SlashDeploy
       lock.unlock!
     end
 
+    # Triggers an auto deployment if the AutoDeployment is ready.
+    #
+    # auto_deployment - An AutoDeployment.
+    #
+    # Returns nothing.
+    def auto_deploy(auto_deployment)
+      return unless auto_deployment.ready?
+      begin
+        create_deployment \
+          auto_deployment.user,
+          auto_deployment.environment,
+          auto_deployment.sha
+      ensure
+        auto_deployment.done!
+      end
+    end
+
     private
 
     def authorize!(user, repository)

@@ -30,6 +30,40 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: auto_deployments; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE auto_deployments (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    environment_id integer NOT NULL,
+    sha character varying NOT NULL,
+    active boolean DEFAULT true NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: auto_deployments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE auto_deployments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: auto_deployments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE auto_deployments_id_seq OWNED BY auto_deployments.id;
+
+
+--
 -- Name: early_accesses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -54,7 +88,8 @@ CREATE TABLE environments (
     aliases text[] DEFAULT '{}'::text[],
     default_ref character varying,
     auto_deploy_ref character varying,
-    auto_deploy_user_id integer
+    auto_deploy_user_id integer,
+    required_contexts character varying[]
 );
 
 
@@ -191,6 +226,37 @@ CREATE TABLE slack_teams (
 
 
 --
+-- Name: statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE statuses (
+    id integer NOT NULL,
+    sha character varying NOT NULL,
+    context character varying NOT NULL,
+    state character varying NOT NULL
+);
+
+
+--
+-- Name: statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE statuses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE statuses_id_seq OWNED BY statuses.id;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -224,6 +290,13 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY auto_deployments ALTER COLUMN id SET DEFAULT nextval('auto_deployments_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY environments ALTER COLUMN id SET DEFAULT nextval('environments_id_seq'::regclass);
 
 
@@ -245,7 +318,22 @@ ALTER TABLE ONLY repositories ALTER COLUMN id SET DEFAULT nextval('repositories_
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY statuses ALTER COLUMN id SET DEFAULT nextval('statuses_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+
+--
+-- Name: auto_deployments_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY auto_deployments
+    ADD CONSTRAINT auto_deployments_pkey PRIMARY KEY (id);
 
 
 --
@@ -297,11 +385,47 @@ ALTER TABLE ONLY slack_teams
 
 
 --
+-- Name: statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY statuses
+    ADD CONSTRAINT statuses_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: index_auto_deployments_on_environment_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_auto_deployments_on_environment_id ON auto_deployments USING btree (environment_id);
+
+
+--
+-- Name: index_auto_deployments_on_environment_id_and_sha; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_auto_deployments_on_environment_id_and_sha ON auto_deployments USING btree (environment_id, sha);
+
+
+--
+-- Name: index_auto_deployments_on_sha; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_auto_deployments_on_sha ON auto_deployments USING btree (sha);
+
+
+--
+-- Name: index_auto_deployments_on_user_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_auto_deployments_on_user_id ON auto_deployments USING btree (user_id);
 
 
 --
@@ -340,6 +464,13 @@ CREATE UNIQUE INDEX index_slack_teams_on_id ON slack_teams USING btree (id);
 
 
 --
+-- Name: index_statuses_on_sha; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_statuses_on_sha ON statuses USING btree (sha);
+
+
+--
 -- Name: locked_environment; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -347,10 +478,25 @@ CREATE UNIQUE INDEX locked_environment ON locks USING btree (environment_id) WHE
 
 
 --
+-- Name: unique_auto_deployment_per_environment; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX unique_auto_deployment_per_environment ON auto_deployments USING btree (environment_id) WHERE active;
+
+
+--
 -- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (version);
+
+
+--
+-- Name: fk_rails_20382263b5; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY auto_deployments
+    ADD CONSTRAINT fk_rails_20382263b5 FOREIGN KEY (user_id) REFERENCES users(id);
 
 
 --
@@ -375,6 +521,14 @@ ALTER TABLE ONLY locks
 
 ALTER TABLE ONLY slack_accounts
     ADD CONSTRAINT fk_rails_4a418d4e27 FOREIGN KEY (slack_team_id) REFERENCES slack_teams(id);
+
+
+--
+-- Name: fk_rails_5e1f7e1725; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY auto_deployments
+    ADD CONSTRAINT fk_rails_5e1f7e1725 FOREIGN KEY (environment_id) REFERENCES environments(id);
 
 
 --
@@ -433,5 +587,9 @@ INSERT INTO schema_migrations (version) VALUES ('20160210094548');
 
 INSERT INTO schema_migrations (version) VALUES ('20160211061750');
 
+INSERT INTO schema_migrations (version) VALUES ('20160211091522');
+
 INSERT INTO schema_migrations (version) VALUES ('20160211161702');
+
+INSERT INTO schema_migrations (version) VALUES ('20160212035321');
 

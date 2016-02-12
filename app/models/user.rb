@@ -2,6 +2,7 @@
 class User < ActiveRecord::Base
   has_many :github_accounts
   has_many :slack_accounts
+  has_many :auto_deployments
 
   # Raised if the user doesn't have a github account.
   MissingGitHubAccount = Class.new(StandardError)

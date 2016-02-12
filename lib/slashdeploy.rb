@@ -92,7 +92,7 @@ module SlashDeploy
     end
 
     def failing_contexts
-      contexts.select(&:bad?)
+      contexts.select(&:failure?)
     end
   end
 
@@ -109,7 +109,8 @@ module SlashDeploy
 
     def github_webhooks
       router = Hookshot::Router.new
-      router.handle :push, PushEvent
+      router.handle :push,   PushEvent
+      router.handle :status, StatusEvent
       router
     end
 

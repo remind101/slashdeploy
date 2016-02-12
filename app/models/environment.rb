@@ -1,6 +1,7 @@
 # Environment represents a known environment that a repository can be deployed to.
 class Environment < ActiveRecord::Base
   has_many :locks
+  has_many :auto_deployments
   belongs_to :repository
   belongs_to :auto_deploy_user, class_name: :User, foreign_key: :auto_deploy_user_id
 
@@ -35,6 +36,11 @@ class Environment < ActiveRecord::Base
   # Returns the currently active lock for this environment, or nil if there is none.
   def active_lock
     locks.active.first
+  end
+
+  # Returns the currently active auto deployment, if there is one.
+  def active_auto_deployment
+    auto_deployments.active.first
   end
 
   # Override the aliases setter to filter out aliases that match the name of
