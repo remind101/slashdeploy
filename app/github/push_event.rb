@@ -24,8 +24,8 @@ class PushEvent < GithubEventHandler
   def deployer
     @deployer ||= begin
                     account = GithubAccount.find_by(id: event['sender']['id'])
-                    return environment.auto_deploy_user unless account
-                    account.user
+                    user = account ? account.user : environment.auto_deploy_user
+                    user || fail(SlashDeploy::NoAutoDeployUser)
                   end
   end
 

@@ -53,6 +53,15 @@ RSpec.feature 'Slash Commands' do
     push_event 'secret', sender: { id: 1234567 }
   end
 
+  scenario 'receiving a `push` event from GitHub from a user that has never logged into slashdeploy, when there is no fallback' do
+    repo = Repository.with_name('baxterthehacker/public-repo')
+    environment = repo.environment('production')
+    environment.configure_auto_deploy('refs/heads/master')
+    expect do
+      push_event 'secret', sender: { id: 1234567 }
+    end.to raise_error SlashDeploy::NoAutoDeployUser
+  end
+
   scenario 'receiving a `status` event when the repository is configured to deploy on successful commit statuses' do
     repo = Repository.with_name('baxterthehacker/public-repo')
     environment = repo.environment('production')
