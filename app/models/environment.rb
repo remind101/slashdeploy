@@ -77,4 +77,8 @@ class Environment < ActiveRecord::Base
   def to_s
     name
   end
+
+  def to_param
+    name
+  end
 end

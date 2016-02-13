@@ -20,13 +20,34 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
+  formtastic:
+    actions:
+      update: "Save Changes"
+      cancel: "Cancel"
+    placeholders:
+      environment:
+        auto_deploy_ref: "refs/heads/master"
+    labels:
+      environment:
+        default_ref: "Default Branch"
+        required_contexts: "Required Commit Status Contexts"
+        in_channel: "In Channel Responses"
+        auto_deploy_ref: "Automatically Deploy"
+    hints:
+      repository:
+        default_environment: "This is the default environment that will be deployed to when you don't specify one."
+      environment:
+        default_ref: "This is the default git ref (branch, tag or commit sha) that will be deployed to this environment when one isn't provided."
+        in_channel: "If enabled, the response from deployments created from /deploy will show in channel. If this is too noisy, you can uncheck this and /deploy will send a reply to the user instead."
+        required_contexts: "These are the commit status contexts that are required to be able to create a deployment. You can bypass these by appending `!` to the /deploy command."
+        auto_deploy_ref: "This is the full git ref that should be automatically deploy. For example, if you want to automatically deploy the \"master\" branch, you would enter \"refs/heads/master\" here."
   activerecord:
     errors:
       models:
         repository:
           attributes:
             name:
-              invalid_repository: 'is not a valid GitHub repository'
+              invalid_repository: "is not a valid GitHub repository"
         environment:
           attributes:
             aliases:

@@ -9,6 +9,10 @@ module Slash
       @handler = handler
     end
 
+    def inspect
+      'Slash::Rack'
+    end
+
     # Call parses the slack slash command and calls the handler.
     def call(env)
       cmd = Slash::Command.from_params ::Rack::Request.new(env).POST

@@ -1,0 +1,19 @@
+<div class="row">
+  <div class="col-md-5">
+    <%= semantic_form_for @repository do |f| %>
+      <%= f.inputs @repository.name do %>
+        <%= f.input :default_environment, as: :select, collection: @repository.environments.map(&:name) %>
+      <% end %>
+      <label>Environments</label>
+      <p class="help-block">You can add new environments by simply deploying to them and they'll show up here</p>
+      <ul class="list-group">
+        <% @repository.environments.each do |environment| %>
+          <li class="list-group-item"><%= link_to environment.name, repository_environment_edit_path(@repository, environment) %></li>
+        <% end %>
+      </ul>
+      <%= f.actions do %>
+        <%= f.action :submit, as: :button, button_html: { class: 'btn btn-success btn-embossed' } %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

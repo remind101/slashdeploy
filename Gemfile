@@ -13,6 +13,9 @@ gem 'oj'
 gem 'puma'
 gem 'sass'
 
+# Forms
+gem 'formtastic-bootstrap'
+
 # Exceptions
 gem 'rollbar'
 

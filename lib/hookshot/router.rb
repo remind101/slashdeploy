@@ -14,6 +14,10 @@ module Hookshot
       @apps ||= {}
     end
 
+    def inspect
+      'Hookshot::Router'
+    end
+
     def handle(event, app)
       apps[event.to_sym] = app
     end
