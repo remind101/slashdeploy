@@ -1,7 +1,5 @@
 Rails.application.routes.draw do
-  post '/auth/developer/callback' => 'github#callback'
-  get '/auth/github/callback' => 'github#callback'
-  get '/auth/slack/callback' => 'slack#callback'
+  match '/auth/:provider/callback' => 'sessions#create', via: [:get, :post]
 
   get '/slack/installed' => 'slack#installed', as: :installed
   get '/slack/install' => 'slack#install', as: :install

@@ -34,6 +34,12 @@ module SlashDeploy
     config.middleware.use Warden::Manager do |config|
     end
 
+    config.middleware.use OmniAuth::Builder do
+      provider :developer if Rails.env.development?
+      provider :github, ENV['GITHUB_CLIENT_ID'], ENV['GITHUB_CLIENT_SECRET'], scope: 'repo_deployment'
+      provider :slack, ENV['SLACK_CLIENT_ID'], ENV['SLACK_CLIENT_SECRET'], scope: 'commands'
+    end
+
     # The name of the deployment backend to use. Possible options are:
     #   
     #   github
@@ -54,23 +60,6 @@ module SlashDeploy
 
     # A random secret used to sign the `state` param in oauth urls.
     config.x.state_key = ENV['STATE_KEY']
-
-    # OAuth2 Clients
-    require 'oauth2'
-    config.x.oauth.github = OAuth2::Client.new(
-      ENV['GITHUB_CLIENT_ID'],
-      ENV['GITHUB_CLIENT_SECRET'],
-      site: 'https://api.github.com',
-      authorize_url: 'https://github.com/login/oauth/authorize',
-      token_url: 'https://github.com/login/oauth/access_token'
-    )
-    config.x.oauth.slack = OAuth2::Client.new(
-      ENV['SLACK_CLIENT_ID'],
-      ENV['SLACK_CLIENT_SECRET'],
-      site: 'https://slack.com',
-      authorize_url: 'https://slack.com/oauth/authorize',
-      token_url: 'https://slack.com/api/oauth.access'
-    )
   end
 end
 
