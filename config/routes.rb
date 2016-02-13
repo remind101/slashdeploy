@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   get '/slack/install' => 'slack#install', as: :install
   post '/slack/install' => 'slack#early_access', as: :early_access
 
+  # Docs
+  get '/docs' => 'documentation#index', as: :documentation
+
   mount SlashDeploy::Commands.slack, at: '/commands'
   post '/', to: SlashDeploy.github_webhooks, constraints: Hookshot.constraint
 

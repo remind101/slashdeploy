@@ -1,0 +1,41 @@
+<div class="row">
+  <div class="col-md-3">
+    <ul class="nav nav-pills nav-stacked">
+      <li role="presentation"><a href="#installation">Installation</a></li>
+      <li role="presentation"><a href="#slash-command">Slash Command</a></li>
+      <li role="presentation"><a href="#auto-deployment">Auto Deployment</a></li>
+    </ul>
+  </div>
+  <div class="col-md-9">
+    <h5 id="installation">Installation</h5>
+    <p>The easiest way to install SlashDeploy is to use our Add to Slack button:</p>
+    <p><%= add_to_slack %></p>
+    <hr />
+    <h5 id="slash-command">Slash Command</h5>
+    <p>Once SlashDeploy is installed into your Slack team, you'll have access to the <code>/deploy</code> command. The first time you type <code>/deploy</code> you'll be asked to authenticate with GitHub so that SlashDeploy can create GitHub Deployments on your behalf.</p>
+    <hr />
+    <h6>Deploying</h6>
+    <p>To deploy the default ref (master) to the default environment (production).</p>
+    <p><code>/deploy acme-inc/api</code></p>
+    <p>To deploy the default ref (master) to a different environment.</p>
+    <p><code>/deploy acme-inc/api to staging</code></p>
+    <p>To deploy a branch (or git sha, or git tag) to the default environment.</p>
+    <p><code>/deploy acme-inc/api@branch</code></p>
+    <p>By default, all GitHub commit statuses will be checked before creating a deployment, you can disable this check by using the <code>!</code> flag.</p>
+    <p><code>/deploy acme-inc/api@branch!</code></p>
+    <p>To find out what environments you can deploy the repo to.</p>
+    <p><code>/deploy where acme-inc/api</code></p>
+    <hr />
+    <h6>Locking</h6>
+    <p>SlashDeploy also allows you to "lock" environments. If for example, I wanted to test a migration on the staging environment, I can lock it with a message.</p>
+    <p><code>/deploy lock staging on acme-inc/api: I'm testing a migration</code></p>
+    <p>If any of my other team members try to deploy to the staging environment, they'll see the lock message.</p>
+    <p><code>/deploy acme-inc/api to staging</code></p>
+    <p>When I'm done testing my changes, I can unlock the environment so others can deploy to it again.</p>
+    <p><code>/deploy unlock staging on acme-inc/api</code></p>
+    <hr />
+    <h5 id="auto-deployment">Auto Deployment</h5>
+    <p>You can configure SlashDeploy to automatically deploy a branch to an environment when you push code to GitHub or when a set of commit status contexts succeeds.</p>
+    <hr />
+  </div>
+</div>
