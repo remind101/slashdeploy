@@ -3,6 +3,8 @@ class SessionsController < ApplicationController
 
   def create
     auth = request.env['omniauth.auth']
+    auth.provider = 'slack' if auth.provider == 'slash'
+
     # Find an identity here
     @identity = Identity.find_or_create_with_omniauth(auth)
 

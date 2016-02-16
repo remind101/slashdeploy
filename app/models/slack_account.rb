@@ -5,6 +5,10 @@ class SlackAccount < ActiveRecord::Base
   belongs_to :user
   belongs_to :slack_team
 
+  def self.find_or_create_with_omniauth(auth)
+    find_with_omniauth(auth) || create_with_omniauth(auth)
+  end
+
   def self.find_with_omniauth(auth)
     return unless auth.provider == PROVIDER
     find_by(id: auth.uid)
@@ -12,7 +16,7 @@ class SlackAccount < ActiveRecord::Base
 
   def self.create_with_omniauth(auth)
     return unless auth.provider == PROVIDER
-    create(
+    create!(
       id: auth.uid,
       user_name: auth.info.nickname,
       slack_team: SlackTeam.find_or_initialize_by(id: auth.info.team_id) do |team|

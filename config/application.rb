@@ -36,6 +36,7 @@ module SlashDeploy
 
     config.middleware.use OmniAuth::Builder do
       provider :developer if Rails.env.development?
+      provider :slash
       provider :github, ENV['GITHUB_CLIENT_ID'], ENV['GITHUB_CLIENT_SECRET'], scope: 'repo_deployment'
       provider :slack, ENV['SLACK_CLIENT_ID'], ENV['SLACK_CLIENT_SECRET'], scope: 'commands'
     end

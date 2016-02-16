@@ -13,7 +13,7 @@ module Slash
     def call(env)
       cmd = Slash::Command.from_params ::Rack::Request.new(env).POST
       begin
-        response = handler.call('cmd' => cmd)
+        response = handler.call('cmd' => cmd, 'rack.env' => env)
         if response
           [200, { 'Content-Type' => 'application/json' }, [response.to_json]]
         else

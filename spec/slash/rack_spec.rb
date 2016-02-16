@@ -20,7 +20,8 @@ RSpec.describe Slash::Rack do
               text: 'thing',
               token: 'foo'
             )
-          )
+          ),
+          'rack.env' => env
         ).and_return(Slash.say('Hello'))
         status, headers, body = app.call(env)
         expect(status).to eq 200

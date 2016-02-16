@@ -5,6 +5,14 @@ RSpec.feature 'Add to Slack' do
   include Rack::Test::Methods
   let(:app) { SlashDeploy.app }
 
+  before do
+    OmniAuth.config.test_mode = true
+  end
+
+  after do
+    OmniAuth.config.test_mode = false
+  end
+
   scenario 'clicking the Add to Slack button' do
     stub_request(:post, 'https://slack.com/api/oauth.access')
       .with(body: { 'client_id' => '', 'client_secret' => '', 'code' => 'code', 'grant_type' => 'authorization_code' })

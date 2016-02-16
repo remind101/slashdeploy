@@ -1,5 +1,6 @@
 require 'slash'
 require 'hookshot'
+require 'omniauth/strategies/slash'
 
 # SlashDeployer is the core API of the SlashDeploy service.
 module SlashDeploy

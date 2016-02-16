@@ -11,6 +11,6 @@ class GithubAccount < ActiveRecord::Base
 
   def self.create_with_omniauth(auth)
     return unless auth.provider == PROVIDER
-    create(id: auth.uid, login: auth.info.nickname, token: auth.credentials.token)
+    create!(id: auth.uid, login: auth.info.nickname, token: auth.credentials.token)
   end
 end
