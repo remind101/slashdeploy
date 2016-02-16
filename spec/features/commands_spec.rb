@@ -22,10 +22,22 @@ RSpec.feature 'Slash Commands' do
     )
 
     command '/deploy help', as: account
-    url =  response.text.gsub(/^.*<(.*?)\|.*>.*$/, '\\1')
+    url = response.text.gsub(/^.*<(.*?)\|.*>.*$/, '\\1')
+
+    # This will authenticate the user with slack, create their user account and
+    # link their GitHub account.
+    get url
+    follow_redirect! # /setup
     expect do
-      visit url
+      follow_redirect! # /auth/slash/callback
     end.to change { User.count }.by(1)
+    allow(OmniAuth.config).to receive(:test_mode).and_return(true)
+    follow_redirect! # /setup
+    follow_redirect! # /auth/github
+    expect do
+      follow_redirect! # /auth/github/callback
+    end.to change { GithubAccount.count }.by(1)
+    follow_redirect! # /setup
 
     command '/deploy help', as: account
     expect(response.text).to eq HelpCommand::USAGE.strip

@@ -23,20 +23,12 @@ class User < ActiveRecord::Base
     account.user
   end
 
-  def slack_account?(slack_account)
-    slack_accounts.find do |account|
-      account.id == slack_account.id
-    end
-  end
-
-  def github_account?(github_account)
-    github_accounts.find do |account|
-      account.id == github_account.id
-    end
-  end
-
   def github_account
     github_accounts.first || fail(MissingGitHubAccount)
+  end
+
+  def github_account?
+    github_accounts.present?
   end
 
   def github_token

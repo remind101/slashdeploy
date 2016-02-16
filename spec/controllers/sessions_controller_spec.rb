@@ -12,6 +12,7 @@ RSpec.describe SessionsController, type: :controller do
       it 'creates a new identity and a new user' do
         request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:github]
         expect(warden).to receive(:authenticated?).and_return(false)
+        expect(warden).to receive(:set_user)
         expect do
           post :create, provider: 'github'
         end.to change { User.count }.by(1)

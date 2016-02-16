@@ -1,7 +1,7 @@
 # SlackController handles the oauth callback for Slack.
 class SlackController < ApplicationController
   def install
-    redirect_to '/auth/slack' unless beta?
+    redirect_to "/auth/slack?origin=#{installed_path}" unless beta?
   end
 
   def early_access

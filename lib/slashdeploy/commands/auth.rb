@@ -39,7 +39,7 @@ module SlashDeploy
             team_id:     cmd.request.team_id,
             team_domain: cmd.request.team_domain
           )
-          url = "/auth/slash?account=#{account}"
+          url = "/setup?account=#{account}"
           Slash.reply("I don't know who you are on GitHub yet. Please <#{url}|authenticate> then try again.")
         end
       end

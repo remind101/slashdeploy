@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   match '/auth/:provider/callback' => 'sessions#create', via: [:get, :post]
+  get '/setup' => 'setup#show', as: :setup
 
   get '/slack/installed' => 'slack#installed', as: :installed
   get '/slack/install' => 'slack#install', as: :install
