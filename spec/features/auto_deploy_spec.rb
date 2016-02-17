@@ -1,14 +1,11 @@
 require 'rails_helper'
 
-RSpec.feature 'Slash Commands' do
+RSpec.feature 'Auto Deployment' do
   fixtures :all
-  include Rack::Test::Methods
-  let(:app) { SlashDeploy.app }
   let(:deployer) { double(SlashDeploy::Deployer) }
 
   before do
     allow(SlashDeploy.service).to receive(:deployer).and_return(deployer)
-    Repository.create!(name: 'baxterthehacker/public-repo', github_secret: 'secret')
   end
 
   scenario 'receiving a `push` event from GitHub when the repo is not enabled for auto deployments' do
@@ -124,29 +121,5 @@ RSpec.feature 'Slash Commands' do
 
     expect(deployer).to_not receive(:create_deployment)
     status_event 'secret', context: 'security/brakeman', state: 'success'
-  end
-
-  def status_event(secret, extra = {})
-    data = fixture('status_event.json')
-    event :status, secret, data.deep_merge(extra.stringify_keys)
-  end
-
-  def push_event(secret, extra = {})
-    data = fixture('push_event.json')
-    event :push, secret, data.deep_merge(extra.stringify_keys)
-  end
-
-  def fixture(name)
-    fname = File.expand_path("../fixtures/github/#{name}", __dir__)
-    JSON.parse File.read(fname)
-  end
-
-  def event(event, secret, payload = {})
-    body = payload.to_json
-    post \
-      '/',
-      body,
-      Hookshot::HEADER_GITHUB_EVENT => event,
-      Hookshot::HEADER_HUB_SIGNATURE => "sha1=#{Hookshot.signature(body, secret)}"
   end
 end

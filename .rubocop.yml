@@ -30,3 +30,9 @@ Style/Send:
 
 Style/NumericLiterals:
   Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
