@@ -173,6 +173,21 @@ RSpec.feature 'Slash Commands' do
     TEXT
   end
 
+  scenario 'trying to /deploy an environment that is configured to auto deploy', focus: true do
+    repo = Repository.with_name('remind101/acme-inc')
+    environment = repo.environment('production')
+    environment.configure_auto_deploy('refs/heads/master')
+
+    expect do
+      command '/deploy remind101/acme-inc@master', as: slack_accounts(:david)
+    end.to_not change { deployment_requests }
+    expect(command_response.text).to eq 'remind101/acme-inc is configured to automatically deploy `refs/heads/master` to `production`. You can bypass this warning with `/deploy remind101/acme-inc@master!`'
+
+    expect do
+      command '/deploy remind101/acme-inc@master!', as: slack_accounts(:david)
+    end.to change { deployment_requests.count }.by(1)
+  end
+
   xscenario 'debugging exception tracking' do
     command '/deploy boom', as: slack_accounts(:david)
     expect(command_response.text).to eq "Oops! We had a problem running your command, but we've been notified"

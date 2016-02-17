@@ -25,14 +25,18 @@ module SlashDeploy
     #
     # Returns a DeploymentResponse.
     def create_deployment(user, environment, ref = nil, options = {})
+      force = options[:force]
       repository = environment.repository
 
       req = DeploymentRequest.new(
         repository:  repository.to_s,
         environment: environment.to_s,
         ref:         ref || environment.default_ref,
-        force:       options[:force]
+        force:       force
       )
+
+      # Check if the environment we're deploying to is configured for auto deployments.
+      fail EnvironmentAutoDeploys if environment.auto_deploy_enabled? && !force
 
       # Check if the environment we're deploying to is locked.
       lock = environment.active_lock

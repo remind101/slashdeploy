@@ -10,6 +10,8 @@ module Features
   def command(text, options = {})
     slack_account = options[:as]
 
+    fail "The :as option expects a SlackAccount to be provided, but you provided a #{slack_account.class}." if slack_account && !slack_account.is_a?(SlackAccount)
+
     command, *text = text.split(' ')
     post \
       '/commands',

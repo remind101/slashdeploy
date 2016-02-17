@@ -13,6 +13,8 @@ class DeployCommand < BaseCommand
           force: params['force']
         )
         respond env.in_channel?, :created, resp: resp
+      rescue SlashDeploy::EnvironmentAutoDeploys
+        reply :auto_deploy, environment: env
       rescue SlashDeploy::RedCommitError => e
         reply :red_commit, failing_contexts: e.failing_contexts
       rescue SlashDeploy::EnvironmentLockedError => e
