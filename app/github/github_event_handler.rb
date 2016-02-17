@@ -26,7 +26,13 @@ class GithubEventHandler
     fail(UnknownRepository, "Received GitHub webhook for unknown repository: #{repo_name}") unless @repository
     return [403, {}, ['']] unless Hookshot.verify(req, @repository.github_secret)
 
-    run
+    scope = {
+      repository: @repository.name,
+      event: @event
+    }
+    Rollbar.scoped(scope) do
+      run
+    end
 
     [200, {}, ['']]
   end
