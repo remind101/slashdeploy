@@ -14,7 +14,24 @@ RSpec.feature 'Slash Commands' do
     HEAD('remind101/acme-inc', 'failing', '46c2acc4e588924340adcd108cfc948b')
   end
 
-  scenario 'authenticating' do
+  scenario 'installing then using' do
+    allow(OmniAuth.config).to receive(:test_mode).and_return(true)
+    account = SlackAccount.new(
+      id:         'U1234',
+      user_name:  'ejholmes',
+      slack_team: SlackTeam.new(id: 'T12344', domain: 'ejholmes')
+    )
+    visit '/slack/install'
+    command '/deploy help', as: account
+    url = response.text.gsub(/^.*<(.*?)\|.*>.*$/, '\\1')
+
+    visit url
+    click_on 'Link GitHub'
+    command '/deploy help', as: account
+    expect(response.text).to eq HelpCommand::USAGE.strip
+  end
+
+  scenario 'using the slash command for the first time' do
     account = SlackAccount.new(
       id:         'UABCD',
       user_name:  'joe',
@@ -26,18 +43,11 @@ RSpec.feature 'Slash Commands' do
 
     # This will authenticate the user with slack, create their user account and
     # link their GitHub account.
-    get url
-    follow_redirect! # /setup
-    expect do
-      follow_redirect! # /auth/slash/callback
-    end.to change { User.count }.by(1)
+    visit url
     allow(OmniAuth.config).to receive(:test_mode).and_return(true)
-    follow_redirect! # /setup
-    follow_redirect! # /auth/github
     expect do
-      follow_redirect! # /auth/github/callback
+      click_on 'Link GitHub'
     end.to change { GithubAccount.count }.by(1)
-    follow_redirect! # /setup
 
     command '/deploy help', as: account
     expect(response.text).to eq HelpCommand::USAGE.strip

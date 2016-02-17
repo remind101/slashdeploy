@@ -29,7 +29,7 @@ module SlashDeploy
         # coming from Slack.
         identity = Identity.find_with_omniauth(auth)
 
-        if identity && identity.user
+        if identity && identity.user && identity.user.github_account?
           env['user'] = SlackUser.new(identity.user, identity.slack_team)
           handler.call(env)
         else
