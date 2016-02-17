@@ -25,22 +25,14 @@ module SlashDeploy
     #
     # Returns a DeploymentResponse.
     def create_deployment(user, environment, ref = nil, options = {})
-      force = options[:force]
-      repository = environment.repository
-
-      req = DeploymentRequest.new(
-        repository:  repository.to_s,
-        environment: environment.to_s,
-        ref:         ref || environment.default_ref,
-        force:       force
-      )
+      req = deployment_request(environment, ref, force: options[:force])
 
       # Check if the environment we're deploying to is configured for auto deployments.
-      fail EnvironmentAutoDeploys if environment.auto_deploy_enabled? && !force
+      fail EnvironmentAutoDeploys if environment.auto_deploy_enabled? && !options[:force]
 
       # Check if the environment we're deploying to is locked.
       lock = environment.active_lock
-      if lock && (lock.user != user || options[:strong_lock])
+      if lock && lock.user != user
         fail EnvironmentLockedError, lock
       else
         deployer.create_deployment(user, req)
@@ -101,18 +93,28 @@ module SlashDeploy
     # Returns nothing.
     def auto_deploy(auto_deployment)
       return unless auto_deployment.ready?
+
       begin
-        create_deployment \
-          auto_deployment.user,
-          auto_deployment.environment,
-          auto_deployment.sha,
-          strong_lock: true
+        environment = auto_deployment.environment
+
+        # Check if the environment we're deploying to is locked.
+        return if environment.locked?
+        deployer.create_deployment(auto_deployment.user, deployment_request(environment, auto_deployment.sha))
       ensure
         auto_deployment.done!
       end
     end
 
     private
+
+    def deployment_request(environment, ref, options = {})
+      DeploymentRequest.new(
+        repository:  environment.repository.to_s,
+        environment: environment.to_s,
+        ref:         ref || environment.default_ref,
+        force:       options[:force]
+      )
+    end
 
     def authorize!(user, repository)
       fail RepoUnauthorized, repository unless authorizer.authorized?(user, repository.to_s)

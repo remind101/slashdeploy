@@ -40,9 +40,7 @@ RSpec.feature 'Auto Deployment' do
     environment.configure_auto_deploy('refs/heads/master')
     environment.lock! users(:david)
 
-    expect do
-      push_event 'secret', sender: { id: github_accounts(:david).id }
-    end.to raise_error SlashDeploy::EnvironmentLockedError
+    push_event 'secret', sender: { id: github_accounts(:david).id }
   end
 
   scenario 'receiving a `push` event from GitHub from a user that has never logged into slashdeploy' do

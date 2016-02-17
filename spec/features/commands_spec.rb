@@ -173,7 +173,7 @@ RSpec.feature 'Slash Commands' do
     TEXT
   end
 
-  scenario 'trying to /deploy an environment that is configured to auto deploy', focus: true do
+  scenario 'trying to /deploy an environment that is configured to auto deploy' do
     repo = Repository.with_name('remind101/acme-inc')
     environment = repo.environment('production')
     environment.configure_auto_deploy('refs/heads/master')

@@ -38,6 +38,11 @@ class Environment < ActiveRecord::Base
     locks.active.first
   end
 
+  # Returns true if this environment is locked.
+  def locked?
+    active_lock.present?
+  end
+
   # Returns the currently active auto deployment, if there is one.
   def active_auto_deployment
     auto_deployments.active.first
