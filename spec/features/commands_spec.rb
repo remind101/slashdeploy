@@ -42,7 +42,7 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'performing a simple deployment' do
-    command '/deploy remind101/acme-inc', as: slack_accounts(:david)
+    command '/deploy  remind101/acme-inc', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'master', environment: 'production')]
     ]
@@ -57,7 +57,7 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'performing a deployment to a specific environment' do
-    command '/deploy remind101/acme-inc to staging', as: slack_accounts(:david)
+    command '/deploy remind101/acme-inc  to staging', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'master', environment: 'staging')]
     ]

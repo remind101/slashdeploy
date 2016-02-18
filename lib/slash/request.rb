@@ -1,7 +1,7 @@
 module Slash
   # Request represents an incoming slash command request.
   class Request
-    include Virtus.value_object
+    include Virtus.model
 
     values do
       attribute :token, String

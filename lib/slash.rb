@@ -18,7 +18,8 @@ module Slash
 
   # Middleware for wrapping handlers
   module Middleware
-    autoload :Verify, 'slash/middleware/verify'
+    autoload :Verify,        'slash/middleware/verify'
+    autoload :NormalizeText, 'slash/middleware/normalize_text'
   end
 
   # Errors from the Slash library.

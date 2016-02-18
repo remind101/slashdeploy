@@ -25,6 +25,9 @@ module SlashDeploy
       # Ensure that users are authorized
       handler = Auth.new(handler, Rails.configuration.x.oauth.github, ::SlashDeploy.state)
 
+      # Strip extra whitespace from the text.
+      handler = Slash::Middleware::NormalizeText.new(handler)
+
       # Verify that the slash command came from slack.
       Slash::Middleware::Verify.new(handler, Rails.configuration.x.slack.verification_token)
     end

@@ -12,7 +12,7 @@ module Features
 
     fail "The :as option expects a SlackAccount to be provided, but you provided a #{slack_account.class}." if slack_account && !slack_account.is_a?(SlackAccount)
 
-    command, *text = text.split(' ')
+    command, *text = text.split(/\s/)
     post \
       '/commands',
       command:     command,
