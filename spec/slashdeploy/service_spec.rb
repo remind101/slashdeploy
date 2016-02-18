@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe SlashDeploy::Service do
   fixtures :users
 
-  let(:github) { double(GitHub::Client) }
+  let(:github) { double(GitHub::Client, access?: true) }
   let(:service) do
     described_class.new.tap do |service|
       service.github = github
@@ -15,6 +15,7 @@ RSpec.describe SlashDeploy::Service do
       it 'sets the default environment' do
         repo = stub_model(Repository, name: 'remind101/acme-inc')
         env  = stub_model(Environment, repository: repo, name: 'production', active_lock: nil)
+        expect(github).to receive(:access?).with(users(:david), 'remind101/acme-inc').and_return(true)
         expect(github).to receive(:last_deployment).with(users(:david), 'remind101/acme-inc', 'production').and_return(nil)
         expect(github).to receive(:create_deployment).with(
           users(:david),

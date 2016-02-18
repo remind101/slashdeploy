@@ -105,6 +105,11 @@ RSpec.feature 'Slash Commands' do
     end.to change { deployment_requests.count }.by(1)
   end
 
+  scenario 'attempting to deploy a repo I do not have access to' do
+    command '/deploy remind101/acme-inc', as: slack_accounts(:bob)
+    expect(command_response.text).to eq "Sorry, but it looks like you don't have access to remind101/acme-inc"
+  end
+
   scenario 'locking a branch' do
     command '/deploy lock staging on remind101/acme-inc', as: slack_accounts(:david)
     expect(command_response.text).to eq 'Locked `staging` on remind101/acme-inc'

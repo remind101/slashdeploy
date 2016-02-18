@@ -20,6 +20,8 @@ module SlashDeploy
     #
     # Returns a DeploymentResponse.
     def create_deployment(user, environment, ref = nil, options = {})
+      authorize! user, environment.repository.to_s
+
       req = deployment_request(environment, ref, force: options[:force])
 
       # Check if the environment we're deploying to is configured for auto deployments.
