@@ -1,8 +1,13 @@
 # Handles the push event from github.
 class PushEvent < GithubEventHandler
   def run
+    logger.info "ref=#{event['ref']} sha=#{sha} sender=#{event['sender']['login']}"
     transaction do
-      return unless environment
+      unless environment
+        logger.info 'not configured for automatic deployments'
+        return
+      end
+      logger.info "auto_deployment=#{auto_deployment.id} ready=#{auto_deployment.ready?} deployer=#{auto_deployment.user.identifier}"
       slashdeploy.auto_deploy auto_deployment
     end
   end

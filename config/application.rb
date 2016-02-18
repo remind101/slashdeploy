@@ -8,6 +8,9 @@ Bundler.require(*Rails.groups)
 
 module SlashDeploy
   class Application < Rails::Application
+    # Sane logging.
+    config.lograge.enabled = true
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -33,6 +36,9 @@ module SlashDeploy
 
     config.middleware.use Warden::Manager do |config|
     end
+
+    require 'perty'
+    config.middleware.swap Rails::Rack::Logger, Perty::Rack
 
     # The name of the deployment backend to use. Possible options are:
     #   

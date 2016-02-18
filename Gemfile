@@ -13,8 +13,9 @@ gem 'oj'
 gem 'puma'
 gem 'sass'
 
-# Exceptions
+# Visibility
 gem 'rollbar', '~> 2.8.0'
+gem 'lograge'
 
 # Auth
 gem 'jwt'

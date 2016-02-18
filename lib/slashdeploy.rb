@@ -1,6 +1,7 @@
 require 'slash'
 require 'hookshot'
 require 'github'
+require 'perty'
 
 require 'slashdeploy/errors'
 
@@ -21,6 +22,9 @@ module SlashDeploy
     # Returns a Rack app for handling the slack slash commands.
     def self.slack_handler
       handler = SlashCommands.build
+
+      # Log the request
+      handler = Slash::Middleware::Logging.new(handler)
 
       # Ensure that users are authorized
       handler = Auth.new(handler, Rails.configuration.x.oauth.github, ::SlashDeploy.state)
