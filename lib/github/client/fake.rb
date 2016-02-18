@@ -31,13 +31,12 @@ module GitHub
           sha:         commits[req.repository][req.ref],
           environment: req.environment
         )
-        last = deployments[req.repository][req.environment].last
         deployments[req.repository][req.environment] << deployment
+        deployment
+      end
 
-        DeploymentResponse.new(
-          deployment:      deployment,
-          last_deployment: last
-        )
+      def last_deployment(_user, repository, environment)
+        deployments[repository][environment].last
       end
 
       def reset

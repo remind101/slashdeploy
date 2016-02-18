@@ -30,7 +30,9 @@ module SlashDeploy
       if lock && lock.user != user
         fail EnvironmentLockedError, lock
       else
-        github.create_deployment(user, req)
+        last_deployment = github.last_deployment(user, req.repository, req.environment)
+        deployment = github.create_deployment(user, req)
+        DeploymentResponse.new(deployment: deployment, last_deployment: last_deployment)
       end
     end
 

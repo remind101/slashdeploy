@@ -6,77 +6,30 @@ RSpec.describe GitHub::Client::Octokit do
   let(:client) { described_class.new }
 
   describe '#create_deployment' do
-    context 'when there are no previous deployments to the environment' do
-      it 'creates the github deployment' do
-        req = DeploymentRequest.new(
-          repository: 'remind101/acme-inc',
-          ref: 'master',
-          environment: 'production'
-        )
+    it 'creates the github deployment' do
+      req = DeploymentRequest.new(
+        repository: 'remind101/acme-inc',
+        ref: 'master',
+        environment: 'production'
+      )
 
-        github_deployment = double(
-          'GitHub Deployment',
-          id: 1,
-          ref: 'master',
-          environment: 'production',
-          sha: '52bea69fa54a0ad7a4bdb305380ef43a'
-        )
-        expect(octokit_client).to receive(:create_deployment).with(
-          'remind101/acme-inc',
-          'master',
-          environment: 'production',
-          task: 'deploy',
-          auto_merge: false
-        ).and_return(github_deployment)
-        expect(octokit_client).to receive(:deployments).with(
-          'remind101/acme-inc',
-          environment: 'production'
-        ).and_return([])
+      github_deployment = double(
+        'GitHub Deployment',
+        id: 1,
+        ref: 'master',
+        environment: 'production',
+        sha: '52bea69fa54a0ad7a4bdb305380ef43a'
+      )
+      expect(octokit_client).to receive(:create_deployment).with(
+        'remind101/acme-inc',
+        'master',
+        environment: 'production',
+        task: 'deploy',
+        auto_merge: false
+      ).and_return(github_deployment)
 
-        resp = client.create_deployment user, req
-        expect(resp.deployment.id).to eq 1
-        expect(resp.last_deployment).to be_nil
-      end
-    end
-
-    context 'when there are previous deployments to the environment' do
-      it 'creates the github deployment' do
-        req = DeploymentRequest.new(
-          repository: 'remind101/acme-inc',
-          ref: 'master',
-          environment: 'production'
-        )
-
-        last_github_deployment = double(
-          'GitHub Deployment',
-          id: 1,
-          ref: 'master',
-          environment: 'production',
-          sha: 'ef892c97230add9a1250ec7e1d71b362'
-        )
-        github_deployment = double(
-          'GitHub Deployment',
-          id: 2,
-          ref: 'master',
-          environment: 'production',
-          sha: '52bea69fa54a0ad7a4bdb305380ef43a'
-        )
-        expect(octokit_client).to receive(:create_deployment).with(
-          'remind101/acme-inc',
-          'master',
-          environment: 'production',
-          task: 'deploy',
-          auto_merge: false
-        ).and_return(github_deployment)
-        expect(octokit_client).to receive(:deployments).with(
-          'remind101/acme-inc',
-          environment: 'production'
-        ).and_return([last_github_deployment])
-
-        resp = client.create_deployment user, req
-        expect(resp.deployment.id).to eq 2
-        expect(resp.last_deployment.id).to eq 1
-      end
+      deployment = client.create_deployment user, req
+      expect(deployment.id).to eq 1
     end
 
     context 'when the commit has failing commit statuses' do
@@ -102,7 +55,6 @@ RSpec.describe GitHub::Client::Octokit do
             }]
           }
         )
-        allow(octokit_client).to receive(:deployments).and_return([])
         expect(octokit_client).to receive(:create_deployment).and_raise(conflict)
         expect do
           begin
@@ -115,6 +67,30 @@ RSpec.describe GitHub::Client::Octokit do
             raise
           end
         end.to raise_error GitHub::RedCommitError
+      end
+    end
+  end
+
+  describe '#last_deployment' do
+    context 'when there are no previous deployments' do
+      it 'returns nil' do
+        expect(octokit_client).to receive(:deployments).and_return([])
+        deployment = client.last_deployment user, 'remind101/acme-inc', 'production'
+        expect(deployment).to be_nil
+      end
+    end
+
+    context 'when there are previous deployments' do
+      it 'returns the first deployment' do
+        expect(octokit_client).to receive(:deployments).and_return([double(
+          'GitHub Deployment',
+          id: 1,
+          ref: 'master',
+          environment: 'production',
+          sha: 'ef892c97230add9a1250ec7e1d71b362'
+        )])
+        deployment = client.last_deployment user, 'remind101/acme-inc', 'production'
+        expect(deployment.id).to eq 1
       end
     end
   end

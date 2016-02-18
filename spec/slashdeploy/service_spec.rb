@@ -15,6 +15,7 @@ RSpec.describe SlashDeploy::Service do
       it 'sets the default environment' do
         repo = stub_model(Repository, name: 'remind101/acme-inc')
         env  = stub_model(Environment, repository: repo, name: 'production', active_lock: nil)
+        expect(github).to receive(:last_deployment).with(users(:david), 'remind101/acme-inc', 'production').and_return(nil)
         expect(github).to receive(:create_deployment).with(
           users(:david),
           DeploymentRequest.new(
@@ -23,7 +24,8 @@ RSpec.describe SlashDeploy::Service do
             ref: 'master'
           )
         )
-        service.create_deployment(users(:david), env, 'master')
+        resp = service.create_deployment(users(:david), env, 'master')
+        expect(resp).to be_a(DeploymentResponse)
       end
     end
 
