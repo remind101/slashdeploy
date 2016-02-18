@@ -2,6 +2,8 @@ require 'slash'
 require 'hookshot'
 require 'github'
 
+require 'slashdeploy/errors'
+
 # SlashDeployer is the core API of the SlashDeploy service.
 module SlashDeploy
   # Matches a GitHub repo
@@ -10,21 +12,6 @@ module SlashDeploy
 
   autoload :Service, 'slashdeploy/service'
   autoload :State,   'slashdeploy/state'
-
-  # Deployer represents something that can create a new deployment request.
-  module Deployer
-    autoload :GitHub, 'slashdeploy/deployer/github'
-    autoload :Fake,   'slashdeploy/deployer/fake'
-
-    def self.new(kind)
-      case kind.try(:to_sym)
-      when :github
-        GitHub.new
-      else
-        Fake.new
-      end
-    end
-  end
 
   # Rack apps for handling slash commands.
   module Commands
@@ -46,46 +33,6 @@ module SlashDeploy
       # Adapt it to rack.
       Slash::Rack.new(slack_handler)
     end
-  end
-
-  Error = Class.new(StandardError)
-
-  EnvironmentAutoDeploys = Class.new(Error)
-
-  # Raised when a user doesn't have access to the given repo.
-  class RepoUnauthorized < Error
-    attr_reader :repository
-
-    def initialize(repo)
-      @repository = repo
-    end
-  end
-
-  # Raised when an action cannot be performed on the environment because it's locked.
-  class EnvironmentLockedError < Error
-    attr_reader :lock
-
-    def initialize(lock)
-      @lock = lock
-    end
-  end
-
-  # RedCommitError is an error that's returned when the commit someone is
-  # trying to deploy is not green.
-  class RedCommitError < Error
-    attr_reader :contexts
-
-    def initialize(contexts = [])
-      @contexts = contexts
-    end
-
-    def failing_contexts
-      contexts.select(&:failure?)
-    end
-  end
-
-  # Can be raised when there is no user to perform an auto deployment.
-  class NoAutoDeployUser < Error
   end
 
   class << self

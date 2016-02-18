@@ -1,3 +1,5 @@
+require 'github/errors'
+
 module GitHub
   module Client
     autoload :Octokit, 'github/client/octokit'

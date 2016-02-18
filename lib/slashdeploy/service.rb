@@ -3,11 +3,8 @@ module SlashDeploy
   # consume. This composes the various backends and provides a very simple API
   # for performing actions.
   class Service
-    attr_accessor :github_client
-
-    # An object that responds to `call` where the first argument is a User
-    # object. Should return something that implements the Deployer interface.
-    attr_accessor :deployer
+    # Client for interacting with GitHub.
+    attr_accessor :github
 
     # Creates a new deployment request as the given user.
     #
@@ -33,7 +30,7 @@ module SlashDeploy
       if lock && lock.user != user
         fail EnvironmentLockedError, lock
       else
-        deployer.create_deployment(user, req)
+        github.create_deployment(user, req)
       end
     end
 
@@ -97,7 +94,10 @@ module SlashDeploy
 
         # Check if the environment we're deploying to is locked.
         return if environment.locked?
-        deployer.create_deployment(auto_deployment.user, deployment_request(environment, auto_deployment.sha))
+        github.create_deployment(
+          auto_deployment.user,
+          deployment_request(environment, auto_deployment.sha)
+        )
       ensure
         auto_deployment.done!
       end
@@ -115,7 +115,7 @@ module SlashDeploy
     end
 
     def authorize!(user, repository)
-      fail RepoUnauthorized, repository unless github_client.access?(user, repository.to_s)
+      fail RepoUnauthorized, repository unless github.access?(user, repository.to_s)
     end
   end
 end

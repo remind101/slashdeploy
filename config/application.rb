@@ -37,7 +37,6 @@ module SlashDeploy
     # The name of the deployment backend to use. Possible options are:
     #   
     #   github
-    config.x.deployer = ENV['DEPLOYER']
     config.x.github_client = ENV['GITHUB_CLIENT']
     config.x.default_environment = 'production'
     config.x.default_ref = 'master'

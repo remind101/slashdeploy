@@ -4,7 +4,7 @@ RSpec.feature 'Slash Commands' do
   fixtures :all
 
   before do
-    deployer.reset
+    github.reset
 
     # Set the HEAD commits for some fake branches.
     HEAD('remind101/acme-inc', 'master',  'ad80a1b3e1a94b98ce99b71a48f811f1')
@@ -194,15 +194,15 @@ RSpec.feature 'Slash Commands' do
   end
 
   def deployment_requests
-    deployer.requests
+    github.requests
   end
 
-  def deployer
-    SlashDeploy.service.deployer
+  def github
+    SlashDeploy.service.github
   end
 
   # rubocop:disable Style/MethodName
   def HEAD(repository, ref, sha)
-    deployer.HEAD(repository, ref, sha)
+    github.HEAD(repository, ref, sha)
   end
 end

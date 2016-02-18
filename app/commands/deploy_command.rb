@@ -15,7 +15,7 @@ class DeployCommand < BaseCommand
         respond env.in_channel?, :created, resp: resp
       rescue SlashDeploy::EnvironmentAutoDeploys
         reply :auto_deploy, environment: env
-      rescue SlashDeploy::RedCommitError => e
+      rescue GitHub::RedCommitError => e
         reply :red_commit, failing_contexts: e.failing_contexts
       rescue SlashDeploy::EnvironmentLockedError => e
         locker = SlackUser.new(e.lock.user, user.slack_team)

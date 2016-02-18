@@ -2,10 +2,10 @@ require 'rails_helper'
 
 RSpec.feature 'Auto Deployment' do
   fixtures :all
-  let(:deployer) { double(SlashDeploy::Deployer) }
+  let(:github) { double(GitHub::Client) }
 
   before do
-    allow(SlashDeploy.service).to receive(:deployer).and_return(deployer)
+    allow(SlashDeploy.service).to receive(:github).and_return(github)
   end
 
   scenario 'receiving a `push` event from GitHub when the repo is not enabled for auto deployments' do
@@ -23,7 +23,7 @@ RSpec.feature 'Auto Deployment' do
     environment = repo.environment('production')
     environment.configure_auto_deploy('refs/heads/master')
 
-    expect(deployer).to receive(:create_deployment).with \
+    expect(github).to receive(:create_deployment).with \
       users(:david),
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
@@ -48,7 +48,7 @@ RSpec.feature 'Auto Deployment' do
     environment = repo.environment('production')
     environment.configure_auto_deploy('refs/heads/master', fallback_user: users(:steve))
 
-    expect(deployer).to receive(:create_deployment).with \
+    expect(github).to receive(:create_deployment).with \
       users(:steve),
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
@@ -78,7 +78,7 @@ RSpec.feature 'Auto Deployment' do
     status_event 'secret', context: 'ci/circleci', state: 'pending'
     status_event 'secret', context: 'ci/circleci', state: 'success'
 
-    expect(deployer).to receive(:create_deployment).with \
+    expect(github).to receive(:create_deployment).with \
       users(:david),
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
@@ -95,7 +95,7 @@ RSpec.feature 'Auto Deployment' do
     environment.required_contexts = ['ci/circleci', 'security/brakeman']
     environment.configure_auto_deploy('refs/heads/master')
 
-    expect(deployer).to_not receive(:create_deployment)
+    expect(github).to_not receive(:create_deployment)
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
     status_event 'secret', context: 'ci/circleci', state: 'failure'
@@ -117,7 +117,7 @@ RSpec.feature 'Auto Deployment' do
       id: github_accounts(:david).id
     }
 
-    expect(deployer).to_not receive(:create_deployment)
+    expect(github).to_not receive(:create_deployment)
     status_event 'secret', context: 'security/brakeman', state: 'success'
   end
 end
