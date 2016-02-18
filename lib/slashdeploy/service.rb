@@ -3,13 +3,11 @@ module SlashDeploy
   # consume. This composes the various backends and provides a very simple API
   # for performing actions.
   class Service
+    attr_accessor :github_client
+
     # An object that responds to `call` where the first argument is a User
     # object. Should return something that implements the Deployer interface.
     attr_accessor :deployer
-
-    # A SlashDeploy::Authorizer implementation, which will be used to ensure
-    # that the user has permissions to perform actions against a repository.
-    attr_accessor :authorizer
 
     # Creates a new deployment request as the given user.
     #
@@ -117,7 +115,7 @@ module SlashDeploy
     end
 
     def authorize!(user, repository)
-      fail RepoUnauthorized, repository unless authorizer.authorized?(user, repository.to_s)
+      fail RepoUnauthorized, repository unless github_client.access?(user, repository.to_s)
     end
   end
 end

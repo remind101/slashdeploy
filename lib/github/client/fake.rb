@@ -1,8 +1,7 @@
-module SlashDeploy
-  module Authorizer
-    # A fake implementation of the authorizer that let's some people through.
+module GitHub
+  module Client
     class Fake
-      def authorized?(user, repository)
+      def access?(user, repository)
         fail('Expected a String repository') unless repository =~ SlashDeploy::GITHUB_REPO_REGEX
         return false if user.github_account.login == 'bob'
         true

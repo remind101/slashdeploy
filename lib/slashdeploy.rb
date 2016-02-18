@@ -1,5 +1,6 @@
 require 'slash'
 require 'hookshot'
+require 'github'
 
 # SlashDeployer is the core API of the SlashDeploy service.
 module SlashDeploy
@@ -9,21 +10,6 @@ module SlashDeploy
 
   autoload :Service, 'slashdeploy/service'
   autoload :State,   'slashdeploy/state'
-
-  # Authorizer is used to check if the user has access to a repo.
-  module Authorizer
-    autoload :GitHub, 'slashdeploy/authorizer/github'
-    autoload :Fake,   'slashdeploy/authorizer/fake'
-
-    def self.new(kind)
-      case kind.try(:to_sym)
-      when :github
-        GitHub.new
-      else
-        Fake.new
-      end
-    end
-  end
 
   # Deployer represents something that can create a new deployment request.
   module Deployer

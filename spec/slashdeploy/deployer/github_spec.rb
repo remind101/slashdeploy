@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe SlashDeploy::Deployer::GitHub do
   let(:client) { double(Octokit::Client) }
-  let(:user) { stub_model(User, github_client: client) }
+  let(:user) { stub_model(User, octokit_client: client) }
   let(:deployer) { described_class.new }
 
   describe '#create_deployment' do

@@ -38,7 +38,7 @@ module SlashDeploy
     #   
     #   github
     config.x.deployer = ENV['DEPLOYER']
-    config.x.authorizer = ENV['AUTHORIZER']
+    config.x.github_client = ENV['GITHUB_CLIENT']
     config.x.default_environment = 'production'
     config.x.default_ref = 'master'
 

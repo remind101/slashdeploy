@@ -11,8 +11,8 @@ module SlashDeploy
         }
         options[:required_contexts] = [] if req.force
 
-        last_github_deployment = last_deployment_to(user.github_client, req.repository, req.environment)
-        github_deployment = user.github_client.create_deployment(req.repository, req.ref, options)
+        last_github_deployment = last_deployment_to(user.octokit_client, req.repository, req.environment)
+        github_deployment = user.octokit_client.create_deployment(req.repository, req.ref, options)
 
         DeploymentResponse.new(
           deployment:      deployment_from_github(req.repository, github_deployment),
