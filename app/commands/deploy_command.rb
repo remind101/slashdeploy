@@ -17,6 +17,8 @@ class DeployCommand < BaseCommand
         reply :auto_deploy, environment: env
       rescue GitHub::RedCommitError => e
         reply :red_commit, failing_contexts: e.failing_contexts
+      rescue GitHub::BadRefError => e
+        reply :bad_ref, ref: e.ref, repository: repo
       rescue SlashDeploy::EnvironmentLockedError => e
         locker = SlackUser.new(e.lock.user, user.slack_team)
         reply :locked, environment: env, lock: e.lock, locker: locker

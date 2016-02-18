@@ -17,6 +17,7 @@ module GitHub
 
       def create_deployment(user, req)
         fail RedCommitError, [CommitStatusContext.new(context: 'ci', state: 'failure')] if req.ref == 'failing' && !req.force
+        fail BadRefError, req.ref if req.ref == 'non-existent-branch'
         requests << [user, req]
         id = @ids
         @ids += 1

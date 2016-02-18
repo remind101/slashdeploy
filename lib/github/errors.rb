@@ -14,4 +14,12 @@ module GitHub
       contexts.select(&:failure?)
     end
   end
+
+  class BadRefError < Error
+    attr_reader :ref
+
+    def initialize(ref)
+      @ref = ref
+    end
+  end
 end

@@ -170,7 +170,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rainbow (2.0.0)
     rake (10.5.0)
-    rollbar (2.7.1)
+    rollbar (2.8.0)
       multi_json
     rspec-activemodel-mocks (1.0.1)
       activemodel (>= 3.0)
@@ -277,7 +277,7 @@ DEPENDENCIES
   postgres_ext
   puma
   rails (= 4.2.5.1)
-  rollbar
+  rollbar (~> 2.8.0)
   rspec-activemodel-mocks
   rspec-rails (~> 3.0)
   rubocop

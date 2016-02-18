@@ -18,6 +18,9 @@ module GitHub
         error = required_contexts_error(e.errors)
         raise RedCommitError, commit_status_contexts(error[:contexts]) if error
         raise
+      rescue ::Octokit::UnprocessableEntity => e
+        raise GitHub::BadRefError, req.ref if e.message =~ /No ref found for/
+        raise
       end
 
       def last_deployment(user, repository, environment)

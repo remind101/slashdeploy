@@ -69,6 +69,28 @@ RSpec.describe GitHub::Client::Octokit do
         end.to raise_error GitHub::RedCommitError
       end
     end
+
+    context 'when the ref is not found' do
+      it 'raises an exception' do
+        req = DeploymentRequest.new(
+          repository: 'remind101/acme-inc',
+          ref: 'foofoo',
+          environment: 'production'
+        )
+
+        error = Octokit::UnprocessableEntity.new(
+          method: 'POST',
+          status: 422,
+          body: {
+            error: 'No ref found for: foofoo'
+          }
+        )
+        expect(octokit_client).to receive(:create_deployment).and_raise(error)
+        expect do
+          client.create_deployment user, req
+        end.to raise_error GitHub::Error
+      end
+    end
   end
 
   describe '#last_deployment' do

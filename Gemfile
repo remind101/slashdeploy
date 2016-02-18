@@ -14,7 +14,7 @@ gem 'puma'
 gem 'sass'
 
 # Exceptions
-gem 'rollbar'
+gem 'rollbar', '~> 2.8.0'
 
 # Auth
 gem 'jwt'
