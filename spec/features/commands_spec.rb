@@ -21,12 +21,12 @@ RSpec.feature 'Slash Commands' do
     )
     visit '/slack/install'
     command '/deploy help', as: account
-    url = response.text.gsub(/^.*<(.*?)\|.*>.*$/, '\\1')
+    url = command_response.text.gsub(/^.*<(.*?)\|.*>.*$/, '\\1')
 
     visit url
     click_on 'Link GitHub'
     command '/deploy help', as: account
-    expect(response.text).to eq HelpCommand::USAGE.strip
+    expect(command_response.text).to eq HelpCommand::USAGE.strip
   end
 
   scenario 'using the slash command for the first time' do
@@ -37,7 +37,7 @@ RSpec.feature 'Slash Commands' do
     )
 
     command '/deploy help', as: account
-    url = response.text.gsub(/^.*<(.*?)\|.*>.*$/, '\\1')
+    url = command_response.text.gsub(/^.*<(.*?)\|.*>.*$/, '\\1')
 
     # This will authenticate the user with slack, create their user account and
     # link their GitHub account.

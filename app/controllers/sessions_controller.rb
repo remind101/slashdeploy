@@ -1,7 +1,6 @@
 class SessionsController < ApplicationController
   skip_before_filter :verify_authenticity_token
 
-  # rubocop:disable Metrics/PerceivedComplexity
   def create
     auth = request.env['omniauth.auth']
     auth.provider = 'slack' if auth.provider == 'slash'
