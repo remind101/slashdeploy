@@ -28,6 +28,8 @@ Deploy a branch:
 /deploy ejholmes/acme-inc@topic-branch to staging
 ```
 
+And more at <https://slashdeploy.io/docs>.
+
 ## FAQ
 
 ### What's GitHub Deployments?
