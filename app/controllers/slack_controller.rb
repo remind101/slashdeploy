@@ -8,7 +8,7 @@ class SlackController < ApplicationController
   end
 
   def install
-    redirect_to client.auth_code.authorize_url(scope: 'commands') unless beta?
+    redirect_to client.auth_code.authorize_url(scope: 'bot,commands') unless beta?
   end
 
   def early_access
