@@ -1,14 +1,11 @@
 require 'rails_helper'
 
-RSpec.feature 'Slash Commands' do
+RSpec.feature 'Auto Deployment' do
   fixtures :all
-  include Rack::Test::Methods
-  let(:app) { SlashDeploy.app }
-  let(:deployer) { double(SlashDeploy::Deployer) }
+  let(:github) { double(GitHub::Client) }
 
   before do
-    allow(SlashDeploy.service).to receive(:deployer).and_return(deployer)
-    Repository.create!(name: 'baxterthehacker/public-repo', github_secret: 'secret')
+    allow(SlashDeploy.service).to receive(:github).and_return(github)
   end
 
   scenario 'receiving a `push` event from GitHub when the repo is not enabled for auto deployments' do
@@ -26,7 +23,7 @@ RSpec.feature 'Slash Commands' do
     environment = repo.environment('production')
     environment.configure_auto_deploy('refs/heads/master')
 
-    expect(deployer).to receive(:create_deployment).with \
+    expect(github).to receive(:create_deployment).with \
       users(:david),
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
@@ -43,9 +40,7 @@ RSpec.feature 'Slash Commands' do
     environment.configure_auto_deploy('refs/heads/master')
     environment.lock! users(:david)
 
-    expect do
-      push_event 'secret', sender: { id: github_accounts(:david).id }
-    end.to raise_error SlashDeploy::EnvironmentLockedError
+    push_event 'secret', sender: { id: github_accounts(:david).id }
   end
 
   scenario 'receiving a `push` event from GitHub from a user that has never logged into slashdeploy' do
@@ -53,7 +48,7 @@ RSpec.feature 'Slash Commands' do
     environment = repo.environment('production')
     environment.configure_auto_deploy('refs/heads/master', fallback_user: users(:steve))
 
-    expect(deployer).to receive(:create_deployment).with \
+    expect(github).to receive(:create_deployment).with \
       users(:steve),
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
@@ -83,7 +78,7 @@ RSpec.feature 'Slash Commands' do
     status_event 'secret', context: 'ci/circleci', state: 'pending'
     status_event 'secret', context: 'ci/circleci', state: 'success'
 
-    expect(deployer).to receive(:create_deployment).with \
+    expect(github).to receive(:create_deployment).with \
       users(:david),
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
@@ -100,7 +95,7 @@ RSpec.feature 'Slash Commands' do
     environment.required_contexts = ['ci/circleci', 'security/brakeman']
     environment.configure_auto_deploy('refs/heads/master')
 
-    expect(deployer).to_not receive(:create_deployment)
+    expect(github).to_not receive(:create_deployment)
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
     status_event 'secret', context: 'ci/circleci', state: 'failure'
@@ -122,31 +117,25 @@ RSpec.feature 'Slash Commands' do
       id: github_accounts(:david).id
     }
 
-    expect(deployer).to_not receive(:create_deployment)
+    expect(github).to_not receive(:create_deployment)
     status_event 'secret', context: 'security/brakeman', state: 'success'
   end
 
-  def status_event(secret, extra = {})
-    data = fixture('status_event.json')
-    event :status, secret, data.deep_merge(extra.stringify_keys)
+  scenario 'receiving a `push` event for a deleted branch' do
+    repo = Repository.with_name('baxterthehacker/public-repo')
+    environment = repo.environment('production')
+    environment.configure_auto_deploy('refs/heads/master')
+
+    expect(github).to_not receive(:create_deployment)
+    push_event 'secret', deleted: true, head_commit: nil
   end
 
-  def push_event(secret, extra = {})
-    data = fixture('push_event.json')
-    event :push, secret, data.deep_merge(extra.stringify_keys)
-  end
+  scenario 'receiving a `push` event for a fork' do
+    repo = Repository.with_name('baxterthehacker/public-repo')
+    environment = repo.environment('production')
+    environment.configure_auto_deploy('refs/heads/master')
 
-  def fixture(name)
-    fname = File.expand_path("../fixtures/github/#{name}", __dir__)
-    JSON.parse File.read(fname)
-  end
-
-  def event(event, secret, payload = {})
-    body = payload.to_json
-    post \
-      '/',
-      body,
-      Hookshot::HEADER_GITHUB_EVENT => event,
-      Hookshot::HEADER_HUB_SIGNATURE => "sha1=#{Hookshot.signature(body, secret)}"
+    expect(github).to_not receive(:create_deployment)
+    push_event 'secret', repository: { fork: true }
   end
 end

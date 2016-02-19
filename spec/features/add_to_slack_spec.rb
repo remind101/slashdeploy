@@ -2,8 +2,6 @@ require 'rails_helper'
 
 RSpec.feature 'Add to Slack' do
   fixtures :all
-  include Rack::Test::Methods
-  let(:app) { SlashDeploy.app }
 
   before do
     OmniAuth.config.test_mode = true

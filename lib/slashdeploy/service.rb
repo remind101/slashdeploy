@@ -3,13 +3,8 @@ module SlashDeploy
   # consume. This composes the various backends and provides a very simple API
   # for performing actions.
   class Service
-    # An object that responds to `call` where the first argument is a User
-    # object. Should return something that implements the Deployer interface.
-    attr_accessor :deployer
-
-    # A SlashDeploy::Authorizer implementation, which will be used to ensure
-    # that the user has permissions to perform actions against a repository.
-    attr_accessor :authorizer
+    # Client for interacting with GitHub.
+    attr_accessor :github
 
     # Creates a new deployment request as the given user.
     #
@@ -25,21 +20,21 @@ module SlashDeploy
     #
     # Returns a DeploymentResponse.
     def create_deployment(user, environment, ref = nil, options = {})
-      repository = environment.repository
+      authorize! user, environment.repository.to_s
 
-      req = DeploymentRequest.new(
-        repository:  repository.to_s,
-        environment: environment.to_s,
-        ref:         ref || environment.default_ref,
-        force:       options[:force]
-      )
+      req = deployment_request(environment, ref, force: options[:force])
+
+      # Check if the environment we're deploying to is configured for auto deployments.
+      fail EnvironmentAutoDeploys if environment.auto_deploy_enabled? && !options[:force]
 
       # Check if the environment we're deploying to is locked.
       lock = environment.active_lock
-      if lock && (lock.user != user || options[:strong_lock])
+      if lock && lock.user != user
         fail EnvironmentLockedError, lock
       else
-        deployer.create_deployment(user, req)
+        last_deployment = github.last_deployment(user, req.repository, req.environment)
+        deployment = github.create_deployment(user, req)
+        DeploymentResponse.new(deployment: deployment, last_deployment: last_deployment)
       end
     end
 
@@ -97,12 +92,16 @@ module SlashDeploy
     # Returns nothing.
     def auto_deploy(auto_deployment)
       return unless auto_deployment.ready?
+
       begin
-        create_deployment \
+        environment = auto_deployment.environment
+
+        # Check if the environment we're deploying to is locked.
+        return if environment.locked?
+        github.create_deployment(
           auto_deployment.user,
-          auto_deployment.environment,
-          auto_deployment.sha,
-          strong_lock: true
+          deployment_request(environment, auto_deployment.sha)
+        )
       ensure
         auto_deployment.done!
       end
@@ -110,8 +109,17 @@ module SlashDeploy
 
     private
 
+    def deployment_request(environment, ref, options = {})
+      DeploymentRequest.new(
+        repository:  environment.repository.to_s,
+        environment: environment.to_s,
+        ref:         ref || environment.default_ref,
+        force:       options[:force]
+      )
+    end
+
     def authorize!(user, repository)
-      fail RepoUnauthorized, repository unless authorizer.authorized?(user, repository.to_s)
+      fail RepoUnauthorized, repository unless github.access?(user, repository.to_s)
     end
   end
 end

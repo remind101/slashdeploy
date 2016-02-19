@@ -38,6 +38,11 @@ class Environment < ActiveRecord::Base
     locks.active.first
   end
 
+  # Returns true if this environment is locked.
+  def locked?
+    active_lock.present?
+  end
+
   # Returns the currently active auto deployment, if there is one.
   def active_auto_deployment
     auto_deployments.active.first
@@ -54,8 +59,14 @@ class Environment < ActiveRecord::Base
     self.update_attributes!(auto_deploy_ref: ref, auto_deploy_user: options[:fallback_user])
   end
 
+  # Checks if this environment is configured to automatically deploy the given ref.
   def auto_deploy?(ref)
     auto_deploy_ref == ref
+  end
+
+  # Returns true if this environment is configured to automatically deploy.
+  def auto_deploy_enabled?
+    auto_deploy_ref.present?
   end
 
   # The default git ref to deploy when none is provided for this environment.

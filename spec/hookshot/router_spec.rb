@@ -16,7 +16,7 @@ RSpec.describe Hookshot::Router do
       expect(body).to eq ['deployment event']
 
       status, _headers, _body = router.call(env_for_event('ping'))
-      expect(status).to eq 404
+      expect(status).to eq 204
     end
   end
 

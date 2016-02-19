@@ -111,6 +111,10 @@ GEM
       thor (>= 0.14, < 2.0)
     json (1.8.3)
     jwt (1.5.1)
+    lograge (0.3.5)
+      actionpack (>= 3)
+      activesupport (>= 3)
+      railties (>= 3)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.3)
@@ -182,7 +186,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rainbow (2.0.0)
     rake (10.5.0)
-    rollbar (2.7.1)
+    rollbar (2.8.0)
       multi_json
     rspec-activemodel-mocks (1.0.1)
       activemodel (>= 3.0)
@@ -282,6 +286,7 @@ DEPENDENCIES
   foreman
   jquery-rails
   jwt
+  lograge
   oauth2
   octokit
   oj
@@ -291,7 +296,7 @@ DEPENDENCIES
   postgres_ext
   puma
   rails (= 4.2.5.1)
-  rollbar
+  rollbar (~> 2.8.0)
   rspec-activemodel-mocks
   rspec-rails (~> 3.0)
   rubocop

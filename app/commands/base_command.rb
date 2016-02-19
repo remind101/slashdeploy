@@ -7,7 +7,7 @@ class BaseCommand
   attr_reader :slashdeploy
 
   def self.call(env)
-    new(env, ::SlashDeploy.service).run
+    new(env, ::SlashDeploy.service).call
   end
 
   def initialize(env, slashdeploy)
@@ -15,11 +15,19 @@ class BaseCommand
     @slashdeploy = slashdeploy
   end
 
+  def call
+    logger.with_module(self.class) do
+      logger.info('running command')
+      run
+    end
+  end
+
   def run
     fail NotImplementedError
   end
 
   def render(template, assigns = {})
+    logger.info "template=#{template} rendering"
     super template, assigns.merge(user: user, params: params, request: request)
   end
 
@@ -39,6 +47,10 @@ class BaseCommand
 
   def params
     env['params']
+  end
+
+  def logger
+    Rails.logger
   end
 
   delegate :transaction, to: :'ActiveRecord::Base'

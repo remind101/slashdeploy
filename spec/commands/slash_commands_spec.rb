@@ -6,34 +6,34 @@ RSpec.describe SlashCommands do
 
   describe '#route' do
     it 'routes to the correct handler' do
-      a = double(SlackUser, slack_team: stub_model(SlackTeam, github_organization: 'remind101'))
+      a = double(SlackUser, slack_team: stub_model(SlackTeam, github_organization: 'acme-inc'))
 
       check_route(a, 'help', HelpCommand, {})
 
-      check_route(a, 'where remind101/acme-inc', EnvironmentsCommand, 'repository' => 'remind101/acme-inc')
-      check_route(a, 'where acme-inc', EnvironmentsCommand, 'repository' => 'remind101/acme-inc')
+      check_route(a, 'where acme-inc/api', EnvironmentsCommand, 'repository' => 'acme-inc/api')
+      check_route(a, 'where api', EnvironmentsCommand, 'repository' => 'acme-inc/api')
 
-      check_route(a, 'lock staging on remind101/acme-inc: Doing stuff', LockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'message' => ' Doing stuff')
-      check_route(a, 'lock staging on remind101/acme-inc', LockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'message' => nil)
-      check_route(a, 'lock staging on acme-inc', LockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'message' => nil)
+      check_route(a, 'lock staging on acme-inc/api: Doing stuff', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => ' Doing stuff')
+      check_route(a, 'lock staging on acme-inc/api', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil)
+      check_route(a, 'lock staging on api', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil)
 
-      check_route(a, 'unlock staging on remind101/acme-inc', UnlockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging')
-      check_route(a, 'unlock staging on acme-inc', UnlockCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging')
+      check_route(a, 'unlock staging on acme-inc/api', UnlockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
+      check_route(a, 'unlock staging on api', UnlockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
 
       check_route(a, 'boom', BoomCommand, {})
 
-      check_route(a, 'remind101/acme-inc', DeployCommand, 'repository' => 'remind101/acme-inc', 'force' => nil, 'ref' => nil, 'environment' => nil)
-      check_route(a, 'remind101/acme-inc!', DeployCommand, 'repository' => 'remind101/acme-inc', 'force' => '!', 'ref' => nil, 'environment' => nil)
-      check_route(a, 'remind101/acme-inc@topic', DeployCommand, 'repository' => 'remind101/acme-inc', 'ref' => 'topic', 'force' => nil, 'environment' => nil)
-      check_route(a, 'remind101/acme-inc@topic!', DeployCommand, 'repository' => 'remind101/acme-inc', 'ref' => 'topic', 'force' => '!', 'environment' => nil)
-      check_route(a, 'remind101/acme-inc to staging', DeployCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
-      check_route(a, 'remind101/acme-inc to staging!', DeployCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'force' => '!', 'ref' => nil)
-      check_route(a, 'remind101/acme-inc to staging', DeployCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
-      check_route(a, 'remind101/acme-inc to staging!', DeployCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'force' => '!', 'ref' => nil)
-      check_route(a, 'remind101/acme-inc@topic to staging', DeployCommand, 'repository' => 'remind101/acme-inc', 'ref' => 'topic', 'environment' => 'staging', 'force' => nil)
-      check_route(a, 'remind101/acme-inc@topic to staging!', DeployCommand, 'repository' => 'remind101/acme-inc', 'ref' => 'topic', 'environment' => 'staging', 'force' => '!')
+      check_route(a, 'acme-inc/api', DeployCommand, 'repository' => 'acme-inc/api', 'force' => nil, 'ref' => nil, 'environment' => nil)
+      check_route(a, 'acme-inc/api!', DeployCommand, 'repository' => 'acme-inc/api', 'force' => '!', 'ref' => nil, 'environment' => nil)
+      check_route(a, 'acme-inc/api@topic', DeployCommand, 'repository' => 'acme-inc/api', 'ref' => 'topic', 'force' => nil, 'environment' => nil)
+      check_route(a, 'acme-inc/api@topic!', DeployCommand, 'repository' => 'acme-inc/api', 'ref' => 'topic', 'force' => '!', 'environment' => nil)
+      check_route(a, 'acme-inc/api to staging', DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
+      check_route(a, 'acme-inc/api to staging!', DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => '!', 'ref' => nil)
+      check_route(a, 'acme-inc/api to staging', DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
+      check_route(a, 'acme-inc/api to staging!', DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => '!', 'ref' => nil)
+      check_route(a, 'acme-inc/api@topic to staging', DeployCommand, 'repository' => 'acme-inc/api', 'ref' => 'topic', 'environment' => 'staging', 'force' => nil)
+      check_route(a, 'acme-inc/api@topic to staging!', DeployCommand, 'repository' => 'acme-inc/api', 'ref' => 'topic', 'environment' => 'staging', 'force' => '!')
 
-      check_route(a, 'acme-inc to staging', DeployCommand, 'repository' => 'remind101/acme-inc', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
+      check_route(a, 'api to staging', DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
     end
 
     def check_route(user, text, expected_handler, expected_params)

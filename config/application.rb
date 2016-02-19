@@ -8,6 +8,9 @@ Bundler.require(*Rails.groups)
 
 module SlashDeploy
   class Application < Rails::Application
+    # Sane logging.
+    config.lograge.enabled = true
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -38,14 +41,16 @@ module SlashDeploy
       provider :developer if Rails.env.development?
       provider :slash
       provider :github, ENV['GITHUB_CLIENT_ID'], ENV['GITHUB_CLIENT_SECRET'], scope: 'repo_deployment'
-      provider :slack, ENV['SLACK_CLIENT_ID'], ENV['SLACK_CLIENT_SECRET'], scope: 'team:read,commands'
+      provider :slack, ENV['SLACK_CLIENT_ID'], ENV['SLACK_CLIENT_SECRET'], scope: 'team:read'
     end
+
+    require 'perty'
+    config.middleware.swap Rails::Rack::Logger, Perty::Rack
 
     # The name of the deployment backend to use. Possible options are:
     #   
     #   github
-    config.x.deployer = ENV['DEPLOYER']
-    config.x.authorizer = ENV['AUTHORIZER']
+    config.x.github_client = ENV['GITHUB_CLIENT']
     config.x.default_environment = 'production'
     config.x.default_ref = 'master'
 

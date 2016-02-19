@@ -45,7 +45,7 @@ Rails.application.configure do
   config.log_level = :debug
 
   # Prepend all log lines with the following tags.
-  # config.log_tags = [ :subdomain, :uuid ]
+  # config.log_tags = [ :uuid ]
 
   # Use a different logger for distributed setups.
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
@@ -72,4 +72,11 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  # Disable logging of queries.
+  config.active_record.logger = nil
+
+  config.x.github_client ||= :github
+  config.x.slack.verification_token || fail('No Slack verification token')
+  config.x.state_key || fail('No state key')
 end

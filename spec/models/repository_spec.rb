@@ -12,7 +12,7 @@ RSpec.describe Repository, type: :model do
   describe '#environment' do
     context 'when given and environment name' do
       it 'returns the environment with that name' do
-        repo = Repository.with_name('remind101/acme-inc')
+        repo = Repository.with_name('acme-inc/api')
         environment = repo.environment('staging')
         expect(environment).to_not be_nil
         expect(environment.name).to eq 'staging'
@@ -21,7 +21,7 @@ RSpec.describe Repository, type: :model do
 
     context 'when not given a name' do
       it 'returns the default environment' do
-        repo = Repository.with_name('remind101/acme-inc')
+        repo = Repository.with_name('acme-inc/api')
         environment = repo.environment
         expect(environment).to_not be_nil
         expect(environment.name).to eq 'production'

@@ -1,5 +1,4 @@
-SlashDeploy.service.deployer   = SlashDeploy::Deployer.new Rails.configuration.x.deployer
-SlashDeploy.service.authorizer = SlashDeploy::Authorizer.new Rails.configuration.x.authorizer
+SlashDeploy.service.github = GitHub::Client.new(Rails.configuration.x.github_client)
 
 # Used to encode and sign the oauth state param for keeping track of a slack
 # user id across github authentication.

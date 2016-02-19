@@ -7,6 +7,10 @@ class User < ActiveRecord::Base
   # Raised if the user doesn't have a github account.
   MissingGitHubAccount = Class.new(StandardError)
 
+  def identifier
+    "#{id}:#{username}"
+  end
+
   def username
     github_account.login
   end
@@ -43,7 +47,7 @@ class User < ActiveRecord::Base
     account.login
   end
 
-  def github_client
+  def octokit_client
     @client ||= Octokit::Client.new(access_token: github_token)
   end
 end

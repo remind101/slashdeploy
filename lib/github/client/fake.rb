@@ -1,7 +1,5 @@
-module SlashDeploy
-  module Deployer
-    # Fake provides a fake implementation of the Deployer interface, which
-    # simply records the requests in an in memory array.
+module GitHub
+  module Client
     class Fake
       attr_reader :requests
       attr_reader :commits, :deployments
@@ -19,6 +17,7 @@ module SlashDeploy
 
       def create_deployment(user, req)
         fail RedCommitError, [CommitStatusContext.new(context: 'ci', state: 'failure')] if req.ref == 'failing' && !req.force
+        fail BadRefError, req.ref if req.ref == 'non-existent-branch'
         requests << [user, req]
         id = @ids
         @ids += 1
@@ -33,13 +32,12 @@ module SlashDeploy
           sha:         commits[req.repository][req.ref],
           environment: req.environment
         )
-        last = deployments[req.repository][req.environment].last
         deployments[req.repository][req.environment] << deployment
+        deployment
+      end
 
-        DeploymentResponse.new(
-          deployment:      deployment,
-          last_deployment: last
-        )
+      def last_deployment(_user, repository, environment)
+        deployments[repository][environment].last
       end
 
       def reset
@@ -53,6 +51,12 @@ module SlashDeploy
           end
         end
         @requests = []
+      end
+
+      def access?(user, repository)
+        fail('Expected a String repository') unless repository =~ SlashDeploy::GITHUB_REPO_REGEX
+        return false if user.github_account.login == 'bob'
+        true
       end
     end
   end

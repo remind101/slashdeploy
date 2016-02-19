@@ -1,6 +1,10 @@
 require 'slash'
 require 'hookshot'
 require 'omniauth/strategies/slash'
+require 'github'
+require 'perty'
+
+require 'slashdeploy/errors'
 
 # SlashDeployer is the core API of the SlashDeploy service.
 module SlashDeploy
@@ -11,36 +15,6 @@ module SlashDeploy
   autoload :Service, 'slashdeploy/service'
   autoload :State,   'slashdeploy/state'
 
-  # Authorizer is used to check if the user has access to a repo.
-  module Authorizer
-    autoload :GitHub, 'slashdeploy/authorizer/github'
-    autoload :Fake,   'slashdeploy/authorizer/fake'
-
-    def self.new(kind)
-      case kind.try(:to_sym)
-      when :github
-        GitHub.new
-      else
-        Fake.new
-      end
-    end
-  end
-
-  # Deployer represents something that can create a new deployment request.
-  module Deployer
-    autoload :GitHub, 'slashdeploy/deployer/github'
-    autoload :Fake,   'slashdeploy/deployer/fake'
-
-    def self.new(kind)
-      case kind.try(:to_sym)
-      when :github
-        GitHub.new
-      else
-        Fake.new
-      end
-    end
-  end
-
   # Rack apps for handling slash commands.
   module Commands
     autoload :Auth,      'slashdeploy/commands/auth'
@@ -50,8 +24,14 @@ module SlashDeploy
     def self.slack_handler
       handler = SlashCommands.build
 
+      # Log the request
+      handler = Slash::Middleware::Logging.new(handler)
+
       # Ensure that users are authorized
       handler = Auth.new(handler, Rails.configuration.x.oauth.github, ::SlashDeploy.state)
+
+      # Strip extra whitespace from the text.
+      handler = Slash::Middleware::NormalizeText.new(handler)
 
       # Verify that the slash command came from slack.
       Slash::Middleware::Verify.new(handler, Rails.configuration.x.slack.verification_token)
@@ -61,44 +41,6 @@ module SlashDeploy
       # Adapt it to rack.
       Slash::Rack.new(slack_handler)
     end
-  end
-
-  Error = Class.new(StandardError)
-
-  # Raised when a user doesn't have access to the given repo.
-  class RepoUnauthorized < Error
-    attr_reader :repository
-
-    def initialize(repo)
-      @repository = repo
-    end
-  end
-
-  # Raised when an action cannot be performed on the environment because it's locked.
-  class EnvironmentLockedError < Error
-    attr_reader :lock
-
-    def initialize(lock)
-      @lock = lock
-    end
-  end
-
-  # RedCommitError is an error that's returned when the commit someone is
-  # trying to deploy is not green.
-  class RedCommitError < Error
-    attr_reader :contexts
-
-    def initialize(contexts = [])
-      @contexts = contexts
-    end
-
-    def failing_contexts
-      contexts.select(&:failure?)
-    end
-  end
-
-  # Can be raised when there is no user to perform an auto deployment.
-  class NoAutoDeployUser < Error
   end
 
   class << self

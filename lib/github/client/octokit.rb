@@ -1,8 +1,9 @@
-module SlashDeploy
-  module Deployer
-    # GitHub implements the Deployer interface backed by the github API.
-    class GitHub
-      # Creates a new deployment request on github.
+require 'octokit'
+
+module GitHub
+  module Client
+    # An implementation of the GitHub::Client interface backed by octokit.
+    class Octokit
       def create_deployment(user, req)
         options = {
           environment: req.environment,
@@ -11,26 +12,32 @@ module SlashDeploy
         }
         options[:required_contexts] = [] if req.force
 
-        last_github_deployment = last_deployment_to(user.github_client, req.repository, req.environment)
-        github_deployment = user.github_client.create_deployment(req.repository, req.ref, options)
-
-        DeploymentResponse.new(
-          deployment:      deployment_from_github(req.repository, github_deployment),
-          last_deployment: last_github_deployment
-        )
-      rescue Octokit::Conflict => e
+        github_deployment = user.octokit_client.create_deployment(req.repository, req.ref, options)
+        deployment_from_github(req.repository, github_deployment)
+      rescue ::Octokit::Conflict => e
         error = required_contexts_error(e.errors)
         raise RedCommitError, commit_status_contexts(error[:contexts]) if error
         raise
+      rescue ::Octokit::UnprocessableEntity => e
+        raise GitHub::BadRefError, req.ref if e.message =~ /No ref found for/
+        raise
       end
 
-      private
-
-      def last_deployment_to(client, repository, environment)
-        deployments = client.deployments(repository, environment: environment)
+      def last_deployment(user, repository, environment)
+        deployments = user.octokit_client.deployments(repository, environment: environment)
         return if deployments.empty?
         deployment_from_github repository, deployments.first
       end
+
+      def access?(user, repository)
+        # Add a fake sha so we don't get any response data.
+        user.octokit_client.deployments(repository, sha: '1')
+        true
+      rescue ::Octokit::NotFound
+        false
+      end
+
+      private
 
       def deployment_from_github(repository, github_deployment)
         Deployment.new(
