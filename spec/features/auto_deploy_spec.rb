@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.feature 'Auto Deployment' do
   fixtures :all
-  let(:github) { double(GitHub::Client) }
+  let(:github) { instance_double(GitHub::Client) }
 
   before do
     allow(SlashDeploy.service).to receive(:github).and_return(github)

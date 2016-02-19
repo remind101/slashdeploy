@@ -1,12 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe SlashCommands do
-  let(:slashdeploy) { double(SlashDeploy::Service) }
+  let(:slashdeploy) { instance_double(SlashDeploy::Service) }
   let(:handler) { described_class.new slashdeploy }
 
   describe '#route' do
     it 'routes to the correct handler' do
-      a = double(SlackUser, slack_team: stub_model(SlackTeam, github_organization: 'acme-inc'))
+      a = instance_double(SlackUser, slack_team: stub_model(SlackTeam, github_organization: 'acme-inc'))
 
       check_route(a, 'help', HelpCommand, {})
 

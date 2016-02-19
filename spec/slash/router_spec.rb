@@ -3,8 +3,8 @@ require 'spec_helper'
 RSpec.describe Slash::Router do
   describe '#match' do
     it 'adds a route that matches the text against the regular expression' do
-      help = double(Slash::Handler)
-      lock = double(Slash::Handler)
+      help = instance_double(Slash::Handler)
+      lock = instance_double(Slash::Handler)
 
       router = Slash::Router.new
       router.match Slash.match_regexp(/^help$/), help

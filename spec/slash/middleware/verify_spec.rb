@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe Slash::Middleware::Verify do
-  let(:handler) { double('Slash::Handler') }
+  let(:handler) { instance_double(Slash::Handler) }
 
   describe '#call' do
     context 'when the token matches' do

@@ -13,5 +13,17 @@ module GitHub
         Fake.new
       end
     end
+
+    def create_deployment(_user, _req)
+      fail NotImplementedError
+    end
+
+    def last_deployment(_user, _repository, _environment)
+      fail NotImplementedError
+    end
+
+    def access?(_user, _repository)
+      fail NotImplementedError
+    end
   end
 end

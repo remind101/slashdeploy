@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe Slash::Rack do
-  let(:handler) { double }
+  let(:handler) { instance_double(Slash::Handler) }
   let(:app) { described_class.new handler }
 
   describe '#call' do

@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe SlashDeploy::Commands::Auth do
-  let(:handler) { double('Slash::Handler') }
+  let(:handler) { instance_double(Slash::Handler) }
   let(:oauth_client) do
     OAuth2::Client.new(
       'client_id',

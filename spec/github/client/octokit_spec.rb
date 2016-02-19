@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe GitHub::Client::Octokit do
-  let(:octokit_client) { double(Octokit::Client) }
+  let(:octokit_client) { instance_double(Octokit::Client) }
   let(:user) { stub_model(User, octokit_client: octokit_client) }
   let(:client) { described_class.new }
 

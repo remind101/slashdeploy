@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe SlashDeploy::Service do
   fixtures :users
 
-  let(:github) { double(GitHub::Client, access?: true) }
+  let(:github) { instance_double(GitHub::Client, access?: true) }
   let(:service) do
     described_class.new.tap do |service|
       service.github = github

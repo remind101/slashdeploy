@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe GithubController, type: :controller do
-  let(:warden) { double('warden') }
+  let(:warden) { instance_double(Warden::Proxy) }
 
   before do
     request.env['warden'] = warden
