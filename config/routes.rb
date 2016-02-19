@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  post '/auth/developer/callback' => 'github#callback'
   get '/auth/github/callback' => 'github#callback'
   get '/auth/slack/callback' => 'slack#callback'
 
