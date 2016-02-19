@@ -8,7 +8,7 @@ RSpec.describe GitHub::Client::Octokit do
   describe '#create_deployment' do
     it 'creates the github deployment' do
       req = DeploymentRequest.new(
-        repository: 'remind101/acme-inc',
+        repository: 'acme-inc/api',
         ref: 'master',
         environment: 'production'
       )
@@ -21,7 +21,7 @@ RSpec.describe GitHub::Client::Octokit do
         sha: '52bea69fa54a0ad7a4bdb305380ef43a'
       )
       expect(octokit_client).to receive(:create_deployment).with(
-        'remind101/acme-inc',
+        'acme-inc/api',
         'master',
         environment: 'production',
         task: 'deploy',
@@ -35,7 +35,7 @@ RSpec.describe GitHub::Client::Octokit do
     context 'when the commit has failing commit statuses' do
       it 'raises an exception' do
         req = DeploymentRequest.new(
-          repository: 'remind101/acme-inc',
+          repository: 'acme-inc/api',
           ref: 'master',
           environment: 'production'
         )
@@ -73,7 +73,7 @@ RSpec.describe GitHub::Client::Octokit do
     context 'when the ref is not found' do
       it 'raises an exception' do
         req = DeploymentRequest.new(
-          repository: 'remind101/acme-inc',
+          repository: 'acme-inc/api',
           ref: 'foofoo',
           environment: 'production'
         )
@@ -97,7 +97,7 @@ RSpec.describe GitHub::Client::Octokit do
     context 'when there are no previous deployments' do
       it 'returns nil' do
         expect(octokit_client).to receive(:deployments).and_return([])
-        deployment = client.last_deployment user, 'remind101/acme-inc', 'production'
+        deployment = client.last_deployment user, 'acme-inc/api', 'production'
         expect(deployment).to be_nil
       end
     end
@@ -111,7 +111,7 @@ RSpec.describe GitHub::Client::Octokit do
           environment: 'production',
           sha: 'ef892c97230add9a1250ec7e1d71b362'
         )])
-        deployment = client.last_deployment user, 'remind101/acme-inc', 'production'
+        deployment = client.last_deployment user, 'acme-inc/api', 'production'
         expect(deployment.id).to eq 1
       end
     end
@@ -120,17 +120,17 @@ RSpec.describe GitHub::Client::Octokit do
   describe '#access?' do
     context 'when the user has access to the deployments of the repo' do
       it 'returns true' do
-        expect(octokit_client).to receive(:deployments).with('remind101/acme-inc', sha: '1')
-        expect(client.access? user, 'remind101/acme-inc').to be_truthy
+        expect(octokit_client).to receive(:deployments).with('acme-inc/api', sha: '1')
+        expect(client.access? user, 'acme-inc/api').to be_truthy
       end
     end
 
     context 'when the user does not have access to the deployments of the repo' do
       it 'returns false' do
-        expect(octokit_client).to receive(:deployments).with('remind101/acme-inc', sha: '1').and_raise(
+        expect(octokit_client).to receive(:deployments).with('acme-inc/api', sha: '1').and_raise(
           Octokit::NotFound.new
         )
-        expect(client.access? user, 'remind101/acme-inc').to be_falsey
+        expect(client.access? user, 'acme-inc/api').to be_falsey
       end
     end
   end

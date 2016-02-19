@@ -13,14 +13,14 @@ RSpec.describe SlashDeploy::Service do
   describe '#create_deployment' do
     context 'when no environment or ref is provided' do
       it 'sets the default environment' do
-        repo = stub_model(Repository, name: 'remind101/acme-inc')
+        repo = stub_model(Repository, name: 'acme-inc/api')
         env  = stub_model(Environment, repository: repo, name: 'production', active_lock: nil)
-        expect(github).to receive(:access?).with(users(:david), 'remind101/acme-inc').and_return(true)
-        expect(github).to receive(:last_deployment).with(users(:david), 'remind101/acme-inc', 'production').and_return(nil)
+        expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
+        expect(github).to receive(:last_deployment).with(users(:david), 'acme-inc/api', 'production').and_return(nil)
         expect(github).to receive(:create_deployment).with(
           users(:david),
           DeploymentRequest.new(
-            repository: 'remind101/acme-inc',
+            repository: 'acme-inc/api',
             environment: 'production',
             ref: 'master'
           )
@@ -32,7 +32,7 @@ RSpec.describe SlashDeploy::Service do
 
     context 'when the environment is locked' do
       it 'raises an exception' do
-        repo = stub_model(Repository, name: 'remind101/acme-inc')
+        repo = stub_model(Repository, name: 'acme-inc/api')
         lock = stub_model(Lock, user: users(:david))
         env  = stub_model(Environment, repository: repo, name: 'production', active_lock: lock)
         expect do
@@ -45,9 +45,9 @@ RSpec.describe SlashDeploy::Service do
   describe '#lock_environment' do
     context 'when there is no existing lock' do
       it 'locks the environment' do
-        repo = stub_model(Repository, name: 'remind101/acme-inc')
+        repo = stub_model(Repository, name: 'acme-inc/api')
         env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: nil)
-        expect(github).to receive(:access?).with(users(:david), 'remind101/acme-inc').and_return(true)
+        expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
         expect(env).to receive(:lock!).with(users(:david), 'Testing some stuff')
         service.lock_environment(users(:david), env, 'Testing some stuff')
       end
@@ -55,10 +55,10 @@ RSpec.describe SlashDeploy::Service do
 
     context 'when there is an existing lock held by a different user' do
       it 'locks the environment' do
-        repo = stub_model(Repository, name: 'remind101/acme-inc')
+        repo = stub_model(Repository, name: 'acme-inc/api')
         lock = stub_model(Lock, user: users(:steve))
         env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: lock)
-        expect(github).to receive(:access?).with(users(:david), 'remind101/acme-inc').and_return(true)
+        expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
         expect(lock).to receive(:unlock!)
         expect(env).to receive(:lock!).with(users(:david), 'Testing some stuff')
         resp = service.lock_environment(users(:david), env, 'Testing some stuff')
@@ -68,10 +68,10 @@ RSpec.describe SlashDeploy::Service do
 
     context 'when there is an existing lock held by the same user' do
       it 'returns nil' do
-        repo = stub_model(Repository, name: 'remind101/acme-inc')
+        repo = stub_model(Repository, name: 'acme-inc/api')
         lock = stub_model(Lock, user: users(:david))
         env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: lock)
-        expect(github).to receive(:access?).with(users(:david), 'remind101/acme-inc').and_return(true)
+        expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
         resp = service.lock_environment(users(:david), env, 'Testing some stuff')
         expect(resp).to be_nil
       end
@@ -81,9 +81,9 @@ RSpec.describe SlashDeploy::Service do
   describe '#unlock_environment' do
     context 'when the environment is locked by a different user' do
       it 'unlocks it' do
-        repo = stub_model(Repository, name: 'remind101/acme-inc')
+        repo = stub_model(Repository, name: 'acme-inc/api')
         env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: nil)
-        expect(github).to receive(:access?).with(users(:david), 'remind101/acme-inc').and_return(true)
+        expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
         expect(env).to receive(:lock!).with(users(:david), 'Testing some stuff')
         service.lock_environment(users(:david), env, 'Testing some stuff')
       end
@@ -92,8 +92,8 @@ RSpec.describe SlashDeploy::Service do
 
   describe '#environments' do
     it 'returns the environments' do
-      repo = stub_model(Repository, name: 'remind101/acme-inc', environments: [])
-      expect(github).to receive(:access?).with(users(:david), 'remind101/acme-inc').and_return(true)
+      repo = stub_model(Repository, name: 'acme-inc/api', environments: [])
+      expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
       service.environments(users(:david), repo)
     end
   end

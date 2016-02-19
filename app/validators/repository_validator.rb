@@ -1,4 +1,4 @@
-# Validates the github repo format (e.g. 'remind101/acme-inc')
+# Validates the github repo format (e.g. 'acme-inc/api')
 class RepositoryValidator < ActiveModel::EachValidator
   def self.check(repository)
     repository =~ /^#{SlashDeploy::GITHUB_REPO_REGEX}$/

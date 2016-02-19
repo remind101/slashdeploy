@@ -6,7 +6,7 @@ RSpec.describe Lock, type: :model do
     let(:user) { users(:david) }
 
     it 'only allows for 1 active lock per environment' do
-      repo = Repository.with_name('remind101/acme-inc')
+      repo = Repository.with_name('acme-inc/api')
 
       # Trying the lock the same environment should result in an error.
       staging = repo.environment('staging')

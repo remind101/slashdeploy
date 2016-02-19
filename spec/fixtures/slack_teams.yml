@@ -1,5 +1,5 @@
 acme:
   domain: "acme"
-  github_organization: "remind101"
+  github_organization: "acme-inc"
 skynet:
   domain: "skynet"

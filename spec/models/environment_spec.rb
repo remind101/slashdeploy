@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Environment, type: :model do
   describe '.named' do
     before do
-      repo = Repository.with_name('remind101/acme-inc')
+      repo = Repository.with_name('acme-inc/api')
       repo.environments.create!(name: 'production', aliases: %w(prod p))
       repo.environments.create!(name: 'staging', aliases: %w(stage s))
     end
@@ -42,7 +42,7 @@ RSpec.describe Environment, type: :model do
 
   describe '#aliases=' do
     it 'filters out aliases that match the name' do
-      repo = Repository.with_name('remind101/acme-inc')
+      repo = Repository.with_name('acme-inc/api')
       environment = repo.environment('production')
       environment.aliases = %w(production prod)
       expect(environment.aliases).to eq %w(prod)
@@ -53,7 +53,7 @@ RSpec.describe Environment, type: :model do
     end
 
     it 'allows you to set it to nil' do
-      repo = Repository.with_name('remind101/acme-inc')
+      repo = Repository.with_name('acme-inc/api')
       environment = repo.environment('production')
       environment.aliases = %w(production prod)
       expect(environment.aliases).to eq %w(prod)
@@ -64,7 +64,7 @@ RSpec.describe Environment, type: :model do
     end
 
     it 'does not allow you to create aliases that match a different environment for the same repository' do
-      repo = Repository.with_name('remind101/acme-inc')
+      repo = Repository.with_name('acme-inc/api')
       repo.environments.create!(name: 'production', aliases: %w(prod))
 
       staging = repo.environments.create!(name: 'staging')
@@ -73,7 +73,7 @@ RSpec.describe Environment, type: :model do
     end
 
     it 'does not allow you to create an environment that matches the alias of an existing environment' do
-      repo = Repository.with_name('remind101/acme-inc')
+      repo = Repository.with_name('acme-inc/api')
       repo.environments.create!(name: 'production', aliases: %w(prod))
 
       staging = repo.environments.create(name: 'prod')

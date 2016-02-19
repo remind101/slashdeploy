@@ -7,9 +7,9 @@ RSpec.feature 'Slash Commands' do
     github.reset
 
     # Set the HEAD commits for some fake branches.
-    HEAD('remind101/acme-inc', 'master',  'ad80a1b3e1a94b98ce99b71a48f811f1')
-    HEAD('remind101/acme-inc', 'topic',   '4c7b474c6e1c81553a16d1082cebfa60')
-    HEAD('remind101/acme-inc', 'failing', '46c2acc4e588924340adcd108cfc948b')
+    HEAD('acme-inc/api', 'master',  'ad80a1b3e1a94b98ce99b71a48f811f1')
+    HEAD('acme-inc/api', 'topic',   '4c7b474c6e1c81553a16d1082cebfa60')
+    HEAD('acme-inc/api', 'failing', '46c2acc4e588924340adcd108cfc948b')
   end
 
   scenario 'authenticating' do
@@ -42,159 +42,159 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'performing a simple deployment' do
-    command '/deploy  remind101/acme-inc', as: slack_accounts(:david)
+    command '/deploy  acme-inc/api', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
-      [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'master', environment: 'production')]
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'master', environment: 'production')]
     ]
     expect(command_response).to be_in_channel
-    expect(command_response.text).to eq 'Created deployment request for <https://github.com/remind101/acme-inc|remind101/acme-inc>@<https://github.com/remind101/acme-inc/commits/ad80a1b3e1a94b98ce99b71a48f811f1|master> to production (no change)'
+    expect(command_response.text).to eq 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/ad80a1b3e1a94b98ce99b71a48f811f1|master> to production (no change)'
 
     # David commits something new
-    HEAD('remind101/acme-inc', 'master', 'f5c0df18526b90b9698816ee4b6606e0')
+    HEAD('acme-inc/api', 'master', 'f5c0df18526b90b9698816ee4b6606e0')
 
-    command '/deploy remind101/acme-inc', as: slack_accounts(:david)
-    expect(command_response.text).to eq 'Created deployment request for <https://github.com/remind101/acme-inc|remind101/acme-inc>@<https://github.com/remind101/acme-inc/commits/f5c0df18526b90b9698816ee4b6606e0|master> to production (<https://github.com/remind101/acme-inc/compare/ad80a1...f5c0df|diff>)'
+    command '/deploy acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.text).to eq 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/f5c0df18526b90b9698816ee4b6606e0|master> to production (<https://github.com/acme-inc/api/compare/ad80a1...f5c0df|diff>)'
   end
 
   scenario 'performing a deployment to a specific environment' do
-    command '/deploy remind101/acme-inc  to staging', as: slack_accounts(:david)
+    command '/deploy acme-inc/api  to staging', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
-      [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'master', environment: 'staging')]
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'master', environment: 'staging')]
     ]
   end
 
   scenario 'performing a deployment to an aliased environment' do
-    repo = Repository.with_name('remind101/acme-inc')
+    repo = Repository.with_name('acme-inc/api')
     env  = repo.environment('staging')
     env.aliases = ['stage']
     env.save!
 
-    command '/deploy remind101/acme-inc to stage', as: slack_accounts(:david)
+    command '/deploy acme-inc/api to stage', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
-      [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'master', environment: 'staging')]
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'master', environment: 'staging')]
     ]
   end
 
   scenario 'performing a deployment using only the repo name' do
-    command '/deploy acme-inc@topic', as: slack_accounts(:david)
+    command '/deploy api@topic', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
-      [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'topic', environment: 'production')]
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'topic', environment: 'production')]
     ]
   end
 
   scenario 'performing a deployment of a topic branch' do
-    command '/deploy remind101/acme-inc@topic', as: slack_accounts(:david)
+    command '/deploy acme-inc/api@topic', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
-      [users(:david), DeploymentRequest.new(repository: 'remind101/acme-inc', ref: 'topic', environment: 'production')]
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'topic', environment: 'production')]
     ]
   end
 
   scenario 'performing a deployment of a branch that has failing commit status contexts' do
     expect do
-      command '/deploy remind101/acme-inc@failing', as: slack_accounts(:david)
+      command '/deploy acme-inc/api@failing', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
 
     expect(command_response.text).to eq <<-TEXT.strip_heredoc.strip
     The following commit status checks failed:
     * ci
-    You can ignore commit status checks by using `/deploy remind101/acme-inc@failing!`
+    You can ignore commit status checks by using `/deploy acme-inc/api@failing!`
     TEXT
 
     expect do
-      command '/deploy remind101/acme-inc@failing!', as: slack_accounts(:david)
+      command '/deploy acme-inc/api@failing!', as: slack_accounts(:david)
     end.to change { deployment_requests.count }.by(1)
   end
 
   scenario 'attempting to deploy a repo I do not have access to' do
-    command '/deploy remind101/acme-inc', as: slack_accounts(:bob)
-    expect(command_response.text).to eq "Sorry, but it looks like you don't have access to remind101/acme-inc"
+    command '/deploy acme-inc/api', as: slack_accounts(:bob)
+    expect(command_response.text).to eq "Sorry, but it looks like you don't have access to acme-inc/api"
   end
 
   scenario 'attempting to deploy a ref that does not exist on github' do
-    command '/deploy remind101/acme-inc@non-existent-branch', as: slack_accounts(:david)
-    expect(command_response.text).to eq 'The ref `non-existent-branch` was not found in remind101/acme-inc'
+    command '/deploy acme-inc/api@non-existent-branch', as: slack_accounts(:david)
+    expect(command_response.text).to eq 'The ref `non-existent-branch` was not found in acme-inc/api'
   end
 
   scenario 'locking a branch' do
-    command '/deploy lock staging on remind101/acme-inc', as: slack_accounts(:david)
-    expect(command_response.text).to eq 'Locked `staging` on remind101/acme-inc'
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.text).to eq 'Locked `staging` on acme-inc/api'
 
     # Other users shouldn't be able to deploy now.
     expect do
-      command '/deploy remind101/acme-inc to staging', as: slack_accounts(:steve)
+      command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
     expect(command_response.text).to eq '`staging` is locked by <@david>'
 
     # But david should be able to deploy.
     expect do
-      command '/deploy remind101/acme-inc to staging', as: slack_accounts(:david)
+      command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
     end.to change { deployment_requests.count }.by(1)
 
-    command '/deploy unlock staging on remind101/acme-inc', as: slack_accounts(:david)
-    expect(command_response.text).to eq 'Unlocked `staging` on remind101/acme-inc'
+    command '/deploy unlock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.text).to eq 'Unlocked `staging` on acme-inc/api'
 
     # Now other users should be able to deploy
     expect do
-      command '/deploy remind101/acme-inc to staging', as: slack_accounts(:steve)
+      command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to change { deployment_requests.count }.by(1)
   end
 
   scenario 'locking a branch with a message' do
-    command "/deploy lock staging on remind101/acme-inc: I'm testing some stuff", as: slack_accounts(:david)
-    expect(command_response.text).to eq 'Locked `staging` on remind101/acme-inc'
+    command "/deploy lock staging on acme-inc/api: I'm testing some stuff", as: slack_accounts(:david)
+    expect(command_response.text).to eq 'Locked `staging` on acme-inc/api'
 
     # Other users shouldn't be able to deploy now.
     expect do
-      command '/deploy remind101/acme-inc to staging', as: slack_accounts(:steve)
+      command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
     expect(command_response.text).to eq "`staging` is locked by <@david>: I'm testing some stuff"
   end
 
   scenario 'stealing a lock' do
-    command '/deploy lock staging on remind101/acme-inc', as: slack_accounts(:david)
-    expect(command_response.text).to eq 'Locked `staging` on remind101/acme-inc'
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.text).to eq 'Locked `staging` on acme-inc/api'
 
-    command '/deploy lock staging on remind101/acme-inc', as: slack_accounts(:david)
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
     expect(command_response.text).to eq '`staging` is already locked'
 
-    command '/deploy lock staging on remind101/acme-inc', as: slack_accounts(:steve)
-    expect(command_response.text).to eq 'Locked `staging` on remind101/acme-inc (stolen from <@david>)'
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
+    expect(command_response.text).to eq 'Locked `staging` on acme-inc/api (stolen from <@david>)'
 
     expect do
-      command '/deploy remind101/acme-inc to staging', as: slack_accounts(:david)
+      command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
   end
 
   scenario 'trying to do something on a repo I dont have access to' do
-    command '/deploy lock staging on remind101/acme-inc', as: slack_accounts(:bob)
-    expect(command_response.text).to eq "Sorry, but it looks like you don't have access to remind101/acme-inc"
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:bob)
+    expect(command_response.text).to eq "Sorry, but it looks like you don't have access to acme-inc/api"
   end
 
   scenario 'finding the environments I can deploy a repo to' do
-    command '/deploy where remind101/acme-inc', as: slack_accounts(:david)
-    expect(command_response.text).to eq "I don't know about any environments for remind101/acme-inc"
+    command '/deploy where acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.text).to eq "I don't know about any environments for acme-inc/api"
 
-    command '/deploy remind101/acme-inc to staging', as: slack_accounts(:david)
+    command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
 
-    command '/deploy where remind101/acme-inc', as: slack_accounts(:david)
+    command '/deploy where acme-inc/api', as: slack_accounts(:david)
     expect(command_response.text).to eq <<-TEXT.strip_heredoc.strip
-    I know about these environments for remind101/acme-inc:
+    I know about these environments for acme-inc/api:
     * staging
     TEXT
   end
 
   scenario 'trying to /deploy an environment that is configured to auto deploy' do
-    repo = Repository.with_name('remind101/acme-inc')
+    repo = Repository.with_name('acme-inc/api')
     environment = repo.environment('production')
     environment.configure_auto_deploy('refs/heads/master')
 
     expect do
-      command '/deploy remind101/acme-inc@master', as: slack_accounts(:david)
+      command '/deploy acme-inc/api@master', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
-    expect(command_response.text).to eq 'remind101/acme-inc is configured to automatically deploy `refs/heads/master` to `production`. You can bypass this warning with `/deploy remind101/acme-inc@master!`'
+    expect(command_response.text).to eq 'acme-inc/api is configured to automatically deploy `refs/heads/master` to `production`. You can bypass this warning with `/deploy acme-inc/api@master!`'
 
     expect do
-      command '/deploy remind101/acme-inc@master!', as: slack_accounts(:david)
+      command '/deploy acme-inc/api@master!', as: slack_accounts(:david)
     end.to change { deployment_requests.count }.by(1)
   end
 

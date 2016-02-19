@@ -19,7 +19,7 @@ RSpec.describe GithubEventHandler do
             '/',
             input: {
               repository: {
-                full_name: 'remind101/acme-inc'
+                full_name: 'acme-inc/api'
               }
             }.to_json,
             'CONTENT_TYPE' => 'application/json'
@@ -29,13 +29,13 @@ RSpec.describe GithubEventHandler do
 
     context 'when the signature does not match' do
       it 'returns a 403' do
-        Repository.create!(name: 'remind101/acme-inc', github_secret: 'secret')
+        Repository.create!(name: 'acme-inc/api', github_secret: 'secret')
         req = Rack::MockRequest.new(handler)
         resp = req.post \
           '/',
           input: {
             repository: {
-              full_name: 'remind101/acme-inc'
+              full_name: 'acme-inc/api'
             }
           }.to_json,
           'CONTENT_TYPE' => 'application/json',
@@ -46,17 +46,17 @@ RSpec.describe GithubEventHandler do
 
     context 'when the signature matches' do
       it 'returns a 200 and calls the handler' do
-        Repository.create!(name: 'remind101/acme-inc', github_secret: 'secret')
+        Repository.create!(name: 'acme-inc/api', github_secret: 'secret')
         req = Rack::MockRequest.new(handler)
         resp = req.post \
           '/',
           input: {
             repository: {
-              full_name: 'remind101/acme-inc'
+              full_name: 'acme-inc/api'
             }
           }.to_json,
           'CONTENT_TYPE' => 'application/json',
-          'HTTP_X_HUB_SIGNATURE' => 'sha1=692ed45ae7de94533457e9d4931389f02a189e1f'
+          'HTTP_X_HUB_SIGNATURE' => 'sha1=a6a982a7d5a5925ba8cd5a5bc8826ffb84947ed3'
         expect(resp.status).to eq 200
       end
     end
