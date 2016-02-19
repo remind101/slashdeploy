@@ -1,18 +1,28 @@
 # Handles the push event from github.
 class PushEvent < GithubEventHandler
   def run
+    return logger.info 'ignoring deleted branch' if deleted?
+    return logger.info 'ignoring push from fork' if fork?
+
     logger.info "ref=#{event['ref']} sha=#{sha} sender=#{event['sender']['login']}"
     transaction do
-      unless environment
-        logger.info 'not configured for automatic deployments'
-        return
-      end
+      return logger.info 'not configured for automatic deployments' unless environment
       logger.info "auto_deployment=#{auto_deployment.id} ready=#{auto_deployment.ready?} deployer=#{auto_deployment.user.identifier}"
       slashdeploy.auto_deploy auto_deployment
     end
   end
 
   private
+
+  # Returns true if this push event was triggered from a fork.
+  def fork?
+    event['repository']['fork']
+  end
+
+  # Returns true if the push event was from a deleted ref.
+  def deleted?
+    event['deleted']
+  end
 
   # The git commit sha to deploy
   def sha

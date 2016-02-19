@@ -120,4 +120,22 @@ RSpec.feature 'Auto Deployment' do
     expect(github).to_not receive(:create_deployment)
     status_event 'secret', context: 'security/brakeman', state: 'success'
   end
+
+  scenario 'receiving a `push` event for a deleted branch' do
+    repo = Repository.with_name('baxterthehacker/public-repo')
+    environment = repo.environment('production')
+    environment.configure_auto_deploy('refs/heads/master')
+
+    expect(github).to_not receive(:create_deployment)
+    push_event 'secret', deleted: true, head_commit: nil
+  end
+
+  scenario 'receiving a `push` event for a fork' do
+    repo = Repository.with_name('baxterthehacker/public-repo')
+    environment = repo.environment('production')
+    environment.configure_auto_deploy('refs/heads/master')
+
+    expect(github).to_not receive(:create_deployment)
+    push_event 'secret', repository: { fork: true }
+  end
 end
