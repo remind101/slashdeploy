@@ -46,6 +46,7 @@ module SlashDeploy
     config.x.github_client = ENV['GITHUB_CLIENT']
     config.x.default_environment = 'production'
     config.x.default_ref = 'master'
+    config.x.feedback_email = 'hi@slashdeploy.io'
 
     # While we're in beta mode...
     config.x.beta = ENV['BETA'].present?

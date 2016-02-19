@@ -5,6 +5,10 @@ module ApplicationHelper
     client.auth_code.authorize_url(state: 'foo')
   end
 
+  def feedback_email
+    mail_to(Rails.configuration.x.feedback_email)
+  end
+
   def add_to_slack
     link_to '/slack/install' do
       image_tag \

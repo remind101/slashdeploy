@@ -4,9 +4,16 @@
       <li role="presentation"><a href="#installation">Installation</a></li>
       <li role="presentation"><a href="#slash-command">Slash Command</a></li>
       <li role="presentation"><a href="#auto-deployment">Auto Deployment</a></li>
+      <li role="presentation"><a href="#faq">FAQ</a></li>
     </ul>
   </div>
   <div class="col-md-9">
+    <% if Rails.configuration.x.beta %>
+    <div class="bs-callout bs-callout-warning">
+      <h4>Warning</h4>
+      <p>As SlashDeploy is still in beta, the documentation here is subject to change and some parts may be incomplete. If you have feedback, please send it to <%= feedback_email %>.</p>
+    </div>
+    <% end %>
     <h5 id="installation">Installation</h5>
     <p>The easiest way to install SlashDeploy is to use our Add to Slack button:</p>
     <p><%= add_to_slack %></p>
@@ -38,5 +45,13 @@
     <h5 id="auto-deployment">Auto Deployment</h5>
     <p>You can configure SlashDeploy to automatically deploy a branch to an environment when you push code to GitHub or when a set of commit status contexts succeeds.</p>
     <hr />
+    <h5 id="faq">FAQ</h5>
+    <dl>
+      <dt>What's GitHub Deployments?</dt>
+      <dd>In a nutshell, GitHub Deployments are a way to initialize a deployment <strong>request</strong> for a GitHub repository. It allows you to decouple the act of requesting a deployment, and the actual fullfillment. This allows you to have a consistent interface for performing deployments, whether it's a web app, infrastructure, native application, etc.</dd>
+      <br />
+      <dt>How does SlashDeploy know who I am on GitHub?</dt>
+      <dd>When you first run the /deploy command, we ask you to authenticate with your GitHub account, which is then linked to your Slack user account.</dd>
+    </dl>
   </div>
 </div>
