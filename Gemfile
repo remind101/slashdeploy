@@ -16,6 +16,7 @@ gem 'sass'
 # Visibility
 gem 'rollbar', '~> 2.8.0'
 gem 'lograge'
+gem 'dogstatsd-ruby'
 
 # Auth
 gem 'jwt'

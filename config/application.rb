@@ -34,6 +34,8 @@ module SlashDeploy
     # Dump schema in sql format.
     config.active_record.schema_format = :sql
 
+    require 'rack/statsd'
+    config.middleware.insert_before 0, Rack::StatsD
     config.middleware.use Warden::Manager do |config|
     end
 
