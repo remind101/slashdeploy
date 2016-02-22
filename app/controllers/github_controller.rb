@@ -1,5 +1,5 @@
-# GithubController handles the omniauth callback for GitHub.
-class GithubController < ApplicationController
+# GitHubController handles the omniauth callback for GitHub.
+class GitHubController < ApplicationController
   skip_before_filter :verify_authenticity_token
 
   def callback
@@ -25,7 +25,7 @@ class GithubController < ApplicationController
   end
 
   def github_account
-    GithubAccount.new(
+    GitHubAccount.new(
       id:    github_user['id'],
       login: github_user['login'],
       token: access_token.token

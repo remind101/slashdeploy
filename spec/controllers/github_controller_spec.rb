@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe GithubController, type: :controller do
+RSpec.describe GitHubController, type: :controller do
   let(:warden) { instance_double(Warden::Proxy) }
 
   before do
@@ -35,7 +35,7 @@ RSpec.describe GithubController, type: :controller do
       let(:user) { User.create! }
 
       before do
-        user.github_accounts << GithubAccount.new(id: '1', login: 'david', token: 'abcd')
+        user.github_accounts << GitHubAccount.new(id: '1', login: 'david', token: 'abcd')
       end
 
       it 'links this slack account to the existing user' do

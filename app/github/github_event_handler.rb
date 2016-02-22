@@ -1,6 +1,6 @@
-# GithubEventHandler is a base GitHub event handler. All GitHub event handler
+# GitHubEventHandler is a base GitHub event handler. All GitHub event handler
 # should inherit from this.
-class GithubEventHandler
+class GitHubEventHandler
   attr_reader :env
   attr_reader :slashdeploy
 

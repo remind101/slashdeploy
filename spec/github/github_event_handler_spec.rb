@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-RSpec.describe GithubEventHandler do
+RSpec.describe GitHubEventHandler do
   let(:handler) do
-    Class.new(GithubEventHandler) do
+    Class.new(GitHubEventHandler) do
       def run
       end
     end
@@ -23,7 +23,7 @@ RSpec.describe GithubEventHandler do
               }
             }.to_json,
             'CONTENT_TYPE' => 'application/json'
-        end.to raise_error GithubEventHandler::UnknownRepository
+        end.to raise_error GitHubEventHandler::UnknownRepository
       end
     end
 

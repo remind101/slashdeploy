@@ -1,5 +1,5 @@
 # Handles the push event from github.
-class PushEvent < GithubEventHandler
+class PushEvent < GitHubEventHandler
   def run
     return logger.info 'ignoring deleted branch' if deleted?
     return logger.info 'ignoring push from fork' if fork?
@@ -38,7 +38,7 @@ class PushEvent < GithubEventHandler
   # be the user that pushed to GitHub if we know who they are in SlashDeploy.
   def deployer
     @deployer ||= begin
-                    account = GithubAccount.find_by(id: event['sender']['id'])
+                    account = GitHubAccount.find_by(id: event['sender']['id'])
                     user = account ? account.user : environment.auto_deploy_user
                     user || fail(SlashDeploy::NoAutoDeployUser)
                   end

@@ -22,7 +22,7 @@ class User < ActiveRecord::Base
   end
 
   def self.find_by_github(id)
-    account = GithubAccount.where(id: id).first
+    account = GitHubAccount.where(id: id).first
     return unless account
     account.user
   end

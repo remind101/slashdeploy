@@ -1,5 +1,5 @@
 # Handles the status event from github.
-class StatusEvent < GithubEventHandler
+class StatusEvent < GitHubEventHandler
   def run
     transaction do
       return unless auto_deployment

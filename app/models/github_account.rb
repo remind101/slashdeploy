@@ -1,4 +1,4 @@
-# GithubAccount represents a connected GitHub account.
-class GithubAccount < ActiveRecord::Base
+# GitHubAccount represents a connected GitHub account.
+class GitHubAccount < ActiveRecord::Base
   belongs_to :user
 end

@@ -6,7 +6,7 @@ module Rack
 
     def initialize(app, statsd = $statsd)
       @app = app
-      @statsd = $statsd
+      @statsd = statsd
     end
 
     def call(env)
