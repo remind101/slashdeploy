@@ -13,6 +13,7 @@ class SlackController < ApplicationController
 
   def early_access
     EarlyAccess.create(email: params[:email])
+    $statsd.event 'New signup', "New signup from #{params[:email]} @slack-slashdeploy"
   end
 
   def installed
