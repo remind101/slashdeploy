@@ -51,21 +51,24 @@ module SlashDeploy
     # Attempts to lock the environment on the repo.
     #
     # environment - An Environment to lock.
-    # message     - An option message.
+    # options     - A hash of options.
+    #               :message - An optional message.
+    #               :force   - Steal the lock if the environment is already locked.
     #
     # Returns a Lock.
-    def lock_environment(user, environment, message = nil)
+    def lock_environment(user, environment, options = {})
       authorize! user, environment.repository
 
       lock = environment.active_lock
 
       if lock
         return if lock.user == user # Already locked, nothing to do.
+        fail EnvironmentLockedError, lock unless options[:force]
         lock.unlock!
       end
 
       stolen = lock
-      lock = environment.lock! user, message
+      lock = environment.lock! user, options[:message]
 
       LockResponse.new \
         lock: lock,
