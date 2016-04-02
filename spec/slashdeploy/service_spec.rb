@@ -49,7 +49,7 @@ RSpec.describe SlashDeploy::Service do
         env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: nil)
         expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
         expect(env).to receive(:lock!).with(users(:david), 'Testing some stuff')
-        service.lock_environment(users(:david), env, 'Testing some stuff')
+        service.lock_environment(users(:david), env, message: 'Testing some stuff')
       end
     end
 
@@ -59,9 +59,22 @@ RSpec.describe SlashDeploy::Service do
         lock = stub_model(Lock, user: users(:steve))
         env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: lock)
         expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
+        expect(env).to_not receive(:lock!).with(users(:david), 'Testing some stuff')
+        expect do
+          service.lock_environment(users(:david), env, message: 'Testing some stuff')
+        end.to raise_error SlashDeploy::EnvironmentLockedError
+      end
+    end
+
+    context 'when there is an existing lock held by a different user, and the :force flag is set' do
+      it 'locks the environment' do
+        repo = stub_model(Repository, name: 'acme-inc/api')
+        lock = stub_model(Lock, user: users(:steve))
+        env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: lock)
+        expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
         expect(lock).to receive(:unlock!)
         expect(env).to receive(:lock!).with(users(:david), 'Testing some stuff')
-        resp = service.lock_environment(users(:david), env, 'Testing some stuff')
+        resp = service.lock_environment(users(:david), env, message: 'Testing some stuff', force: true)
         expect(resp.stolen).to eq lock
       end
     end
@@ -72,7 +85,7 @@ RSpec.describe SlashDeploy::Service do
         lock = stub_model(Lock, user: users(:david))
         env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: lock)
         expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
-        resp = service.lock_environment(users(:david), env, 'Testing some stuff')
+        resp = service.lock_environment(users(:david), env, message: 'Testing some stuff')
         expect(resp).to be_nil
       end
     end
@@ -85,7 +98,7 @@ RSpec.describe SlashDeploy::Service do
         env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: nil)
         expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
         expect(env).to receive(:lock!).with(users(:david), 'Testing some stuff')
-        service.lock_environment(users(:david), env, 'Testing some stuff')
+        service.lock_environment(users(:david), env, message: 'Testing some stuff')
       end
     end
   end

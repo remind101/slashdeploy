@@ -13,9 +13,10 @@ RSpec.describe SlashCommands do
       check_route(a, 'where acme-inc/api', EnvironmentsCommand, 'repository' => 'acme-inc/api')
       check_route(a, 'where api', EnvironmentsCommand, 'repository' => 'acme-inc/api')
 
-      check_route(a, 'lock staging on acme-inc/api: Doing stuff', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => ' Doing stuff')
-      check_route(a, 'lock staging on acme-inc/api', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil)
-      check_route(a, 'lock staging on api', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil)
+      check_route(a, 'lock staging on acme-inc/api: Doing stuff', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => ' Doing stuff', 'force' => nil)
+      check_route(a, 'lock staging on acme-inc/api', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil, 'force' => nil)
+      check_route(a, 'lock staging on api', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil, 'force' => nil)
+      check_route(a, 'lock staging on api!', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil, 'force' => '!')
 
       check_route(a, 'unlock staging on acme-inc/api', UnlockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
       check_route(a, 'unlock staging on api', UnlockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
