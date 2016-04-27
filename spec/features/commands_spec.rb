@@ -123,7 +123,7 @@ RSpec.feature 'Slash Commands' do
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.text).to eq '`staging` is locked by <@david>'
+    expect(command_response.text).to eq '`staging` was locked by <@david> less than a minute ago'
 
     # But david should be able to deploy.
     expect do
@@ -147,7 +147,7 @@ RSpec.feature 'Slash Commands' do
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.text).to eq "`staging` is locked by <@david>: I'm testing some stuff"
+    expect(command_response.text).to eq "`staging` was locked by <@david> less than a minute ago: I'm testing some stuff"
   end
 
   scenario 'stealing a lock' do
