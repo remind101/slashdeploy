@@ -1,4 +1,4 @@
-class AddGithubSecretToRepositories < ActiveRecord::Migration
+class AddGitHubSecretToRepositories < ActiveRecord::Migration
   def up
     add_column :repositories, :github_secret, :string
     Repository.reset_column_information
