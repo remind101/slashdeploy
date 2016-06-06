@@ -53,7 +53,7 @@ RSpec.feature 'Slash Commands' do
     HEAD('acme-inc/api', 'master', 'f5c0df18526b90b9698816ee4b6606e0')
 
     command '/deploy acme-inc/api', as: slack_accounts(:david)
-    expect(command_response.text).to eq 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/f5c0df18526b90b9698816ee4b6606e0|master> to production (<https://github.com/acme-inc/api/compare/ad80a1...f5c0df|diff>)'
+    expect(command_response.text).to eq 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/f5c0df18526b90b9698816ee4b6606e0|master> to production (<https://github.com/acme-inc/api/compare/ad80a1b...f5c0df1|diff>)'
   end
 
   scenario 'performing a deployment to a specific environment' do
