@@ -158,7 +158,7 @@ RSpec.feature 'Slash Commands' do
     expect(command_response.text).to eq '`staging` is already locked'
 
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
-    expect(command_response.text).to eq '`staging` on acme-inc/api is locked by <@david>. You can steal the lock with `/deploy lock staging on acme-inc/api!`.'
+    expect(command_response.text).to eq '`staging` on acme-inc/api was locked by <@david> less than a minute ago. You can steal the lock with `/deploy lock staging on acme-inc/api!`.'
 
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)

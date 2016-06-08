@@ -1,1 +1,1 @@
-`<%= @environment %>` on <%= @repository %> is locked by <@<%= @locker.slack_username %>>. You can steal the lock with `<%= @request.command %> <%= @request.text %>!`.
+`<%= @environment %>` on <%= @repository %> was locked by <@<%= @locker.slack_username %>> <%= time_ago_in_words(@lock.created_at) %> ago. You can steal the lock with `<%= @request.command %> <%= @request.text %>!`.
