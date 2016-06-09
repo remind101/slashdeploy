@@ -4,9 +4,9 @@ module Slack
       attr_reader :connection
 
       def self.build(url = 'https://slack.com')
-        conn = Faraday.new(url: url) do |faraday|
+        conn = ::Faraday.new(url: url) do |faraday|
           faraday.request :url_encoded
-          faraday.adapter Faraday.default_adapter
+          faraday.adapter ::Faraday.default_adapter
         end
         new(conn)
       end
