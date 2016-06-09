@@ -20,6 +20,11 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
+  slack:
+    auto_deployment:
+      created: "Hey @%{user}. I'll start a deployment of %{repo}@%{ref} to %{environment} for you once commit statuses are passing."
+      started: "Hey @%{user}. I've started a deployment of %{repo}@%{ref} to %{environment} for you."
+      locked:  "Hey @%{user}. I was going to start a deployment of %{repo}@%{ref} to %{environment} for you, but %{environment} is locked."
   activerecord:
     errors:
       models:

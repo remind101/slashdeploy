@@ -7,6 +7,11 @@ class User < ActiveRecord::Base
   # Raised if the user doesn't have a github account.
   MissingGitHubAccount = Class.new(StandardError)
 
+  def self.find_by_github_account_id(id)
+    account = GitHubAccount.find_by(id: id)
+    return account.user if account
+  end
+
   def identifier
     "#{id}:#{username}"
   end

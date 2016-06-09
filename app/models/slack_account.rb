@@ -10,4 +10,8 @@ class SlackAccount < ActiveRecord::Base
   def team_domain
     slack_team.domain
   end
+
+  def bot_access_token
+    slack_team.bot_access_token
+  end
 end

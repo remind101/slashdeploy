@@ -6,6 +6,9 @@ module SlashDeploy
     # Client for interacting with GitHub.
     attr_accessor :github
 
+    # Client for interacting with Slack.
+    attr_accessor :slack
+
     def authorize!(user, repository)
       fail RepoUnauthorized, repository unless github.access?(user, repository.to_s)
     end
@@ -82,6 +85,39 @@ module SlashDeploy
       lock.unlock!
     end
 
+    # Creates a new AutoDeployment for the given sha.
+    #
+    # environment - Environment to deploy to.
+    # sha         - Git sha to deploy.
+    # user        - The User to attribute the deployment to.
+    #
+    # Returns an AutoDeployment.
+    def create_auto_deployment(environment, sha, user)
+      existing = environment.active_auto_deployment
+      if existing
+        # This can happen if the user triggers the webhook manually.
+        return existing if existing.sha == sha
+
+        # If this environment has an existing active auto deployment, we'll
+        # cancel it before starting this auto deployment. We do this to prevent
+        # race conditions where commit status events for an older auto deployment
+        # could come in late.
+        existing.cancel!
+      end
+
+      auto_deployment = environment.auto_deployments.create! user: user, sha: sha
+      user.slack_accounts.each do |account|
+        message = I18n.t \
+          'slack.auto_deployment.created',
+          user: account.user_name,
+          ref: auto_deployment.sha,
+          repo: environment.repository.name,
+          environment: environment.name
+        slack.direct_message(account, message)
+      end
+      auto_deployment
+    end
+
     # Triggers an auto deployment if the AutoDeployment is ready.
     #
     # auto_deployment - An AutoDeployment.
@@ -91,14 +127,24 @@ module SlashDeploy
       return unless auto_deployment.ready?
 
       begin
+        user = auto_deployment.user
         environment = auto_deployment.environment
 
         # Check if the environment we're deploying to is locked.
-        return if environment.locked?
         github.create_deployment(
-          auto_deployment.user,
+          user,
           deployment_request(environment, auto_deployment.sha)
-        )
+        ) unless environment.locked?
+
+        user.slack_accounts.each do |account|
+          message = I18n.t \
+            environment.locked? ? 'slack.auto_deployment.locked' : 'slack.auto_deployment.started',
+            user: account.user_name,
+            ref: auto_deployment.sha,
+            repo: environment.repository.name,
+            environment: environment.name
+          slack.direct_message(account, message)
+        end
       ensure
         auto_deployment.done!
       end

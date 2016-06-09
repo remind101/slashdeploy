@@ -3,9 +3,11 @@ require 'rails_helper'
 RSpec.feature 'Auto Deployment' do
   fixtures :all
   let(:github) { instance_double(GitHub::Client) }
+  let(:slack) { instance_double(Slack::Client) }
 
   before do
     allow(SlashDeploy.service).to receive(:github).and_return(github)
+    allow(SlashDeploy.service).to receive(:slack).and_return(slack)
   end
 
   scenario 'receiving a `push` event from GitHub when the repo is not enabled for auto deployments' do
@@ -31,6 +33,14 @@ RSpec.feature 'Auto Deployment' do
         environment: 'production'
       )
 
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david),
+      "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing."
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david),
+      "Hey @david. I've started a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you."
+
     push_event 'secret', sender: { id: github_accounts(:david).id }
   end
 
@@ -39,6 +49,14 @@ RSpec.feature 'Auto Deployment' do
     environment = repo.environment('production')
     environment.configure_auto_deploy('refs/heads/master')
     environment.lock! users(:david)
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david),
+      "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing."
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david),
+      'Hey @david. I was going to start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you, but production is locked.'
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
   end
@@ -55,6 +73,17 @@ RSpec.feature 'Auto Deployment' do
         ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
         environment: 'production'
       )
+
+    # TODO: These messages should make it clear to this user that we're
+    # deploying on their behalf because we don't know who the pusher is and
+    # this user is configured as the fallback deployer.
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:steve),
+      "Hey @steve. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing."
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:steve),
+      "Hey @steve. I've started a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you."
 
     push_event 'secret', sender: { id: 1234567 }
   end
@@ -74,6 +103,10 @@ RSpec.feature 'Auto Deployment' do
     environment.required_contexts = ['ci/circleci', 'security/brakeman']
     environment.configure_auto_deploy('refs/heads/master')
 
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david),
+      "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing."
+
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
     status_event 'secret', context: 'ci/circleci', state: 'success'
@@ -86,6 +119,10 @@ RSpec.feature 'Auto Deployment' do
         environment: 'production'
       )
 
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david),
+      "Hey @david. I've started a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you."
+
     status_event 'secret', context: 'security/brakeman', state: 'success'
   end
 
@@ -96,9 +133,18 @@ RSpec.feature 'Auto Deployment' do
     environment.configure_auto_deploy('refs/heads/master')
 
     expect(github).to_not receive(:create_deployment)
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david),
+      "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing."
+
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
+
+    # TODO: At this point, we should send them a message that the auto
+    # deployment was aborted because a required commit status context failed.
     status_event 'secret', context: 'ci/circleci', state: 'failure'
+
     status_event 'secret', context: 'security/brakeman', state: 'success'
   end
 
@@ -108,8 +154,16 @@ RSpec.feature 'Auto Deployment' do
     environment.required_contexts = ['ci/circleci', 'security/brakeman']
     environment.configure_auto_deploy('refs/heads/master')
 
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david),
+      "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing."
     push_event 'secret', sender: { id: github_accounts(:david).id }
+
     status_event 'secret', context: 'ci/circleci', state: 'success'
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david),
+      "Hey @david. I'll start a deployment of baxterthehacker/public-repo@ac5b9fd6a09a983a3091d4e8292dc32c to production for you once commit statuses are passing."
     # Push event for new commit (but same ref).
     push_event 'secret', head_commit: {
       id: 'ac5b9fd6a09a983a3091d4e8292dc32c'

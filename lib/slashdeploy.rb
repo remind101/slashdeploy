@@ -2,6 +2,7 @@ require 'slash'
 require 'slack'
 require 'hookshot'
 require 'github'
+require 'slack'
 require 'perty'
 
 require 'slashdeploy/errors'
