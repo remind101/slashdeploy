@@ -213,6 +213,19 @@ CREATE TABLE slack_accounts (
 
 
 --
+-- Name: slack_bots; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE slack_bots (
+    id character varying NOT NULL,
+    slack_team_id character varying NOT NULL,
+    access_token character varying NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: slack_teams; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -377,6 +390,14 @@ ALTER TABLE ONLY slack_accounts
 
 
 --
+-- Name: slack_bots_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY slack_bots
+    ADD CONSTRAINT slack_bots_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: slack_teams_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -454,6 +475,13 @@ CREATE INDEX index_locks_on_environment_id ON locks USING btree (environment_id)
 --
 
 CREATE UNIQUE INDEX index_slack_accounts_on_id ON slack_accounts USING btree (id);
+
+
+--
+-- Name: index_slack_bots_on_slack_team_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_slack_bots_on_slack_team_id ON slack_bots USING btree (slack_team_id);
 
 
 --
@@ -592,4 +620,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160211091522');
 INSERT INTO schema_migrations (version) VALUES ('20160211161702');
 
 INSERT INTO schema_migrations (version) VALUES ('20160212035321');
+
+INSERT INTO schema_migrations (version) VALUES ('20160609042717');
 

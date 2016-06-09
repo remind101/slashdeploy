@@ -3,7 +3,12 @@ class SlackController < ApplicationController
   skip_before_filter :verify_authenticity_token
 
   def callback
-    access_token
+    if access_token['bot']
+      SlackBot.find_or_create_by(id: access_token['bot']['bot_user_id']) do |slack_bot|
+        slack_bot.access_token = access_token['bot']['bot_access_token']
+        slack_bot.slack_team_id = access_token['team_id']
+      end
+    end
     redirect_to installed_path
   end
 
