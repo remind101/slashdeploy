@@ -1,8 +1,6 @@
 # BaseCommand is a base command for other commands to inherit from. Commands
 # should implement the `run` method.
 class BaseCommand
-  include SlashDeploy::Commands::Rendering
-
   attr_reader :env
   attr_reader :slashdeploy
 
@@ -24,11 +22,6 @@ class BaseCommand
 
   def run
     fail NotImplementedError
-  end
-
-  def render(template, assigns = {})
-    logger.info "template=#{template} rendering"
-    super template, assigns.merge(user: user, params: params, request: request)
   end
 
   private

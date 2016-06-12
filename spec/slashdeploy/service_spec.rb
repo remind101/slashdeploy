@@ -102,12 +102,4 @@ RSpec.describe SlashDeploy::Service do
       end
     end
   end
-
-  describe '#environments' do
-    it 'returns the environments' do
-      repo = stub_model(Repository, name: 'acme-inc/api', environments: [])
-      expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
-      service.environments(users(:david), repo)
-    end
-  end
 end

@@ -6,6 +6,10 @@ module SlashDeploy
     # Client for interacting with GitHub.
     attr_accessor :github
 
+    def authorize!(user, repository)
+      fail RepoUnauthorized, repository unless github.access?(user, repository.to_s)
+    end
+
     # Creates a new deployment request as the given user.
     #
     # user        - The User requesting the deployment.
@@ -36,16 +40,6 @@ module SlashDeploy
         deployment = github.create_deployment(user, req)
         DeploymentResponse.new(deployment: deployment, last_deployment: last_deployment)
       end
-    end
-
-    # Returns the known environments that this repository can be deployed to.
-    #
-    # repository - The name of the repository.
-    #
-    # Returns an Array of Environments
-    def environments(user, repository)
-      authorize! user, repository
-      repository.environments
     end
 
     # Attempts to lock the environment on the repo.
@@ -119,10 +113,6 @@ module SlashDeploy
         ref:         ref || environment.default_ref,
         force:       options[:force]
       )
-    end
-
-    def authorize!(user, repository)
-      fail RepoUnauthorized, repository unless github.access?(user, repository.to_s)
     end
   end
 end

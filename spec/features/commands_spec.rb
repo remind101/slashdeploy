@@ -32,13 +32,13 @@ RSpec.feature 'Slash Commands' do
     end.to change { User.count }.by(1)
 
     command '/deploy help', as: account
-    expect(command_response.text).to eq HelpCommand::USAGE.strip
+    expect(command_response.text).to eq HelpMessage::USAGE.strip
   end
 
   scenario 'entering an unknown command' do
     command '/deploy foo', as: slack_accounts(:bob)
     expect(command_response.in_channel).to be_falsey
-    expect(command_response.text).to eq "I don't know that command. Here's what I do know:\n#{HelpCommand::USAGE}".strip
+    expect(command_response.text).to eq "I don't know that command. Here's what I do know:\n#{HelpMessage::USAGE}".strip
   end
 
   scenario 'performing a simple deployment' do
@@ -123,7 +123,7 @@ RSpec.feature 'Slash Commands' do
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.text).to eq '`staging` was locked by <@david> less than a minute ago'
+    expect(command_response.text).to eq "`staging` was locked by <@david> less than a minute ago.\nYou can steal the lock with `/deploy acme-inc/api to staging!`."
 
     # But david should be able to deploy.
     expect do
@@ -147,7 +147,7 @@ RSpec.feature 'Slash Commands' do
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.text).to eq "`staging` was locked by <@david> less than a minute ago: I'm testing some stuff"
+    expect(command_response.text).to eq "`staging` was locked by <@david> less than a minute ago.\n> I'm testing some stuff\nYou can steal the lock with `/deploy acme-inc/api to staging!`."
   end
 
   scenario 'stealing a lock' do
@@ -158,7 +158,7 @@ RSpec.feature 'Slash Commands' do
     expect(command_response.text).to eq '`staging` is already locked'
 
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
-    expect(command_response.text).to eq '`staging` on acme-inc/api was locked by <@david> less than a minute ago. You can steal the lock with `/deploy lock staging on acme-inc/api!`.'
+    expect(command_response.text).to eq "`staging` was locked by <@david> less than a minute ago.\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`."
 
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
