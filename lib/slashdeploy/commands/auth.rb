@@ -37,7 +37,7 @@ module SlashDeploy
             team_domain: cmd.request.team_domain
           )
           url = client.auth_code.authorize_url(state: state, scope: 'repo_deployment')
-          Slash.reply("I don't know who you are on GitHub yet. Please <#{url}|authenticate> then try again.")
+          Slash.reply(Slack::Message.new(text: "I don't know who you are on GitHub yet. Please <#{url}|authenticate> then try again."))
         end
       end
     end

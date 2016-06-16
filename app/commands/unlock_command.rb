@@ -6,7 +6,8 @@ class UnlockCommand < BaseCommand
       env  = repo.environment(params['environment'])
 
       slashdeploy.unlock_environment(user.user, env)
-      say :unlocked, repository: repo, environment: env
+      Slash.say UnlockedMessage.build \
+        environment: env
     end
   end
 end

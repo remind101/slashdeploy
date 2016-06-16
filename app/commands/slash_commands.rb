@@ -2,8 +2,6 @@
 # commands. This class simply a demuxer that routes requests to the appropriate
 # sub command.
 class SlashCommands
-  include SlashDeploy::Commands::Rendering
-
   REPO = /(?<repository>\S+?)/
   ENV  = /(?<environment>\S+?)/
   REF  = /(?<ref>\S+?)/
@@ -54,11 +52,12 @@ class SlashCommands
       begin
         router.call(env)
       rescue SlashDeploy::RepoUnauthorized => e
-        reply :unauthorized, repository: e.repository
+        Slash.reply UnauthorizedMessage.build \
+          repository: e.repository
       rescue StandardError => e
         Rollbar.error(e)
         raise e if Rails.env.test?
-        reply :error
+        Slash.reply ErrorMessage.build
       end
     end
   end

@@ -12,25 +12,37 @@ class DeployCommand < BaseCommand
           params['ref'],
           force: params['force']
         )
-        respond env.in_channel?, :created, resp: resp
+        m = DeploymentCreatedMessage.build \
+          deployment: resp.deployment,
+          last_deployment: resp.last_deployment
+        respond env.in_channel?, m
       rescue SlashDeploy::EnvironmentAutoDeploys
-        reply :auto_deploy, environment: env
+        Slash.reply AutoDeploymentConfiguredMessage.build \
+          environment: env,
+          request: request
       rescue GitHub::RedCommitError => e
-        reply :red_commit, failing_contexts: e.failing_contexts
+        Slash.reply RedCommitMessage.build \
+          failing_contexts: e.failing_contexts,
+          request: request
       rescue GitHub::BadRefError => e
-        reply :bad_ref, ref: e.ref, repository: repo
+        Slash.reply BadRefMessage.build \
+          repository: repo,
+          ref: e.ref
       rescue SlashDeploy::EnvironmentLockedError => e
-        locker = SlackUser.new(e.lock.user, user.slack_team)
-        reply :locked, environment: env, lock: e.lock, locker: locker
+        Slash.reply EnvironmentLockedMessage.build \
+          environment: env,
+          lock: e.lock,
+          slack_team: user.slack_team,
+          request: request
       end
     end
   end
 
-  def respond(in_channel, text, assigns = {})
+  def respond(in_channel, message)
     if in_channel
-      say text, assigns
+      Slash.say message
     else
-      reply text, assigns
+      Slash.reply message
     end
   end
 end

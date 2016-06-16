@@ -6,11 +6,15 @@ module Slash
 
     values do
       attribute :in_channel, Boolean
-      attribute :text, String
+      attribute :message, Slack::Message
+    end
+
+    def text
+      message.text
     end
 
     def to_json
-      h = { 'text' => text }
+      h = message.to_h
       h['response_type'] = 'in_channel' if in_channel
       h.to_json
     end

@@ -21,11 +21,11 @@ RSpec.describe Slash::Rack do
               token: 'foo'
             )
           )
-        ).and_return(Slash.say('Hello'))
+        ).and_return(Slash.say(Slack::Message.new(text: 'Hello')))
         status, headers, body = app.call(env)
         expect(status).to eq 200
         expect(headers).to eq('Content-Type' => 'application/json')
-        expect(body).to eq ["{\"text\":\"Hello\",\"response_type\":\"in_channel\"}"]
+        expect(body).to eq ['{"text":"Hello","attachments":[],"response_type":"in_channel"}']
       end
     end
 

@@ -28,12 +28,12 @@ module Slash
 
   UnverifiedError = Class.new(Error)
 
-  def self.say(text)
-    Response.new in_channel: true, text: text
+  def self.say(message)
+    Response.new in_channel: true, message: message
   end
 
-  def self.reply(text)
-    Response.new in_channel: false, text: text
+  def self.reply(message)
+    Response.new in_channel: false, message: message
   end
 
   def self.match_regexp(re)

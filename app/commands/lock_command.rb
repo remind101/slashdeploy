@@ -7,13 +7,20 @@ class LockCommand < BaseCommand
       begin
         resp = slashdeploy.lock_environment(user.user, env, message: params['message'].try(:strip), force: params['force'])
         if resp
-          stealer = resp.stolen ? SlackUser.new(resp.stolen.user, user.slack_team) : nil
-          say :locked, environment: env, repository: repo, stealer: stealer
+          Slash.say LockedMessage.build \
+            environment: env,
+            stolen_lock: resp.stolen,
+            slack_team: user.slack_team
         else
-          say :already_locked, environment: env, repository: repo
+          Slash.say AlreadyLockedMessage.build \
+            environment: env
         end
       rescue SlashDeploy::EnvironmentLockedError => e
-        say :lock, environment: env, repository: repo, lock: e.lock, locker: SlackUser.new(e.lock.user, user.slack_team)
+        Slash.reply EnvironmentLockedMessage.build \
+          environment: env,
+          lock: e.lock,
+          slack_team: user.slack_team,
+          request: request
       end
     end
   end

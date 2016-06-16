@@ -1,4 +1,5 @@
 require 'slash'
+require 'slack'
 require 'hookshot'
 require 'github'
 require 'perty'
@@ -16,8 +17,7 @@ module SlashDeploy
 
   # Rack apps for handling slash commands.
   module Commands
-    autoload :Auth,      'slashdeploy/commands/auth'
-    autoload :Rendering, 'slashdeploy/commands/rendering'
+    autoload :Auth, 'slashdeploy/commands/auth'
 
     # Returns a Rack app for handling the slack slash commands.
     def self.slack_handler
