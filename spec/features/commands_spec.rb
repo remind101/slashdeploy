@@ -198,7 +198,7 @@ RSpec.feature 'Slash Commands' do
     expect do
       command '/deploy acme-inc/api@master', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
-    expect(command_response.text).to eq 'acme-inc/api is configured to automatically deploy `refs/heads/master` to `production`. You can bypass this warning with `/deploy acme-inc/api@master!`'
+    expect(command_response.text).to eq "acme-inc/api is configured to automatically deploy `refs/heads/master` to `production`.\nYou can bypass this warning with `/deploy acme-inc/api@master!`"
 
     expect do
       command '/deploy acme-inc/api@master!', as: slack_accounts(:david)
