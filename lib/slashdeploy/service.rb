@@ -85,6 +85,24 @@ module SlashDeploy
       lock.unlock!
     end
 
+    # Used to track when a commit status context changes state. If there are
+    # active auto deployments for the given sha, they may be deployed.
+    def track_commit_status_context_change(sha, commit_status_context)
+      auto_deployment = AutoDeployment.active.find_by(sha: sha)
+      return unless auto_deployment
+      failed = auto_deployment.context_state commit_status_context
+      if failed
+        auto_deployment.user.slack_accounts.each do |account|
+          message = AutoDeploymentFailedMessage.build \
+            account: account,
+            auto_deployment: auto_deployment,
+            commit_status_context: commit_status_context
+          slack.direct_message(account, message)
+        end
+      end
+      auto_deploy auto_deployment if auto_deployment.ready?
+    end
+
     # Creates a new AutoDeployment for the given sha.
     #
     # environment - Environment to deploy to.
@@ -112,8 +130,11 @@ module SlashDeploy
           auto_deployment: auto_deployment
         slack.direct_message(account, message)
       end
+      auto_deploy auto_deployment if auto_deployment.ready?
       auto_deployment
     end
+
+    private
 
     # Triggers an auto deployment if the AutoDeployment is ready.
     #
@@ -121,7 +142,7 @@ module SlashDeploy
     #
     # Returns nothing.
     def auto_deploy(auto_deployment)
-      return unless auto_deployment.ready?
+      fail "auto_deploy called on AutoDeployment that's not ready: #{auto_deployment.id}" unless auto_deployment.ready?
 
       begin
         user = auto_deployment.user
@@ -144,8 +165,6 @@ module SlashDeploy
         auto_deployment.done!
       end
     end
-
-    private
 
     def deployment_request(environment, ref, options = {})
       DeploymentRequest.new(

@@ -7,8 +7,8 @@ class PushEvent < GitHubEventHandler
     logger.info "ref=#{event['ref']} sha=#{sha} sender=#{event['sender']['login']}"
     transaction do
       return logger.info 'not configured for automatic deployments' unless environment
+      auto_deployment = slashdeploy.create_auto_deployment(environment, sha, deployer)
       logger.info "auto_deployment=#{auto_deployment.id} ready=#{auto_deployment.ready?} deployer=#{auto_deployment.user.identifier}"
-      slashdeploy.auto_deploy auto_deployment
     end
   end
 

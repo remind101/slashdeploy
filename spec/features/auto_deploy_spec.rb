@@ -141,8 +141,9 @@ RSpec.feature 'Auto Deployment' do
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
 
-    # TODO: At this point, we should send them a message that the auto
-    # deployment was aborted because a required commit status context failed.
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david),
+      Slack::Message.new(text: 'Hey @david. I was going to start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you, but *ci/circleci* failed.')
     status_event 'secret', context: 'ci/circleci', state: 'failure'
 
     status_event 'secret', context: 'security/brakeman', state: 'success'
