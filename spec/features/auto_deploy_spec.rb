@@ -35,11 +35,11 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david),
-      "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing."
+      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing.")
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david),
-      "Hey @david. I've started a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you."
+      Slack::Message.new(text: "Hey @david. I've started a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you.")
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
   end
@@ -52,11 +52,11 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david),
-      "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing."
+      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing.")
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david),
-      'Hey @david. I was going to start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you, but production is locked.'
+      Slack::Message.new(text: 'Hey @david. I was going to start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you, but production is locked.')
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
   end
@@ -79,11 +79,11 @@ RSpec.feature 'Auto Deployment' do
     # this user is configured as the fallback deployer.
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:steve),
-      "Hey @steve. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing."
+      Slack::Message.new(text: "Hey @steve. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing.")
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:steve),
-      "Hey @steve. I've started a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you."
+      Slack::Message.new(text: "Hey @steve. I've started a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you.")
 
     push_event 'secret', sender: { id: 1234567 }
   end
@@ -105,7 +105,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david),
-      "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing."
+      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing.")
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
@@ -121,7 +121,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david),
-      "Hey @david. I've started a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you."
+      Slack::Message.new(text: "Hey @david. I've started a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you.")
 
     status_event 'secret', context: 'security/brakeman', state: 'success'
   end
@@ -136,7 +136,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david),
-      "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing."
+      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing.")
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
@@ -156,14 +156,14 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david),
-      "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing."
+      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing.")
     push_event 'secret', sender: { id: github_accounts(:david).id }
 
     status_event 'secret', context: 'ci/circleci', state: 'success'
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david),
-      "Hey @david. I'll start a deployment of baxterthehacker/public-repo@ac5b9fd6a09a983a3091d4e8292dc32c to production for you once commit statuses are passing."
+      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@ac5b9fd6a09a983a3091d4e8292dc32c to production for you once commit statuses are passing.")
     # Push event for new commit (but same ref).
     push_event 'secret', head_commit: {
       id: 'ac5b9fd6a09a983a3091d4e8292dc32c'

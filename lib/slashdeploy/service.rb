@@ -107,12 +107,9 @@ module SlashDeploy
 
       auto_deployment = environment.auto_deployments.create! user: user, sha: sha
       user.slack_accounts.each do |account|
-        message = I18n.t \
-          'slack.auto_deployment.created',
-          user: account.user_name,
-          ref: auto_deployment.sha,
-          repo: environment.repository.name,
-          environment: environment.name
+        message = AutoDeploymentCreatedMessage.build \
+          account: account,
+          auto_deployment: auto_deployment
         slack.direct_message(account, message)
       end
       auto_deployment
@@ -137,12 +134,10 @@ module SlashDeploy
         ) unless environment.locked?
 
         user.slack_accounts.each do |account|
-          message = I18n.t \
-            environment.locked? ? 'slack.auto_deployment.locked' : 'slack.auto_deployment.started',
-            user: account.user_name,
-            ref: auto_deployment.sha,
-            repo: environment.repository.name,
-            environment: environment.name
+          k = environment.locked? ? AutoDeploymentEnvironmentLockedMessage : AutoDeploymentStartedMessage
+          message = k.build \
+            account: account,
+            auto_deployment: auto_deployment
           slack.direct_message(account, message)
         end
       ensure

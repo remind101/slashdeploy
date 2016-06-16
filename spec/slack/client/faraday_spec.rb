@@ -8,13 +8,14 @@ RSpec.describe Slack::Client::Faraday do
     let(:slack_account) { stub_model(SlackAccount, id: 'U123BC2BD', bot_access_token: 'access_token') }
 
     it 'posts a chat message' do
+      message = double(SlackMessage, to_h: { text: 'Hello World' })
       expect(connection).to receive(:post).with(
         '/api/chat.postMessage',
         token: 'access_token',
         channel: 'U123BC2BD',
         text: 'Hello World'
       )
-      client.direct_message(slack_account, 'Hello World')
+      client.direct_message(slack_account, message)
     end
   end
 end

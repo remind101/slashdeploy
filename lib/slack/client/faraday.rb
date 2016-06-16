@@ -16,11 +16,12 @@ module Slack
       end
 
       def direct_message(slack_account, message)
-        connection.post \
-          '/api/chat.postMessage',
+        params = message.to_h.merge(
           token: slack_account.bot_access_token,
-          channel: slack_account.id,
-          text: message
+          channel: slack_account.id
+        )
+
+        connection.post '/api/chat.postMessage', params
       end
     end
   end
