@@ -5,6 +5,9 @@ class Status < ActiveRecord::Base
   # Scopes statuses to only those that have succeeded.
   scope :success, -> { where(state: CommitStatusContext::SUCCESS) }
 
+  # Pruneable returns all statuses that aren't part of an active auto deployment.
+  scope :pruneable, -> { joins(:auto_deployment).merge(AutoDeployment.inactive) }
+
   # Returns a CommitStatusContext object for this Status.
   def commit_status_context
     CommitStatusContext.new(state: state, context: context)

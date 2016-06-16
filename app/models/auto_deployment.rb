@@ -9,6 +9,7 @@ class AutoDeployment < ActiveRecord::Base
   # Active means that a commit was pushed to the repository but not all commit
   # statuses have entered into a failed or success state.
   scope :active, -> { where(active: true) }
+  scope :inactive, -> { where(active: false) }
 
   # Marks this auto deployment as cancelled and deactivates it.
   def cancel!
