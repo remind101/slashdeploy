@@ -35,7 +35,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david),
-      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing.")
+      Slack::Message.new(text: "Hey @david. I start a deployment of baxterthehacker/public-repo@0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c to production for you once commit statuses are passing.")
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david),
