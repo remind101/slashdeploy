@@ -14,11 +14,4 @@ class Deployment
     # The environment that was deployed to.
     attribute :environment, String
   end
-
-  def to_s
-    s = "<https://github.com/#{repository}|#{repository}>"
-    s = "#{s}@<https://github.com/#{repository}/commits/#{sha}|#{ref}>" if ref
-    s = "#{s} to #{environment}" if environment
-    s
-  end
 end

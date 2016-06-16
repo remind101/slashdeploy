@@ -47,13 +47,13 @@ RSpec.feature 'Slash Commands' do
       [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'master', environment: 'production')]
     ]
     expect(command_response).to be_in_channel
-    expect(command_response.text).to eq 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/ad80a1b3e1a94b98ce99b71a48f811f1|master> to production (no change)'
+    expect(command_response.text).to eq 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/ad80a1b3e1a94b98ce99b71a48f811f1|master> to *production* (no change)'
 
     # David commits something new
     HEAD('acme-inc/api', 'master', 'f5c0df18526b90b9698816ee4b6606e0')
 
     command '/deploy acme-inc/api', as: slack_accounts(:david)
-    expect(command_response.text).to eq 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/f5c0df18526b90b9698816ee4b6606e0|master> to production (<https://github.com/acme-inc/api/compare/ad80a1b...f5c0df1|diff>)'
+    expect(command_response.text).to eq 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/f5c0df18526b90b9698816ee4b6606e0|master> to *production* (<https://github.com/acme-inc/api/compare/ad80a1b...f5c0df1|diff>)'
   end
 
   scenario 'performing a deployment to a specific environment' do
@@ -117,13 +117,13 @@ RSpec.feature 'Slash Commands' do
 
   scenario 'locking a branch' do
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
-    expect(command_response.text).to eq 'Locked `staging` on acme-inc/api'
+    expect(command_response.text).to eq 'Locked *staging* on acme-inc/api'
 
     # Other users shouldn't be able to deploy now.
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.text).to eq "`staging` was locked by <@david> less than a minute ago.\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`."
+    expect(command_response.text).to eq "*staging* was locked by <@david> less than a minute ago.\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`."
 
     # But david should be able to deploy.
     expect do
@@ -131,7 +131,7 @@ RSpec.feature 'Slash Commands' do
     end.to change { deployment_requests.count }.by(1)
 
     command '/deploy unlock staging on acme-inc/api', as: slack_accounts(:david)
-    expect(command_response.text).to eq 'Unlocked `staging` on acme-inc/api'
+    expect(command_response.text).to eq 'Unlocked *staging* on acme-inc/api'
 
     # Now other users should be able to deploy
     expect do
@@ -141,31 +141,31 @@ RSpec.feature 'Slash Commands' do
 
   scenario 'locking a branch with a message' do
     command "/deploy lock staging on acme-inc/api: I'm testing some stuff", as: slack_accounts(:david)
-    expect(command_response.text).to eq 'Locked `staging` on acme-inc/api'
+    expect(command_response.text).to eq 'Locked *staging* on acme-inc/api'
 
     # Other users shouldn't be able to deploy now.
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.text).to eq "`staging` was locked by <@david> less than a minute ago.\n> I'm testing some stuff\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`."
+    expect(command_response.text).to eq "*staging* was locked by <@david> less than a minute ago.\n> I'm testing some stuff\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`."
   end
 
   scenario 'stealing a lock' do
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
-    expect(command_response.text).to eq 'Locked `staging` on acme-inc/api'
+    expect(command_response.text).to eq 'Locked *staging* on acme-inc/api'
 
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
-    expect(command_response.text).to eq '`staging` is already locked'
+    expect(command_response.text).to eq '*staging* is already locked'
 
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
-    expect(command_response.text).to eq "`staging` was locked by <@david> less than a minute ago.\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`."
+    expect(command_response.text).to eq "*staging* was locked by <@david> less than a minute ago.\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`."
 
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
 
     command '/deploy lock staging on acme-inc/api!', as: slack_accounts(:steve)
-    expect(command_response.text).to eq 'Locked `staging` on acme-inc/api (stolen from <@david>)'
+    expect(command_response.text).to eq 'Locked *staging* on acme-inc/api (stolen from <@david>)'
 
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
@@ -198,7 +198,7 @@ RSpec.feature 'Slash Commands' do
     expect do
       command '/deploy acme-inc/api@master', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
-    expect(command_response.text).to eq "acme-inc/api is configured to automatically deploy `refs/heads/master` to `production`.\nYou can bypass this warning with `/deploy acme-inc/api@master!`"
+    expect(command_response.text).to eq "acme-inc/api is configured to automatically deploy `refs/heads/master` to *production*.\nYou can bypass this warning with `/deploy acme-inc/api@master!`"
 
     expect do
       command '/deploy acme-inc/api@master!', as: slack_accounts(:david)
