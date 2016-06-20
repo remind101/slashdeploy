@@ -1,5 +1,5 @@
 class ErrorMessage < SlackMessage
   def to_message
-    Slack::Message text: text
+    Slack::Message.new text: text
   end
 end
