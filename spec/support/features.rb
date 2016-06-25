@@ -28,7 +28,7 @@ module Features
   def command_response
     body = JSON.parse(last_response.body)
     Slash::Response.new(
-      message: Slack::Message.new(text: body['text']),
+      message: Slack::Message.new(body),
       in_channel: body['response_type'] == 'in_channel'
     )
   end
