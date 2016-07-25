@@ -13,6 +13,9 @@ gem 'oj'
 gem 'puma'
 gem 'sass'
 
+gem 'faraday'
+gem 'faraday_middleware'
+
 # Visibility
 gem 'rollbar', '~> 2.8.0'
 gem 'lograge'

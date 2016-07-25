@@ -2,6 +2,7 @@ require 'slash'
 require 'slack'
 require 'hookshot'
 require 'github'
+require 'slack'
 require 'perty'
 
 require 'slashdeploy/errors'
@@ -55,8 +56,9 @@ module SlashDeploy
 
     def github_webhooks
       router = Hookshot::Router.new
-      router.handle :push,   PushEvent
-      router.handle :status, StatusEvent
+      router.handle :push,              PushEvent
+      router.handle :status,            StatusEvent
+      router.handle :deployment_status, DeploymentStatusEvent
       router
     end
 
