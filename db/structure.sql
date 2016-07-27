@@ -277,7 +277,7 @@ CREATE TABLE users (
     id integer NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    slack_notifications boolean
+    slack_notifications boolean DEFAULT true
 );
 
 
@@ -625,4 +625,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160212035321');
 INSERT INTO schema_migrations (version) VALUES ('20160609042717');
 
 INSERT INTO schema_migrations (version) VALUES ('20160725205816');
+
+INSERT INTO schema_migrations (version) VALUES ('20160727164721');
 
