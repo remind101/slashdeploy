@@ -276,7 +276,8 @@ ALTER SEQUENCE statuses_id_seq OWNED BY statuses.id;
 CREATE TABLE users (
     id integer NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    slack_notifications boolean
 );
 
 
@@ -622,4 +623,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160211161702');
 INSERT INTO schema_migrations (version) VALUES ('20160212035321');
 
 INSERT INTO schema_migrations (version) VALUES ('20160609042717');
+
+INSERT INTO schema_migrations (version) VALUES ('20160725205816');
 

@@ -6,8 +6,19 @@ module SlashDeploy
     # Client for interacting with GitHub.
     attr_accessor :github
 
+    # Client for interacting with Slack.
+    attr_accessor :slack
+
     def authorize!(user, repository)
       fail RepoUnauthorized, repository unless github.access?(user, repository.to_s)
+    end
+
+    # Sends a direct message to all of the users slack accounts.
+    def direct_message(user, klass, attributes = {})
+      user.slack_accounts.each do |account|
+        message = klass.build attributes.merge(account: account)
+        slack.direct_message(account, message)
+      end
     end
 
     # Creates a new deployment request as the given user.

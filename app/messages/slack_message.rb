@@ -18,12 +18,19 @@ class SlackMessage
   protected
 
   def text(extra_assigns = {})
-    view = ActionView::Base.new(['app/views/messages'], attributes.merge(extra_assigns))
-    view.render(file: self.class.to_s.gsub(/Message$/, '').underscore).strip
+    render(nil, extra_assigns)
   end
 
-  def t(key, options = {})
-    I18n.t(key, options.merge(scope: [:slack, :messages, self.class.to_s.underscore]))
+  def render(file, extra_assigns = {})
+    prefix = self.class.to_s.gsub(/Message$/, '').underscore
+    if file
+      search = ["app/views/messages/#{prefix}"]
+    else
+      file = prefix
+      search = ['app/views/messages']
+    end
+    view = ActionView::Base.new(search, attributes.merge(extra_assigns))
+    view.render(file: file).strip
   end
 
   def slack_user(user)

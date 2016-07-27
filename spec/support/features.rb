@@ -1,5 +1,7 @@
 # This module gets included into full stack feature specs in spec/features.
 module Features
+  GITHUB_EVENTS = %i(status push deployment_status)
+
   include Rack::Test::Methods
 
   def app
@@ -43,14 +45,11 @@ module Features
       Hookshot::HEADER_HUB_SIGNATURE => "sha1=#{Hookshot.signature(body, secret)}"
   end
 
-  def status_event(secret, extra = {})
-    data = fixture('status_event.json')
-    github_event :status, secret, data.deep_merge(extra.stringify_keys)
-  end
-
-  def push_event(secret, extra = {})
-    data = fixture('push_event.json')
-    github_event :push, secret, data.deep_merge(extra.stringify_keys)
+  GITHUB_EVENTS.each do |event|
+    define_method(:"#{event}_event") do |secret, extra = {}|
+      data = fixture("#{event}_event.json")
+      github_event event, secret, data.deep_merge(extra.stringify_keys)
+    end
   end
 
   def fixture(name)

@@ -14,6 +14,7 @@ module Slack
     end
 
     values do
+      attribute :mrkdwn_in, Array[String]
       attribute :text, String
       attribute :fallback, String
       attribute :color, String

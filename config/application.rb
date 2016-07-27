@@ -46,6 +46,10 @@ module SlashDeploy
     #   
     #   github
     config.x.github_client = ENV['GITHUB_CLIENT']
+    # The name of the slack backend to use. Possible options are:
+    #
+    #   slack
+    config.x.slack_client = ENV['SLACK_CLIENT']
     config.x.default_environment = 'production'
     config.x.default_ref = 'master'
     config.x.feedback_email = 'hi@slashdeploy.io'

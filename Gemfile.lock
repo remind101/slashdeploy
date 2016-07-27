@@ -94,6 +94,8 @@ GEM
     execjs (2.6.0)
     faraday (0.9.1)
       multipart-post (>= 1.2, < 3)
+    faraday_middleware (0.10.0)
+      faraday (>= 0.7.4, < 0.10)
     fastercsv (1.5.5)
     foreman (0.63.0)
       dotenv (>= 0.7)
@@ -273,6 +275,8 @@ DEPENDENCIES
   capybara
   codeclimate-test-reporter
   dogstatsd-ruby
+  faraday
+  faraday_middleware
   foreman
   jquery-rails
   jwt
