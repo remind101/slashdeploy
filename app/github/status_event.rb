@@ -2,14 +2,18 @@
 class StatusEvent < GitHubEventHandler
   def run
     transaction do
-      return unless auto_deployment
-      auto_deployment.context_state event['context'], event['state']
-      logger.info "auto_deployment=#{auto_deployment.id} ready=#{auto_deployment.ready?} context=#{event['context']} state=#{event['state']} sha=#{event['sha']}"
-      slashdeploy.auto_deploy auto_deployment
+      slashdeploy.track_commit_status_context_change event['sha'], commit_status_context
     end
   end
 
   private
+
+  def commit_status_context
+    @commit_status_context ||= CommitStatusContext.new(
+      context: event['context'],
+      state: event['state']
+    )
+  end
 
   def auto_deployment
     @auto_deployment ||= AutoDeployment.lock.active.find_by(sha: event['sha'])

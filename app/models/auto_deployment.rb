@@ -22,25 +22,35 @@ class AutoDeployment < ActiveRecord::Base
   end
 
   # Records the contexts new state.
-  def context_state(context, state)
-    statuses.create! state: state, context: context
+  #
+  # Returns true if the new state of this commit status context should fail the
+  # auto deployment.
+  def context_state(commit_status_context)
+    statuses.create! state: commit_status_context.state, context: commit_status_context.context
+    return true if commit_status_context.bad? && required_contexts.include?(commit_status_context.context)
   end
 
   # Returns true if all of the required contexts for the environment have passed.
   def ready?
     # If the environment doesn't have any required_contexts configured, just
     # return true.
-    return true if environment.required_contexts.blank?
+    return true if required_contexts.blank?
 
     # Only look at commit status contexts that are passing.
     contexts = statuses.success
 
-    environment.required_contexts.each do |name|
+    required_contexts.each do |name|
       status = contexts.find { |c| c.context == name }
       return false unless status
       return false unless status.success?
     end
 
     true
+  end
+
+  private
+
+  def required_contexts
+    environment.required_contexts
   end
 end

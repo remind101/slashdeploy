@@ -13,6 +13,9 @@ AllCops:
 Metrics/LineLength:
   Enabled: false
 
+Metrics/ClassLength:
+  Enabled: false
+
 Metrics/MethodLength:
   Enabled: false
 
