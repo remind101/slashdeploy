@@ -14,9 +14,14 @@ class CommitStatusContext
   end
 
   def success?
-    state == 'success'
+    state == SUCCESS
   end
 
+  def bad?
+    state == FAILURE || state == ERROR
+  end
+
+  # TODO: Wat?
   def failure?
     !success?
   end

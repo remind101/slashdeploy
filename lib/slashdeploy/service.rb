@@ -93,29 +93,86 @@ module SlashDeploy
       lock.unlock!
     end
 
+    # Used to track when a commit status context changes state. If there are
+    # active auto deployments for the given sha, they may be deployed.
+    def track_commit_status_context_change(sha, commit_status_context)
+      auto_deployment = AutoDeployment.active.find_by(sha: sha)
+      return unless auto_deployment
+      failed = auto_deployment.context_state commit_status_context
+      if failed
+        auto_deployment.user.slack_accounts.each do |account|
+          message = AutoDeploymentFailedMessage.build \
+            account: account,
+            auto_deployment: auto_deployment,
+            commit_status_context: commit_status_context
+          slack.direct_message(account, message)
+        end
+      end
+      auto_deploy auto_deployment if auto_deployment.ready?
+    end
+
+    # Creates a new AutoDeployment for the given sha.
+    #
+    # environment - Environment to deploy to.
+    # sha         - Git sha to deploy.
+    # user        - The User to attribute the deployment to.
+    #
+    # Returns an AutoDeployment.
+    def create_auto_deployment(environment, sha, user)
+      existing = environment.active_auto_deployment
+      if existing
+        # This can happen if the user triggers the webhook manually.
+        return existing if existing.sha == sha
+
+        # If this environment has an existing active auto deployment, we'll
+        # cancel it before starting this auto deployment. We do this to prevent
+        # race conditions where commit status events for an older auto deployment
+        # could come in late.
+        existing.cancel!
+      end
+
+      auto_deployment = environment.auto_deployments.create! user: user, sha: sha
+      user.slack_accounts.each do |account|
+        message = AutoDeploymentCreatedMessage.build \
+          account: account,
+          auto_deployment: auto_deployment
+        slack.direct_message(account, message)
+      end
+      auto_deploy auto_deployment if auto_deployment.ready?
+      auto_deployment
+    end
+
+    private
+
     # Triggers an auto deployment if the AutoDeployment is ready.
     #
     # auto_deployment - An AutoDeployment.
     #
     # Returns nothing.
     def auto_deploy(auto_deployment)
-      return unless auto_deployment.ready?
+      fail "auto_deploy called on AutoDeployment that's not ready: #{auto_deployment.id}" unless auto_deployment.ready?
 
       begin
+        user = auto_deployment.user
         environment = auto_deployment.environment
 
         # Check if the environment we're deploying to is locked.
-        return if environment.locked?
         github.create_deployment(
-          auto_deployment.user,
+          user,
           deployment_request(environment, auto_deployment.sha)
-        )
+        ) unless environment.locked?
+
+        user.slack_accounts.each do |account|
+          k = environment.locked? ? AutoDeploymentEnvironmentLockedMessage : AutoDeploymentStartedMessage
+          message = k.build \
+            account: account,
+            auto_deployment: auto_deployment
+          slack.direct_message(account, message)
+        end
       ensure
         auto_deployment.done!
       end
     end
-
-    private
 
     def deployment_request(environment, ref, options = {})
       DeploymentRequest.new(

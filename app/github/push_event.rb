@@ -7,8 +7,8 @@ class PushEvent < GitHubEventHandler
     logger.info "ref=#{event['ref']} sha=#{sha} sender=#{event['sender']['login']}"
     transaction do
       return logger.info 'not configured for automatic deployments' unless environment
+      auto_deployment = slashdeploy.create_auto_deployment(environment, sha, deployer)
       logger.info "auto_deployment=#{auto_deployment.id} ready=#{auto_deployment.ready?} deployer=#{auto_deployment.user.identifier}"
-      slashdeploy.auto_deploy auto_deployment
     end
   end
 
@@ -37,27 +37,15 @@ class PushEvent < GitHubEventHandler
   # Returns the user that should be attributed with the deployment. This will
   # be the user that pushed to GitHub if we know who they are in SlashDeploy.
   def deployer
-    @deployer ||= begin
-                    account = GitHubAccount.find_by(id: event['sender']['id'])
-                    user = account ? account.user : environment.auto_deploy_user
-                    user || fail(SlashDeploy::NoAutoDeployUser)
-                  end
+    @deployer ||= pusher || environment.auto_deploy_user || fail(SlashDeploy::NoAutoDeployUser)
+  end
+
+  # Returns the user that pushed the commit to GitHub, if we know them, otherwise nil.
+  def pusher
+    @pusher ||= User.find_by_github_account_id(event['sender']['id'])
   end
 
   def auto_deployment
-    @auto_deployment ||= begin
-                           existing = environment.active_auto_deployment
-                           if existing
-                             # This can happen if the user triggers the webhook manually.
-                             return existing if existing.sha == sha
-
-                             # If this environment has an existing active auto deployment, we'll
-                             # cancel it before starting this auto deployment. We do this to prevent
-                             # race conditions where commit status events for an older auto deployment
-                             # could come in late.
-                             existing.cancel!
-                           end
-                           environment.auto_deployments.create! user: deployer, sha: sha
-                         end
+    @auto_deployment ||= slashdeploy.create_auto_deployment(environment, sha, deployer)
   end
 end
