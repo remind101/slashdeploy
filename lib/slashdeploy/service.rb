@@ -21,6 +21,35 @@ module SlashDeploy
       end
     end
 
+    # Creates a new AutoDeployment for the given sha.
+    #
+    # environment - Environment to deploy to.
+    # sha         - Git sha to deploy.
+    # user        - The User to attribute the deployment to.
+    #
+    # Returns an AutoDeployment.
+    def create_auto_deployment(environment, sha, user)
+      existing = environment.active_auto_deployment
+      if existing
+        # This can happen if the user triggers the webhook manually.
+        return existing if existing.sha == sha
+
+        # If this environment has an existing active auto deployment, we'll
+        # cancel it before starting this auto deployment. We do this to prevent
+        # race conditions where commit status events for an older auto deployment
+        # could come in late.
+        existing.cancel!
+      end
+
+      auto_deployment = environment.auto_deployments.create! user: user, sha: sha
+      if auto_deployment.ready?
+        auto_deploy auto_deployment
+      else
+        direct_message user, AutoDeploymentCreatedMessage, auto_deployment: auto_deployment
+      end
+      auto_deployment
+    end
+
     # Creates a new deployment request as the given user.
     #
     # user        - The User requesting the deployment.
@@ -99,7 +128,7 @@ module SlashDeploy
     #
     # Returns nothing.
     def auto_deploy(auto_deployment)
-      return unless auto_deployment.ready?
+      fail "auto_deploy called on AutoDeployment that's not ready: #{auto_deployment.id}" unless auto_deployment.ready?
 
       begin
         environment = auto_deployment.environment

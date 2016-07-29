@@ -7,8 +7,8 @@ class PushEvent < GitHubEventHandler
     logger.info "ref=#{event['ref']} sha=#{sha} sender=#{event['sender']['login']}"
     transaction do
       return logger.info 'not configured for automatic deployments' unless environment
+      auto_deployment = slashdeploy.create_auto_deployment(environment, sha, deployer)
       logger.info "auto_deployment=#{auto_deployment.id} ready=#{auto_deployment.ready?} deployer=#{auto_deployment.user.identifier}"
-      slashdeploy.auto_deploy auto_deployment
     end
   end
 
@@ -42,22 +42,5 @@ class PushEvent < GitHubEventHandler
                     user = account ? account.user : environment.auto_deploy_user
                     user || fail(SlashDeploy::NoAutoDeployUser)
                   end
-  end
-
-  def auto_deployment
-    @auto_deployment ||= begin
-                           existing = environment.active_auto_deployment
-                           if existing
-                             # This can happen if the user triggers the webhook manually.
-                             return existing if existing.sha == sha
-
-                             # If this environment has an existing active auto deployment, we'll
-                             # cancel it before starting this auto deployment. We do this to prevent
-                             # race conditions where commit status events for an older auto deployment
-                             # could come in late.
-                             existing.cancel!
-                           end
-                           environment.auto_deployments.create! user: deployer, sha: sha
-                         end
   end
 end
