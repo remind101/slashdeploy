@@ -12,6 +12,6 @@ class StatusEvent < GitHubEventHandler
   private
 
   def auto_deployment
-    @auto_deployment ||= AutoDeployment.active.find_by(sha: event['sha'])
+    @auto_deployment ||= AutoDeployment.lock.active.find_by(sha: event['sha'])
   end
 end
