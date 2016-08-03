@@ -3,7 +3,11 @@ class LockCommand < BaseCommand
   def run
     transaction do
       repo = Repository.with_name(params['repository'])
-      env  = repo.environment(params['environment'])
+      return Slash.reply(ValidationErrorMessage.build(record: repo)) if repo.invalid?
+
+      env = repo.environment(params['environment'])
+      return Slash.reply(ValidationErrorMessage.build(record: env)) if env.invalid?
+
       begin
         resp = slashdeploy.lock_environment(user.user, env, message: params['message'].try(:strip), force: params['force'])
         if resp
