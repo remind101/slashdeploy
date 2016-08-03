@@ -74,7 +74,7 @@ module SlashDeploy
         :slack,
         ENV['SLACK_CLIENT_ID'],
         ENV['SLACK_CLIENT_SECRET'],
-        scope: 'identify,team:read,users:read',
+        scope: 'identify',
         setup: lambda { |env|
           request = Rack::Request.new(env)
           env['omniauth.strategy'].options[:scope] = request.params['scope'] if request.params['scope'].present?

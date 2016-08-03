@@ -10,6 +10,14 @@ class GitHubAccount < ActiveRecord::Base
     )
   end
 
+  def account_type
+    'GitHub'
+  end
+
+  def username
+    login
+  end
+
   def connect_to(user)
     user.github_accounts << self
   end

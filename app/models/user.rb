@@ -15,6 +15,10 @@ class User < ActiveRecord::Base
     "#{id}:#{username}"
   end
 
+  def connected_accounts
+    github_accounts + slack_accounts
+  end
+
   def username
     if account = github_accounts.first
       return account.login

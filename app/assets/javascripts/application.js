@@ -15,3 +15,5 @@
 //= require turbolinks
 //= require flat-ui
 //= require_tree .
+
+$(':checkbox').radiocheck();

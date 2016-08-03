@@ -54,7 +54,8 @@ module OmniAuth
         hash = {
           raw_info: raw_info,
           web_hook_info: web_hook_info,
-          bot_info: bot_info
+          bot_info: bot_info,
+          scopes: scopes
         }
 
         unless skip_info?
@@ -68,7 +69,15 @@ module OmniAuth
       end
 
       def raw_info
-        @raw_info ||= access_token.get('/api/auth.test').parsed
+        auth_response.parsed
+      end
+
+      def scopes
+        auth_response.headers['X-OAuth-Scopes']
+      end
+
+      def auth_response
+        @auth_response ||= access_token.get('/api/auth.test')
       end
 
       def user_info

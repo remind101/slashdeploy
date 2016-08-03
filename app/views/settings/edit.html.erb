@@ -1,0 +1,38 @@
+<div class="row">
+  <div class="col-md-3">
+    <ul class="nav nav-pills nav-stacked">
+      <li role="presentation"><a href="#connected-accounts">Connected Accounts</a></li>
+      <li role="presentation"><a href="#notifications">Notifications</a></li>
+    </ul>
+  </div>
+  <div class="col-md-9">
+    <h5 id="connected-accounts">Connected Accounts</h5>
+    <strong>Connected to SlashDeploy</strong> <span class="text-muted">You've allowed SlashDeploy to access these accounts:</span>
+
+    <ul class="connected-accounts">
+      <% current_user.connected_accounts.each do |account| %>
+        <li class="connected-account">
+          <%= image_tag "brands/#{account.account_type.downcase}.svg", width: '30', height: '30' %>
+          <strong><%= account.account_type %></strong> <span><%= account.username %></span>
+        </li>
+      <% end %>
+      <% if current_user.github_accounts.empty? %>
+        <li class="connected-account">
+          <%= image_tag "brands/github.svg", width: '30', height: '30' %>
+          <strong><%= link_to 'Connect a GitHub account', '/auth/github' %></strong>
+        </li>
+      <% end %>
+    </ul>
+    <hr />
+    <h5 id="notifications">Notifications</h5>
+    <p>SlashDeploy can send you notifications when certain deployment related events happen. You can configure the notifications that you want to receive below.</p>
+    <label class="checkbox" for="checkbox1">
+      <input type="checkbox" value="" id="checkbox1" data-toggle="checkbox" class="custom-checkbox" checked="checked"><span class="icons"><span class="icon-unchecked"></span><span class="icon-checked"></span></span>
+      Notify me when the deployment changes status
+    </label>
+    <label class="checkbox" for="checkbox2">
+      <input type="checkbox" value="" id="checkbox2" data-toggle="checkbox" class="custom-checkbox" checked="checked"><span class="icons"><span class="icon-unchecked"></span><span class="icon-checked"></span></span>
+      Notify me when a new Auto Deployment is created
+    </label>
+  </div>
+</div>

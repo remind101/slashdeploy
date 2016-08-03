@@ -16,6 +16,10 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def authenticate!
+    redirect_to '/login' unless signed_in?
+  end
+
   def warden
     request.env['warden']
   end

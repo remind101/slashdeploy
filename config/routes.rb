@@ -6,6 +6,10 @@ Rails.application.routes.draw do
   get '/slack/install' => 'slack#install', as: :install
   post '/slack/install' => 'slack#early_access', as: :early_access
 
+  get '/login' => redirect('/auth/slack'), as: :login
+  post '/logout' => 'sessions#destroy', as: :logout
+  get '/settings' => 'settings#edit', as: :settings
+
   # Docs
   get '/docs' => 'documentation#index', as: :documentation
 

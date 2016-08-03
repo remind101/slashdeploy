@@ -15,6 +15,14 @@ class SlackAccount < ActiveRecord::Base
     )
   end
 
+  def account_type
+    'Slack'
+  end
+
+  def username
+    user_name
+  end
+
   def team_id
     slack_team.id
   end
