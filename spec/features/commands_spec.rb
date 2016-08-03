@@ -42,7 +42,7 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'performing a simple deployment' do
-    command '/deploy  acme-inc/api', as: slack_accounts(:david)
+    command '/deploy  acme-inc/api to production', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'master', environment: 'production')]
     ]
@@ -52,7 +52,7 @@ RSpec.feature 'Slash Commands' do
     # David commits something new
     HEAD('acme-inc/api', 'master', 'f5c0df18526b90b9698816ee4b6606e0')
 
-    command '/deploy acme-inc/api', as: slack_accounts(:david)
+    command '/deploy acme-inc/api to production', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/f5c0df18526b90b9698816ee4b6606e0|master> to *production* (<https://github.com/acme-inc/api/compare/ad80a1b...f5c0df1|diff>)')
   end
 
@@ -76,14 +76,14 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'performing a deployment using only the repo name' do
-    command '/deploy api@topic', as: slack_accounts(:david)
+    command '/deploy api@topic to production', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'topic', environment: 'production')]
     ]
   end
 
   scenario 'performing a deployment of a topic branch' do
-    command '/deploy acme-inc/api@topic', as: slack_accounts(:david)
+    command '/deploy acme-inc/api@topic to production', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'topic', environment: 'production')]
     ]
@@ -91,27 +91,27 @@ RSpec.feature 'Slash Commands' do
 
   scenario 'performing a deployment of a branch that has failing commit status contexts' do
     expect do
-      command '/deploy acme-inc/api@failing', as: slack_accounts(:david)
+      command '/deploy acme-inc/api@failing to production', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
 
     expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip)
     The following commit status checks failed:
     * ci
-    You can ignore commit status checks by using `/deploy acme-inc/api@failing!`
+    You can ignore commit status checks by using `/deploy acme-inc/api@failing to production!`
     TEXT
 
     expect do
-      command '/deploy acme-inc/api@failing!', as: slack_accounts(:david)
+      command '/deploy acme-inc/api@failing to production!', as: slack_accounts(:david)
     end.to change { deployment_requests.count }.by(1)
   end
 
   scenario 'attempting to deploy a repo I do not have access to' do
-    command '/deploy acme-inc/api', as: slack_accounts(:bob)
+    command '/deploy acme-inc/api to production', as: slack_accounts(:bob)
     expect(command_response.message).to eq Slack::Message.new(text: "Sorry, but it looks like you don't have access to acme-inc/api")
   end
 
   scenario 'attempting to deploy a ref that does not exist on github' do
-    command '/deploy acme-inc/api@non-existent-branch', as: slack_accounts(:david)
+    command '/deploy acme-inc/api@non-existent-branch to production', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: 'The ref `non-existent-branch` was not found in acme-inc/api')
   end
 
@@ -190,8 +190,37 @@ RSpec.feature 'Slash Commands' do
     TEXT
   end
 
+  scenario 'trying to /deploy to an invalid repoisotory' do
+    expect do
+      command '/deploy acme-inc/$api@master to production', as: slack_accounts(:david)
+    end.to_not change { deployment_requests }
+    expect(command_response.message).to eq Slack::Message.new(
+      text: 'Oops! We had a problem running that command for you.',
+      attachments: [
+        Slack::Attachment.new(color: '#f00', fields: [
+          Slack::Attachment::Field.new(title: 'repository name', value: 'not a valid GitHub repository')
+        ])
+      ]
+    )
+  end
+
+  scenario 'trying to /deploy with no environment, when the repository does not have a default' do
+    expect do
+      command '/deploy acme-inc/api@master', as: slack_accounts(:david)
+    end.to_not change { deployment_requests }
+    expect(command_response.message).to eq Slack::Message.new(
+      text: 'Oops! We had a problem running that command for you.',
+      attachments: [
+        Slack::Attachment.new(color: '#f00', fields: [
+          Slack::Attachment::Field.new(title: 'environment name', value: "can't be blank")
+        ])
+      ]
+    )
+  end
+
   scenario 'trying to /deploy an environment that is configured to auto deploy' do
     repo = Repository.with_name('acme-inc/api')
+    repo.update_attributes! default_environment: 'production'
     environment = repo.environment('production')
     environment.configure_auto_deploy('refs/heads/master')
 
