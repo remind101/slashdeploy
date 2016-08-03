@@ -32,6 +32,25 @@ And more at <https://slashdeploy.io/docs>.
 
 ## Development
 
+### Using ngrok
+
+1. Install [ngrok](https://ngrok.com/) and run `./ngrok http 3000`
+2. Create a [Slack App](https://api.slack.com/apps/new) and set your Slack Redirect URI to `http://xxx.ngrok.io/auth/slack/callback`
+3. Listen to `/deploy` commands by setting the Request URL to `https://xxx.ngrok.io/commands`
+4. Register a new [Github OAuth application](https://github.com/settings/applications/new)
+5. Set your Github Authorization callback URL to `http://xxx.ngrok.io/auth/github/callback`
+6. Using Slack and Github app credentials, set the following environment variables in a `.env` file:
+  - `GITHUB_CLIENT`
+  - `SLACK_CLIENT`
+  - `GITHUB_CLIENT_ID`
+  - `GITHUB_CLIENT_SECRET`
+  - `SLACK_CLIENT_ID`
+  - `SLACK_CLIENT_SECRET`
+  - `SLACK_VERIFICATION_TOKEN`
+  - `STATE_KEY`
+7. `foreman start -p 3000`
+8. Create a Slack team and add SlashDeploy to it using the button on `http://localhost:3000`
+
 ### Tests
 
 The full test suite can be run with:
