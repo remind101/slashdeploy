@@ -25,6 +25,8 @@ gem 'dogstatsd-ruby'
 gem 'jwt'
 gem 'warden'
 gem 'oauth2'
+gem 'omniauth'
+gem 'omniauth-github'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

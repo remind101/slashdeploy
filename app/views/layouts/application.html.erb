@@ -32,6 +32,9 @@
         <ul class="nav navbar-nav">
           <li class="<%= 'active' if current_page?(documentation_path) %>"><%= link_to 'Documentation', documentation_path %></li>
         </ul>
+        <% if signed_in? %>
+          <p class="navbar-text navbar-right">Signed in as <%= current_user.username %></p>
+        <% end %>
         <!--<form class="navbar-form navbar-right" role="form">
           <button type="submit" class="btn btn-success">Sign in</button>
           </form>-->
@@ -40,6 +43,9 @@
     </div>
   </nav>
   <div class="container">
+    <% if flash[:notice] %>
+      <div class="alert alert-success"><%= flash[:notice] %></div>
+    <% end %>
 
 <%= yield %>
 

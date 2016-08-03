@@ -12,6 +12,6 @@ class DeploymentStatusEvent < GitHubEventHandler
   private
 
   def user
-    @user ||= User.find_by_github_account_id(event['deployment']['creator']['id'])
+    @user ||= User.find_by_github(event['deployment']['creator']['id'])
   end
 end

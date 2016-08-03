@@ -12,12 +12,21 @@ RSpec.feature 'Slash Commands' do
     HEAD('acme-inc/api', 'failing', '46c2acc4e588924340adcd108cfc948b')
   end
 
+  after do
+    OmniAuth.config.mock_auth[:slack] = nil
+  end
+
   scenario 'authenticating' do
-    stub_request(:post, 'https://github.com/login/oauth/access_token')
-      .with(body: { 'client_id' => '', 'client_secret' => '', 'code' => 'code', 'grant_type' => 'authorization_code' })
-      .to_return(status: 200, body: { 'access_token' => 'e72e16c7e42f292c6912e7710c838347ae178b4a', 'scope' => 'repo_deployment', 'token_type' => 'bearer' }.to_json, headers: { 'Content-Type' => 'application/json' })
-    stub_request(:get, 'https://api.github.com/user')
-      .to_return(status: 200, body: { 'id' => 1, 'login' => 'joe' }.to_json, headers: { 'Content-Type' => 'application/json' })
+    OmniAuth.config.mock_auth[:slack] = OmniAuth::AuthHash.new({
+      'provider' => 'slack',
+      'uid' => 'UABCD',
+      'info' => {
+        'nickname' => 'joe',
+        'team_id' => slack_teams(:acme).id,
+        'team_domain' => slack_teams(:acme).domain
+      },
+      'extra' => {}
+    })
 
     account = SlackAccount.new(
       id:         'UABCD',
@@ -26,9 +35,8 @@ RSpec.feature 'Slash Commands' do
     )
 
     command '/deploy help', as: account
-    state = command_response.text.gsub(/^.*state=(.*?)\|.*$/, '\\1')
     expect do
-      visit "/auth/github/callback?state=#{state}&code=code"
+      visit "/auth/slack"
     end.to change { User.count }.by(1)
 
     command '/deploy help', as: account

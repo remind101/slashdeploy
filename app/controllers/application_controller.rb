@@ -9,6 +9,11 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user
 
+  def signed_in?
+    warden.authenticated?
+  end
+  helper_method :signed_in?
+
   private
 
   def warden

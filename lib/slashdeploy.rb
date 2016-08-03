@@ -4,6 +4,7 @@ require 'hookshot'
 require 'github'
 require 'slack'
 require 'perty'
+require 'omniauth/strategies/slack'
 
 require 'slashdeploy/errors'
 
@@ -14,21 +15,15 @@ module SlashDeploy
   GITHUB_REPO_REGEX = %r{[\w\-]+\/[\w\-]+}
 
   autoload :Service, 'slashdeploy/service'
-  autoload :State,   'slashdeploy/state'
 
   # Rack apps for handling slash commands.
   module Commands
-    autoload :Auth, 'slashdeploy/commands/auth'
-
     # Returns a Rack app for handling the slack slash commands.
     def self.slack_handler
       handler = SlashCommands.build
 
       # Log the request
       handler = Slash::Middleware::Logging.new(handler)
-
-      # Ensure that users are authorized
-      handler = Auth.new(handler, Rails.configuration.x.oauth.github, ::SlashDeploy.state)
 
       # Strip extra whitespace from the text.
       handler = Slash::Middleware::NormalizeText.new(handler)
@@ -44,8 +39,6 @@ module SlashDeploy
   end
 
   class << self
-    attr_accessor :state
-
     def service
       @service ||= Service.new
     end

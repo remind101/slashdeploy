@@ -7,11 +7,6 @@ class User < ActiveRecord::Base
   # Raised if the user doesn't have a github account.
   MissingGitHubAccount = Class.new(StandardError)
 
-  def self.find_by_github_account_id(id)
-    account = GitHubAccount.find_by(id: id)
-    account.user if account
-  end
-
   def enable_slack_notifications!
     update_attributes! slack_notifications: true
   end
@@ -21,31 +16,23 @@ class User < ActiveRecord::Base
   end
 
   def username
-    github_account.login
+    if account = github_accounts.first
+      return account.login
+    end
+
+    if account = slack_accounts.first
+      return account.user_name
+    end
   end
 
   def self.find_by_slack(id)
-    account = SlackAccount.where(id: id).first
-    return unless account
-    account.user
+    account = SlackAccount.find_by(id: id)
+    account.user if account
   end
 
   def self.find_by_github(id)
-    account = GitHubAccount.where(id: id).first
-    return unless account
-    account.user
-  end
-
-  def slack_account?(slack_account)
-    slack_accounts.find do |account|
-      account.id == slack_account.id
-    end
-  end
-
-  def github_account?(github_account)
-    github_accounts.find do |account|
-      account.id == github_account.id
-    end
+    account = GitHubAccount.find_by(id: id)
+    account.user if account
   end
 
   def github_account
