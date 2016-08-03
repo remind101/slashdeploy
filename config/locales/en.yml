@@ -26,7 +26,7 @@ en:
         repository:
           attributes:
             name:
-              invalid_repository: 'is not a valid GitHub repository'
+              invalid_repository: "not a valid GitHub repository"
         environment:
           attributes:
             aliases:

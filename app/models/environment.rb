@@ -8,6 +8,8 @@ class Environment < ActiveRecord::Base
   # Validate that an alias doesn't match a different environment.
   validates_with UniqueEnvironment
 
+  validates :name, presence: true
+
   # Scopes environments to find those that either have the given name, or are
   # aliased.
   scope :named, -> (value) do
@@ -25,7 +27,7 @@ class Environment < ActiveRecord::Base
 
   # Finds the environment with the given name, creating it if necessary.
   def self.with_name(name)
-    named(name).first || create!(name: name)
+    named(name).first || create(name: name)
   end
 
   # Marks this environment as locked with the given message.

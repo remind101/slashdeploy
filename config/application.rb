@@ -50,7 +50,6 @@ module SlashDeploy
     #
     #   slack
     config.x.slack_client = ENV['SLACK_CLIENT']
-    config.x.default_environment = 'production'
     config.x.default_ref = 'master'
     config.x.feedback_email = 'hi@slashdeploy.io'
 

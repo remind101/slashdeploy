@@ -5,7 +5,7 @@ RSpec.describe Repository, type: :model do
     it 'gets validated as a GitHub repository name' do
       repo = Repository.new(name: 'foo')
       expect(repo).to be_invalid
-      expect(repo.errors[:name]).to eq ['is not a valid GitHub repository']
+      expect(repo.errors[:name]).to eq ['not a valid GitHub repository']
     end
   end
 
@@ -22,6 +22,7 @@ RSpec.describe Repository, type: :model do
     context 'when not given a name' do
       it 'returns the default environment' do
         repo = Repository.with_name('acme-inc/api')
+        repo.default_environment = 'production'
         environment = repo.environment
         expect(environment).to_not be_nil
         expect(environment.name).to eq 'production'
@@ -38,12 +39,12 @@ RSpec.describe Repository, type: :model do
     end
 
     context 'when the repository does not have a default environment' do
-      it 'returns production' do
+      it 'returns nil' do
         repo = Repository.new(default_environment: '')
-        expect(repo.default_environment).to eq 'production'
+        expect(repo.default_environment).to be_nil
 
         repo = Repository.new
-        expect(repo.default_environment).to eq 'production'
+        expect(repo.default_environment).to be_nil
       end
     end
   end
