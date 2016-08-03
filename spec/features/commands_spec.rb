@@ -194,14 +194,28 @@ RSpec.feature 'Slash Commands' do
     expect do
       command '/deploy acme-inc/$api@master to production', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
-    expect(command_response.message).to eq Slack::Message.new(text: "Invalid repository: \n* name: not a valid GitHub repository")
+    expect(command_response.message).to eq Slack::Message.new(
+      text: 'Oops! We had a problem running that command for you.',
+      attachments: [
+        Slack::Attachment.new(color: '#f00', fields: [
+          Slack::Attachment::Field.new(title: 'repository name', value: 'not a valid GitHub repository')
+        ])
+      ]
+    )
   end
 
   scenario 'trying to /deploy with no environment, when the repository does not have a default' do
     expect do
       command '/deploy acme-inc/api@master', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
-    expect(command_response.message).to eq Slack::Message.new(text: "Invalid environment: \n* name: can't be blank")
+    expect(command_response.message).to eq Slack::Message.new(
+      text: 'Oops! We had a problem running that command for you.',
+      attachments: [
+        Slack::Attachment.new(color: '#f00', fields: [
+          Slack::Attachment::Field.new(title: 'environment name', value: "can't be blank")
+        ])
+      ]
+    )
   end
 
   scenario 'trying to /deploy an environment that is configured to auto deploy' do
