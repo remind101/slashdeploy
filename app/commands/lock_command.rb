@@ -20,10 +20,17 @@ class LockCommand < BaseCommand
             environment: env
         end
       rescue SlashDeploy::EnvironmentLockedError => e
+        message_action = slashdeploy.create_message_action(LockCommand, {
+          force: true,
+          repository: params['repository'],
+          environment: params['environment'],
+          message: params['message']}
+        )
         Slash.reply EnvironmentLockedMessage.build \
           environment: env,
           lock: e.lock,
           slack_team: user.slack_team,
+          message_action: message_action,
           request: request
       end
     end

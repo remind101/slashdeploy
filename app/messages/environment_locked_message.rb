@@ -2,6 +2,7 @@ class EnvironmentLockedMessage < SlackMessage
   values do
     attribute :environment, Environment
     attribute :lock, Lock
+    attribute :message_action, MessageAction
     attribute :request, Slash::Request
   end
 
@@ -9,7 +10,7 @@ class EnvironmentLockedMessage < SlackMessage
     Slack::Message.new text: text(locker: locker), attachments: [
       Slack::Attachment.new(
         mrkdwn_in: ['text'],
-        callback_id: 'steal_environment_lock',
+        callback_id: message_action.callback_id,
         color: '#3AA3E3',
         actions: [
           Slack::Attachment::Action.new(
