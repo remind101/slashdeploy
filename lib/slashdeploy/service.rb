@@ -144,6 +144,20 @@ module SlashDeploy
       end
     end
 
+    # Creates a MessageAction, generating a uuid for the callback_id
+    #
+    #  command - The class that the message action will execute. Implements BaseCommand.
+    #  options - params hash that will be passed to the command
+    #
+    #  Returns a MessageAction
+    def create_message_action(command, options = {})
+      MessageAction.create!(
+        callback_id: SecureRandom.uuid,
+        command_params: options.to_json,
+        command: command.name
+      )
+    end
+
     private
 
     def deployment_request(environment, ref, options = {})
