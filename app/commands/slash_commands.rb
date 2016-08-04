@@ -1,5 +1,5 @@
 # SlashCommands is a slash handler that provides the SlashDeploy slack slash
-# commands. This class simply a demuxer that routes requests to the appropriate
+# commands. This class is simply a demuxer that routes requests to the appropriate
 # sub command.
 class SlashCommands
   REPO = /(?<repository>\S+?)/

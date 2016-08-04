@@ -159,6 +159,19 @@ ALTER SEQUENCE locks_id_seq OWNED BY locks.id;
 
 
 --
+-- Name: message_actions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE message_actions (
+    callback_id uuid NOT NULL,
+    action_params json,
+    action character varying NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: repositories; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -375,6 +388,14 @@ ALTER TABLE ONLY locks
 
 
 --
+-- Name: message_actions_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY message_actions
+    ADD CONSTRAINT message_actions_pkey PRIMARY KEY (callback_id);
+
+
+--
 -- Name: repositories_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -469,6 +490,13 @@ CREATE UNIQUE INDEX index_github_accounts_on_id ON github_accounts USING btree (
 --
 
 CREATE INDEX index_locks_on_environment_id ON locks USING btree (environment_id);
+
+
+--
+-- Name: index_message_actions_on_callback_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_message_actions_on_callback_id ON message_actions USING btree (callback_id);
 
 
 --
@@ -620,6 +648,8 @@ INSERT INTO schema_migrations (version) VALUES ('20160609042717');
 INSERT INTO schema_migrations (version) VALUES ('20160725205816');
 
 INSERT INTO schema_migrations (version) VALUES ('20160727164721');
+
+INSERT INTO schema_migrations (version) VALUES ('20160804213314');
 
 INSERT INTO schema_migrations (version) VALUES ('20160815212720');
 

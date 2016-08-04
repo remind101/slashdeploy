@@ -1,7 +1,7 @@
 class AutoDeploymentConfiguredMessage < SlackMessage
   values do
     attribute :environment, Environment
-    attribute :request, Slash::Request
+    attribute :command_payload, Slash::CommandPayload
   end
 
   def to_message

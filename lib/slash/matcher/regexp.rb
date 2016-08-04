@@ -10,7 +10,7 @@ module Slash
       end
 
       def match(env)
-        return unless re =~ env['cmd'].request.text
+        return unless re =~ env['cmd'].payload.text
         matches = ::Regexp.last_match
         Hash[matches.names.zip(matches.captures)]
       end
