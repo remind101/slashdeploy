@@ -10,6 +10,7 @@ class SlashCommands
 
   def self.route
     router = Slash::Router.new
+    router.match match_regexp(/^$/), ActionCommand # lol hack this must be first to match first
     router.match match_regexp(/^help$/), HelpCommand
     router.match match_regexp(/^where #{REPO}$/), EnvironmentsCommand
     router.match match_regexp(/^lock #{ENV} on #{REPO}(:(?<message>.*(?<!\!$)))?(?<force>!)?$/), LockCommand
@@ -55,8 +56,9 @@ class SlashCommands
         Slash.reply UnauthorizedMessage.build \
           repository: e.repository
       rescue StandardError => e
-        Rollbar.error(e)
+        # Rollbar.error(e)
         raise e if Rails.env.test?
+        raise e if Rails.env.development?
         Slash.reply ErrorMessage.build
       end
     end

@@ -10,6 +10,11 @@ module Slash
       end
 
       def match(env)
+        if env['action']
+          if env['action'].request.callback_id != nil
+            return {}
+          end
+        end
         return unless re =~ env['cmd'].request.text
         matches = ::Regexp.last_match
         Hash[matches.names.zip(matches.captures)]

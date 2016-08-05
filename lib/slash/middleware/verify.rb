@@ -13,8 +13,14 @@ module Slash
 
       # Wraps handler in middleware that verifies the token.
       def call(env)
-        cmd = env['cmd']
-        if ActiveSupport::SecurityUtils.secure_compare(cmd.request.token, token)
+        # cmd = env['cmd']
+        request_token = nil
+        if env['cmd'].request.token
+          request_token = env['cmd'].request.token
+        else
+          request_token = env['action'].request.token
+        end
+        if ActiveSupport::SecurityUtils.secure_compare(request_token, token)
           handler.call(env)
         else
           fail UnverifiedError
