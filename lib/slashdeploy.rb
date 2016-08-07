@@ -15,32 +15,46 @@ module SlashDeploy
 
   autoload :Service, 'slashdeploy/service'
   autoload :State,   'slashdeploy/state'
+  autoload :Auth, 'slashdeploy/auth'
 
-  # Rack apps for handling slash commands.
-  module Commands
-    autoload :Auth, 'slashdeploy/commands/auth'
 
-    # Returns a Rack app for handling the slack slash commands.
-    def self.slack_handler
-      handler = SlashCommands.build
+  # Returns a Rack app for handling the slack slash commands.
+  def self.commands_handler
+    handler = SlashCommands.build
 
-      # Log the request
-      handler = Slash::Middleware::Logging.new(handler)
+    # Log the request
+    handler = Slash::Middleware::Logging.new(handler)
 
-      # Ensure that users are authorized
-      handler = Auth.new(handler, Rails.configuration.x.oauth.github, ::SlashDeploy.state)
+    # Ensure that users are authorized
+    handler = Auth.new(handler, Rails.configuration.x.oauth.github, ::SlashDeploy.state)
 
-      # Strip extra whitespace from the text.
-      handler = Slash::Middleware::NormalizeText.new(handler)
+    # Strip extra whitespace from the text.
+    handler = Slash::Middleware::NormalizeText.new(handler)
 
-      # Verify that the slash command came from slack.
-      Slash::Middleware::Verify.new(handler, Rails.configuration.x.slack.verification_token)
-    end
+    # Verify that the slash command came from slack.
+    Slash::Middleware::Verify.new(handler, Rails.configuration.x.slack.verification_token)
+  end
 
-    def self.slack
-      # Adapt it to rack.
-      Slash::Rack.new(slack_handler)
-    end
+  def self.slack_commands
+    # Adapt it to rack.
+    Slash::Rack.new(commands_handler)
+  end
+
+  def self.actions_handler
+    handler = SlackActions.build
+
+    # Log the request
+    handler = Slash::Middleware::Logging.new(handler)
+
+    # Ensure that users are authorized
+    handler = Auth.new(handler, Rails.configuration.x.oauth.github, ::SlashDeploy.state)
+
+    # Verify that the slash command came from slack.
+    Slash::Middleware::Verify.new(handler, Rails.configuration.x.slack.verification_token)
+  end
+
+  def self.slack_actions
+    Slash::Rack.new(actions_handler)
   end
 
   class << self
@@ -48,10 +62,6 @@ module SlashDeploy
 
     def service
       @service ||= Service.new
-    end
-
-    def slack_commands
-      Commands.slack
     end
 
     def github_webhooks

@@ -1,6 +1,6 @@
 module Slash
-  # Request represents an incoming slash command request.
-  class Request
+  # CommnadPayload represents an incoming slash command request.
+  class CommandPayload
     include Virtus.model
 
     values do

@@ -3,7 +3,7 @@ class EnvironmentLockedMessage < SlackMessage
     attribute :environment, Environment
     attribute :lock, Lock
     attribute :message_action, MessageAction
-    attribute :request, Slash::Request
+    attribute :command_payload, Slash::CommandPayload
   end
 
   def to_message

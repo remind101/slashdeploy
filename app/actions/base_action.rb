@@ -1,5 +1,6 @@
-# Add desc
-class ActionCommand
+# BaseCommand is a base command for other commands to inherit from. Commands
+# should implement the `run` method.
+class BaseAction
   attr_reader :env
   attr_reader :slashdeploy
 
@@ -14,28 +15,27 @@ class ActionCommand
 
   def call
     logger.with_module(self.class) do
-      logger.info('running command')
+      logger.info('running action')
       run
     end
   end
 
   def run
-    callback_id = action_payload.request.callback_id
-    message_action = MessageAction.find_by_callback_id(callback_id)
-    Object.const_get(message_action.command).call(env.merge('params' => message_action.command_params.to_h))
+    fail NotImplementedError
   end
+
+  private
 
   def user
     env['user']
   end
 
-  def action_payload
+  def action
     env['action']
   end
 
-
-  def request
-    cmd.request
+  def message_action
+    env['message_action']
   end
 
   def params
