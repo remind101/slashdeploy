@@ -1,7 +1,9 @@
-# comments
-
-class SlackActions
+# SlashActions is a slash handler that provides SlashDeploy slack slash
+# actions. This class routes whitelisted action names to the appropriate
+# action.
+class SlashActions
   attr_reader :registry
+
   def self.registry
     registry = Slash::ActionRegistry.new
     registry.register 'LockAction', LockAction
@@ -31,6 +33,7 @@ class SlackActions
         Slash.reply UnauthorizedMessage.build \
           repository: e.repository
       rescue StandardError => e
+        # TODO: uncomment rollbar, remove raise e if dev?
         # Rollbar.error(e)
         raise e if Rails.env.test?
         raise e if Rails.env.development?

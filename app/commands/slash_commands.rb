@@ -1,5 +1,5 @@
 # SlashCommands is a slash handler that provides the SlashDeploy slack slash
-# commands. This class simply a demuxer that routes requests to the appropriate
+# commands. This class is simply a demuxer that routes requests to the appropriate
 # sub command.
 class SlashCommands
   REPO = /(?<repository>\S+?)/
@@ -55,6 +55,7 @@ class SlashCommands
         Slash.reply UnauthorizedMessage.build \
           repository: e.repository
       rescue StandardError => e
+        # TODO: uncoment rollbar, remove raise e if dev?
         # Rollbar.error(e)
         raise e if Rails.env.test?
         raise e if Rails.env.development?

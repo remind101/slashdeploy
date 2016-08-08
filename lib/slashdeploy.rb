@@ -40,7 +40,7 @@ module SlashDeploy
   end
 
   def self.actions_handler
-    handler = SlackActions.build
+    handler = SlashActions.build
 
     # Log the request
     handler = Slash::Middleware::Logging.new(handler)

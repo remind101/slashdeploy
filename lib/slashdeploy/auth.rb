@@ -12,7 +12,6 @@ module SlashDeploy
     end
 
     def call(env)
-      # TODO: Missing user id somehow
       case env['type']
       when 'cmd'
         user_id = env['cmd'].payload.user_id

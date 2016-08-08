@@ -1,5 +1,5 @@
 module Slash
-  # Action Registry
+  # Action Registry contains a whitelist of valid action_names and their corresponding action.
   class ActionRegistry
     attr_reader :registry
 
@@ -11,6 +11,8 @@ module Slash
       registry[action_name] = action
     end
 
+    # Find the MessageAction from the callback_id and store in env
+    # Call if action is whitelisted
     def call(env)
       callback_id = env['action'].payload.callback_id
       message_action = MessageAction.find_by_callback_id(callback_id)

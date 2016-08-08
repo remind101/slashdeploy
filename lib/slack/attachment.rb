@@ -33,9 +33,18 @@ module Slack
         attribute :style, String
         attribute :type, String
         attribute :value, String
-        # attribute :confirm, Confirmation # Need to figure out if there is a way to omit this unless there is a value
-        # given
+        attribute :confirm, Confirmation
       end
+
+      # TODO: Need to figure out if there is a way to omit this unless there is a value given
+      # This doesn't work so we are showing the default confirmation options every time
+      # def to_json
+      #   if confirm.nil?
+      #     super(:except => :confirm)
+      #   else
+      #     super
+      #   end
+      # end
     end
 
     values do

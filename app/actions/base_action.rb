@@ -1,4 +1,4 @@
-# BaseCommand is a base command for other commands to inherit from. Commands
+# BaseAction is a base action for other actions to inherit from. Actions
 # should implement the `run` method.
 class BaseAction
   attr_reader :env
@@ -20,20 +20,24 @@ class BaseAction
     end
   end
 
+  # May want to merge!(message_action.action_params.to_h) into env['params']
   def run
     fail NotImplementedError
   end
 
   private
 
+  # User object
   def user
     env['user']
   end
 
+  # The Slash::Action object
   def action
     env['action']
   end
 
+  # The MessageAction object
   def message_action
     env['message_action']
   end
