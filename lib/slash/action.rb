@@ -13,5 +13,9 @@ module Slash
     def empty?
       payload.callback_id == nil
     end
+
+    def value
+      payload.actions.first.value
+    end
   end
 end

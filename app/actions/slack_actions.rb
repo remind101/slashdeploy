@@ -5,7 +5,7 @@ class SlackActions
   def self.registry
     registry = Slash::ActionRegistry.new
     registry.register 'LockAction', LockAction
-    
+
     registry
   end
 

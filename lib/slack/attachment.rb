@@ -33,7 +33,8 @@ module Slack
         attribute :style, String
         attribute :type, String
         attribute :value, String
-        attribute :confirm, Confirmation
+        # attribute :confirm, Confirmation # Need to figure out if there is a way to omit this unless there is a value
+        # given
       end
     end
 
