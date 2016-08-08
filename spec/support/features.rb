@@ -16,7 +16,7 @@ module Features
 
     command, *text = text.split(/\s/)
     post \
-      '/commands',
+      '/slack/commands',
       command:     command,
       text:        text.join(' '),
       token:       Rails.configuration.x.slack.verification_token,

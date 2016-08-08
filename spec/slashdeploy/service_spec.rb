@@ -105,7 +105,7 @@ RSpec.describe SlashDeploy::Service do
 
   describe '#create_message_action' do
     it 'generates a uuid' do
-      action = service.create_message_action(BaseCommand)
+      action = service.create_message_action(BaseAction)
       expect(action.callback_id).not_to be_empty
     end
   end

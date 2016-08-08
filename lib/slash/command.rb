@@ -12,7 +12,7 @@ module Slash
     end
 
     def empty?
-      payload.user_id == nil
+      payload.command == nil
     end
 
     def exists?
