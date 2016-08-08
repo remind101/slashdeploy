@@ -237,6 +237,56 @@ RSpec.feature 'Slash Commands' do
     end.to change { deployment_requests.count }.by(1)
   end
 
+  scenario 'stealing a lock by action' do
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
+
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: '*staging* is already locked')
+
+    expect(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111').at_least(:once)
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
+    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`.", attachments: steal_lock_attachments)
+
+    expect do
+      command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
+    end.to_not change { deployment_requests }
+
+    expect do # Action declined
+      action 'no', 'a1a111a1-1111-1a1a-a1a1-111aaa111111', as: slack_accounts(:steve)
+    end.to_not change { deployment_requests }
+    expect(action_response.message).to eq Slack::Message.new(text: 'Did not steal lock.')
+
+    action 'yes', 'a1a111a1-1111-1a1a-a1a1-111aaa111111', as: slack_accounts(:steve)
+    expect(action_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api (stolen from <@david>)')
+
+    expect do
+      command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
+    end.to_not change { deployment_requests }
+  end
+
+  scenario 'trying to perform an action that does not exist' do
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
+
+    expect do
+      action 'yes', 'b1b111b1-1111-1b1b-b1b1-111bbb111111', as: slack_accounts(:steve)
+    end.to_not change { deployment_requests }
+    expect(action_response.message).to eq Slack::Message.new(text: "Oops! We had a problem running your command, but we've been notified")
+  end
+
+  scenario 'trying to perform an action that is not whitelisted' do
+    MessageAction.create!(
+      callback_id: 'b1b111b1-1111-1b1b-b1b1-111bbb111111',
+      action_params: '{}',
+      action: SlashDeploy::Auth.name
+    )
+    expect do # Unregistered action
+      action 'yes', 'b1b111b1-1111-1b1b-b1b1-111bbb111111', as: slack_accounts(:steve)
+    end.to_not change { deployment_requests }
+    expect(action_response.message).to eq Slack::Message.new(text: "Oops! We had a problem running your command, but we've been notified")
+  end
+
   xscenario 'debugging exception tracking' do
     command '/deploy boom', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: "Oops! We had a problem running your command, but we've been notified")

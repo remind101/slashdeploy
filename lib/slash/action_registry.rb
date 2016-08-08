@@ -16,10 +16,14 @@ module Slash
     def call(env)
       callback_id = env['action'].payload.callback_id
       message_action = MessageAction.find_by_callback_id(callback_id)
-      action = registry[message_action.action]
-      if action
-        env['message_action'] = message_action
-        action.call(env)
+      if message_action
+        action = registry[message_action.action]
+        if action
+          env['message_action'] = message_action
+          action.call(env)
+        else
+          Slash.reply ErrorMessage.build
+        end
       else
         Slash.reply ErrorMessage.build
       end

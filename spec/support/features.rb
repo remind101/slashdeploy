@@ -35,6 +35,41 @@ module Features
     )
   end
 
+  def action(action_value, callback_id, options = {})
+    slack_account = options[:as]
+
+    fail "The :as option expects a SlackAccount to be provided, but you provided a #{slack_account.class}." if slack_account && !slack_account.is_a?(SlackAccount)
+
+    post \
+      '/slack/actions',
+      payload: {
+        actions: [
+          {
+            value: action_value
+          }
+        ],
+        token: Rails.configuration.x.slack.verification_token,
+        callback_id: callback_id,
+        team: {
+          id: slack_account.team_id,
+          domain: slack_account.team_domain
+        },
+        user: {
+          id: slack_account.id,
+          name: slack_account.user_name
+        },
+        channel: {
+          id: 1,
+          name: 'test_channel'
+        }
+      }.to_json
+  end
+
+  def action_response
+    # Same implementation I think
+    command_response
+  end
+
   # Triggers a github event against SlashDeploy.
   def github_event(event, secret, payload = {})
     body = payload.to_json
