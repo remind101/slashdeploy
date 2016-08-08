@@ -11,7 +11,7 @@ module Slash
     end
 
     def empty?
-      payload.callback_id == nil
+      payload.callback_id.nil?
     end
 
     def value

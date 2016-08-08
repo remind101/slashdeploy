@@ -120,27 +120,27 @@ RSpec.feature 'Slash Commands' do
     expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
 
     # Other users shouldn't be able to deploy now.
-    expect(SecureRandom).to receive(:uuid).and_return("a1a111a1-1111-1a1a-a1a1-111aaa111111").at_least(:once)
+    expect(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111').at_least(:once)
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
     expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`.", attachments: [
       Slack::Attachment.new(
         mrkdwn_in: ['text'],
-        callback_id: "a1a111a1-1111-1a1a-a1a1-111aaa111111",
+        callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111',
         color: '#3AA3E3',
         actions: [
           Slack::Attachment::Action.new(
-            name: "yes",
-            text: "Yes",
-            type: "button",
-            style: "primary",
-            value: "yes"),
+            name: 'yes',
+            text: 'Yes',
+            type: 'button',
+            style: 'primary',
+            value: 'yes'),
           Slack::Attachment::Action.new(
-            name: "no",
-            text: "No",
-            type: "button",
-            value: "no")
+            name: 'no',
+            text: 'No',
+            type: 'button',
+            value: 'no')
         ]
       )
     ])
@@ -164,27 +164,27 @@ RSpec.feature 'Slash Commands' do
     expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
 
     # Other users shouldn't be able to deploy now.
-    expect(SecureRandom).to receive(:uuid).and_return("a1a111a1-1111-1a1a-a1a1-111aaa111111").at_least(:once)
+    expect(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111').at_least(:once)
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
     expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\n> I'm testing some stuff\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`.", attachments: [
       Slack::Attachment.new(
         mrkdwn_in: ['text'],
-        callback_id: "a1a111a1-1111-1a1a-a1a1-111aaa111111",
+        callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111',
         color: '#3AA3E3',
         actions: [
           Slack::Attachment::Action.new(
-            name: "yes",
-            text: "Yes",
-            type: "button",
-            style: "primary",
-            value: "yes"),
+            name: 'yes',
+            text: 'Yes',
+            type: 'button',
+            style: 'primary',
+            value: 'yes'),
           Slack::Attachment::Action.new(
-            name: "no",
-            text: "No",
-            type: "button",
-            value: "no")
+            name: 'no',
+            text: 'No',
+            type: 'button',
+            value: 'no')
         ]
       )
     ])
@@ -197,25 +197,25 @@ RSpec.feature 'Slash Commands' do
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: '*staging* is already locked')
 
-    expect(SecureRandom).to receive(:uuid).and_return("a1a111a1-1111-1a1a-a1a1-111aaa111111").at_least(:once)
+    expect(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111').at_least(:once)
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
     expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`.", attachments: [
       Slack::Attachment.new(
         mrkdwn_in: ['text'],
-        callback_id: "a1a111a1-1111-1a1a-a1a1-111aaa111111",
+        callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111',
         color: '#3AA3E3',
         actions: [
           Slack::Attachment::Action.new(
-            name: "yes",
-            text: "Yes",
-            type: "button",
-            style: "primary",
-            value: "yes"),
+            name: 'yes',
+            text: 'Yes',
+            type: 'button',
+            style: 'primary',
+            value: 'yes'),
           Slack::Attachment::Action.new(
-            name: "no",
-            text: "No",
-            type: "button",
-            value: "no")
+            name: 'no',
+            text: 'No',
+            type: 'button',
+            value: 'no')
         ]
       )
     ])

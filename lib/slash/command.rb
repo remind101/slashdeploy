@@ -12,7 +12,8 @@ module Slash
     end
 
     def empty?
-      payload.command == nil
+      # TODO: Check if Virtus has something that checks for all nil
+      payload.command.nil?
     end
 
     def exists?
@@ -20,7 +21,6 @@ module Slash
     end
 
     def ===(other)
-      # TODO check if Virtus has something that checks for all nil
       payload == other.payload
     end
 

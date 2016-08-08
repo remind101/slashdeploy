@@ -17,7 +17,6 @@ module SlashDeploy
   autoload :State,   'slashdeploy/state'
   autoload :Auth, 'slashdeploy/auth'
 
-
   # Returns a Rack app for handling the slack slash commands.
   def self.commands_handler
     handler = SlashCommands.build

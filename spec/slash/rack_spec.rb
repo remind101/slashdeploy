@@ -22,7 +22,7 @@ RSpec.describe Slash::Rack do
             )
           ),
           'action' => nil,
-          'type' => 'cmd',
+          'type' => 'cmd'
         ).and_return(Slash.say(Slack::Message.new(text: 'Hello')))
         status, headers, body = app.call(env)
         expect(status).to eq 200

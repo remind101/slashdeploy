@@ -19,9 +19,8 @@ module Slash
         env['message_action'] = message_action
         action.call(env)
       else
-        # not_found.call(env)
+        Slash.reply ErrorMessage.build
       end
     end
-    
   end
 end

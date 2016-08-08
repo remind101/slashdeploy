@@ -32,11 +32,12 @@ class DeployCommand < BaseCommand
           repository: repo,
           ref: e.ref
       rescue SlashDeploy::EnvironmentLockedError => e
-        message_action = slashdeploy.create_message_action(LockAction, {
+        message_action = slashdeploy.create_message_action(
+          LockAction,
           force: true,
           repository: params['repository'],
           environment: params['environment'],
-          message: params['message']}
+          message: params['message']
         )
         Slash.reply EnvironmentLockedMessage.build \
           environment: env,

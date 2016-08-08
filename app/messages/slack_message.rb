@@ -36,16 +36,16 @@ class SlackMessage
   def confirmation_actions
     [
       Slack::Attachment::Action.new(
-        name: "yes",
-        text: "Yes",
-        type: "button",
-        style: "primary",
-        value: "yes"),
+        name: 'yes',
+        text: 'Yes',
+        type: 'button',
+        style: 'primary',
+        value: 'yes'),
       Slack::Attachment::Action.new(
-        name: "no",
-        text: "No",
-        type: "button",
-        value: "no")
+        name: 'no',
+        text: 'No',
+        type: 'button',
+        value: 'no')
     ]
   end
 
