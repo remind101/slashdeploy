@@ -55,10 +55,8 @@ class SlashCommands
         Slash.reply UnauthorizedMessage.build \
           repository: e.repository
       rescue StandardError => e
-        # TODO: uncoment rollbar, remove raise e if dev?
-        # Rollbar.error(e)
+        Rollbar.error(e)
         raise e if Rails.env.test?
-        raise e if Rails.env.development?
         Slash.reply ErrorMessage.build
       end
     end

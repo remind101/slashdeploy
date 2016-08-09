@@ -12,4 +12,4 @@ addons:
   code_climate:
     repo_token:
       secure: QxWig1BPGKWpKwdHylwi9A/EdsAVkBNRAAXxFTL8K357LWqyq4lS2jUPF3VGn+Vhe3oApQRLZg/qhOCKxOCVOiR5GJaFBtaI3zPDsjmMSd67N2Oh5JIWBiAQ1GanghKIU4P3G+TZI06oZo7MLARRK+Xnbs6FjirFjMPk6r8Fs+dlCg/KEawZpBL+5vT9XPx9VWtSATCE0hg0me5LKCdtJ0CgsxnuAyHz7AP1uRS5sswXPl1Dt1jd2zhj/W3R+qQdqMnVzI2AbDbivfxULuZjQXoEtHfkucYeFGXhiyssNHPVUujFQ10t08F41hEgDJ3qi5DNtTyy+veZP0d/zV5vfoH7MlEA/BTvMtmimwTERibJlKaxfToG8N/jjlNDJwBY3uOtNjoI+bskFas3T5PwmK0cPOfWWxpr2NdWhatTSZ2u7KbhibOeU7mRwYc6y0fqGv2vJHGBYKy0oAKg5l3l36Q1l380VK2+UymEhtUK32vwKFby9n31KWkbBsRUJ9o23LoMsJHCZfI6Hz93zGM0080SZKs79tgMnicfDbsKWS/CS01WQcI+7Aw75F2LcJUaU1IzzvmatxY8QrjgmxAiqlc4Wu++0IZ8bujvmlGwjqhnXLkU/+yvaDnETiT9WQeTSw1LF5WbP1rEla2L4zBNPuaAKsOln1fUgbYV55Qr530=
-  postgresql: "9.2" # json data type was introduced in postgres 9.2
+  postgresql: "9.2" # json data type was introduced in postgres 9.2. Travis default is 9.1

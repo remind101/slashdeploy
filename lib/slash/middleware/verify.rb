@@ -15,9 +15,9 @@ module Slash
       def call(env)
         case env['type']
         when 'cmd'
-          request_token = env['cmd'].payload.token
+          request_token = env['cmd'].token
         when 'action'
-          request_token = env['action'].payload.token
+          request_token = env['action'].token
         end
         if ActiveSupport::SecurityUtils.secure_compare(request_token, token)
           handler.call(env)

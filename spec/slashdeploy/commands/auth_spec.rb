@@ -20,10 +20,20 @@ RSpec.describe SlashDeploy::Auth do
         allow(User).to receive(:find_by_id).and_return(nil)
       end
 
-      it 'responds by asking the user to authenticate' do
-        stub_request(:post, 'http://localhost/')
-          .with(body: { 'text' => "I don't know who you are on GitHub yet. Please <https://github.com/login/oauth/authorize?client_id=client_id&response_type=code&scope=repo_deployment&state=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjpudWxsfQ.3zmU33IdlkHORNs7CcCob6kOme-TI-GY_delFRofJ6g|authenticate> then try again." }.to_json)
-        middleware.call('cmd' => Slash::Command.new(Slash::CommandPayload.new response_url: 'http://localhost/'))
+      context 'when it is a cmd request' do
+        it 'responds by asking the user to authenticate' do
+          stub_request(:post, 'http://localhost/')
+            .with(body: { 'text' => "I don't know who you are on GitHub yet. Please <https://github.com/login/oauth/authorize?client_id=client_id&response_type=code&scope=repo_deployment&state=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjpudWxsfQ.3zmU33IdlkHORNs7CcCob6kOme-TI-GY_delFRofJ6g|authenticate> then try again." }.to_json)
+          middleware.call('cmd' => Slash::Command.new(Slash::CommandPayload.new response_url: 'http://localhost/'), 'type' => 'cmd')
+        end
+      end
+
+      context 'when it is an action request' do
+        it 'responds by asking the user to authenticate' do
+          stub_request(:post, 'http://localhost/')
+            .with(body: { 'text' => "I don't know who you are on GitHub yet. Please <https://github.com/login/oauth/authorize?client_id=client_id&response_type=code&scope=repo_deployment&state=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjpudWxsfQ.3zmU33IdlkHORNs7CcCob6kOme-TI-GY_delFRofJ6g|authenticate> then try again." }.to_json)
+          middleware.call('action' => Slash::Action.new(Slash::ActionPayload.new response_url: 'http://localhost/'), 'type' => 'action')
+        end
       end
     end
   end

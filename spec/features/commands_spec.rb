@@ -252,7 +252,7 @@ RSpec.feature 'Slash Commands' do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
 
-    expect do # Action declined
+    expect do # Decline option was selected
       action 'no', 'a1a111a1-1111-1a1a-a1a1-111aaa111111', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
     expect(action_response.message).to eq Slack::Message.new(text: 'Did not steal lock.')
@@ -265,7 +265,7 @@ RSpec.feature 'Slash Commands' do
     end.to_not change { deployment_requests }
   end
 
-  scenario 'trying to perform an action that does not exist' do
+  scenario 'trying to use a callback_id that does not exist' do
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
 
@@ -281,7 +281,7 @@ RSpec.feature 'Slash Commands' do
       action_params: '{}',
       action: SlashDeploy::Auth.name
     )
-    expect do # Unregistered action
+    expect do
       action 'yes', 'b1b111b1-1111-1b1b-b1b1-111bbb111111', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
     expect(action_response.message).to eq Slack::Message.new(text: "Oops! We had a problem running your command, but we've been notified")

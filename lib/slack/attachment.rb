@@ -36,8 +36,8 @@ module Slack
         attribute :confirm, Confirmation
       end
 
-      # TODO: Need to figure out if there is a way to omit this unless there is a value given
-      # This doesn't work so we are showing the default confirmation options every time
+      # TODO: Slack shows default confirmation options even when this is sent to them as null
+      # Must be completely omitted to not show the confirmation options
       # def to_json
       #   if confirm.nil?
       #     super(:except => :confirm)

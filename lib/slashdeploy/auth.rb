@@ -14,24 +14,18 @@ module SlashDeploy
     def call(env)
       case env['type']
       when 'cmd'
-        user_id = env['cmd'].payload.user_id
-        user_name = env['cmd'].payload.user_name
-        team_id = env['cmd'].payload.team_id
-        team_domain = env['cmd'].payload.team_domain
+        auth_data = env['cmd']
       when 'action'
-        user_id = env['action'].payload.user.id
-        user_name = env['action'].payload.user.name
-        team_id = env['action'].payload.team.id
-        team_domain = env['action'].payload.team.domain
+        auth_data = env['action']
       end
 
       # Attempt to find the user by their slack user id. This is sufficient
       # to authenticate the user, because we're trusting that the request is
       # coming from Slack.
-      user = User.find_by_slack(user_id)
+      user = User.find_by_slack(auth_data.user_id)
       if user
-        team = SlackTeam.find_or_initialize_by(id: team_id) do |t|
-          t.domain = team_domain
+        team = SlackTeam.find_or_initialize_by(id: auth_data.team_id) do |t|
+          t.domain = auth_data.team_domain
         end
         env['user'] = SlackUser.new(user, team)
         handler.call(env)
@@ -41,10 +35,10 @@ module SlashDeploy
         # param so we know what slack user they are when the hit the GitHub
         # callback.
         state = state_encoder.encode(
-          user_id:     user_id,
-          user_name:   user_name,
-          team_id:     team_id,
-          team_domain: team_domain
+          user_id:     auth_data.user_id,
+          user_name:   auth_data.user_name,
+          team_id:     auth_data.team_id,
+          team_domain: auth_data.team_domain
         )
         url = client.auth_code.authorize_url(state: state, scope: 'repo_deployment')
         Slash.reply(Slack::Message.new(text: "I don't know who you are on GitHub yet. Please <#{url}|authenticate> then try again."))

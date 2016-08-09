@@ -12,14 +12,14 @@ module Slash
     # Call parses the slack slash command and calls the handler.
     def call(env)
       cmd = Slash::Command.from_params ::Rack::Request.new(env).POST
-      if cmd.exists?
-        type = 'cmd'
-        action = nil
-      else
+      type = 'cmd'
+      action = nil
+      if cmd.empty?
         type = 'action'
         action_payload = ::Rack::Request.new(env).POST['payload']
         action = Slash::Action.from_params JSON.parse(action_payload) if action_payload
       end
+
       begin
         response = handler.call('cmd' => cmd, 'action' => action, 'type' => type)
         if response

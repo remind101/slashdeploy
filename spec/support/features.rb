@@ -34,6 +34,7 @@ module Features
       in_channel: body['response_type'] == 'in_channel'
     )
   end
+  alias_method :action_response, :command_response
 
   def action(action_value, callback_id, options = {})
     slack_account = options[:as]
@@ -63,11 +64,6 @@ module Features
           name: 'test_channel'
         }
       }.to_json
-  end
-
-  def action_response
-    # Same implementation I think
-    command_response
   end
 
   # Triggers a github event against SlashDeploy.

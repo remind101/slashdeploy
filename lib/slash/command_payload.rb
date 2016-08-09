@@ -1,5 +1,5 @@
 module Slash
-  # CommnadPayload represents an incoming slash command request.
+  # CommandPayload represents an incoming slash command request.
   class CommandPayload
     include Virtus.model
 

@@ -12,12 +12,7 @@ module Slash
     end
 
     def empty?
-      # TODO: Check if Virtus has something that checks for all nil
-      payload.command.nil?
-    end
-
-    def exists?
-      !empty?
+      payload.attributes.all? { |_k, v| v.nil? }
     end
 
     def ===(other)
@@ -32,7 +27,6 @@ module Slash
       nil
     end
 
-    # delegate :token, to: :payload
-    # delegate :user_id, user_name, team_id, team_domain auth.rb
+    delegate :token, :user_id, :user_name, :team_id, :team_domain, to: :payload
   end
 end
