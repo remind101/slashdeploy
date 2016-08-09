@@ -25,6 +25,10 @@ module Slack
           attribute :ok_text, String
           attribute :dismiss_text, String
         end
+
+        def as_json(options = {})
+          super(options).reject { |_k, v| v.nil? }
+        end
       end
 
       values do
@@ -36,15 +40,9 @@ module Slack
         attribute :confirm, Confirmation
       end
 
-      # TODO: Slack shows default confirmation options even when this is sent to them as null
-      # Must be completely omitted to not show the confirmation options
-      # def to_json
-      #   if confirm.nil?
-      #     super(:except => :confirm)
-      #   else
-      #     super
-      #   end
-      # end
+      def as_json(options = {})
+        super(options).reject { |_k, v| v.nil? }
+      end
     end
 
     values do
@@ -66,6 +64,10 @@ module Slack
       attribute :footer, String
       attribute :footer_icon, String
       attribute :ts, Integer
+    end
+
+    def as_json(options = {})
+      super(options).reject { |_k, v| v.nil? }
     end
   end
 end

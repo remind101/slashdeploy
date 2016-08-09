@@ -20,14 +20,13 @@ class BaseAction
     end
   end
 
-  # May want to merge!(message_action.action_params.to_h) into env['params']
   def run
     fail NotImplementedError
   end
 
   private
 
-  # User object
+  # The User object
   def user
     env['user']
   end

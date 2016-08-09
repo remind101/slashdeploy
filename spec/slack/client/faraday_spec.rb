@@ -19,7 +19,7 @@ RSpec.describe Slack::Client::Faraday do
     describe 'when the message has attachements' do
       it 'posts a chat message' do
         stub_request(:post, 'https://slack.com/api/chat.postMessage')
-          .with(body: { 'attachments' => "[{\"mrkdwn_in\":[],\"text\":\"Hello World\",\"fallback\":null,\"callback_id\":null,\"color\":null,\"pretext\":null,\"author_name\":null,\"author_link\":null,\"author_icon\":null,\"title\":null,\"title_link\":null,\"fields\":[],\"actions\":[],\"image_url\":null,\"thumb_url\":null,\"footer\":null,\"footer_icon\":null,\"ts\":null}]", 'channel' => 'U123BC2BD', 'text' => '', 'token' => 'access_token' })
+          .with(body: { 'attachments' => "[{\"mrkdwn_in\":[],\"text\":\"Hello World\",\"fields\":[],\"actions\":[]}]", 'channel' => 'U123BC2BD', 'text' => '', 'token' => 'access_token' })
           .to_return(status: 200, body: '{"ok":true}', headers: { 'Content-Type' => 'application/json' })
         message = Slack::Message.new attachments: [Slack::Attachment.new(text: 'Hello World')]
         client.direct_message(slack_account, message)
