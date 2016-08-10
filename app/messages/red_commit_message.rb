@@ -1,7 +1,7 @@
 class RedCommitMessage < SlackMessage
   values do
     attribute :failing_contexts, Array[CommitStatusContext]
-    attribute :request, Slash::Request
+    attribute :command_payload, Slash::CommandPayload
   end
 
   def to_message

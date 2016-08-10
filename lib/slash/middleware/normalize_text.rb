@@ -9,7 +9,7 @@ module Slash
 
       def call(env)
         cmd = env['cmd']
-        cmd.request.text = cmd.request.text.squeeze(' ').strip
+        cmd.payload.text = cmd.payload.text.squeeze(' ').strip
         @handler.call(env)
       end
     end

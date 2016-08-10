@@ -1,6 +1,6 @@
-# BaseCommand is a base command for other commands to inherit from. Commands
+# BaseAction is a base action for other actions to inherit from. Actions
 # should implement the `run` method.
-class BaseCommand
+class BaseAction
   attr_reader :env
   attr_reader :slashdeploy
 
@@ -15,7 +15,7 @@ class BaseCommand
 
   def call
     logger.with_module(self.class) do
-      logger.info('running command')
+      logger.info('running action')
       run
     end
   end
@@ -26,16 +26,19 @@ class BaseCommand
 
   private
 
+  # The User object
   def user
     env['user']
   end
 
-  def cmd
-    env['cmd']
+  # The Slash::Action object
+  def action
+    env['action']
   end
 
-  def command_payload
-    cmd.payload
+  # The MessageAction object
+  def message_action
+    env['message_action']
   end
 
   def params

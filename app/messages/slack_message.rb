@@ -33,6 +33,22 @@ class SlackMessage
     view.render(file: file).strip
   end
 
+  def confirmation_actions
+    [
+      Slack::Attachment::Action.new(
+        name: 'yes',
+        text: 'Yes',
+        type: 'button',
+        style: 'primary',
+        value: 'yes'),
+      Slack::Attachment::Action.new(
+        name: 'no',
+        text: 'No',
+        type: 'button',
+        value: 'no')
+    ]
+  end
+
   def slack_user(user)
     SlackUser.new(user, slack_team)
   end

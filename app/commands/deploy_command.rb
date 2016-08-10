@@ -22,21 +22,29 @@ class DeployCommand < BaseCommand
       rescue SlashDeploy::EnvironmentAutoDeploys
         Slash.reply AutoDeploymentConfiguredMessage.build \
           environment: env,
-          request: request
+          command_payload: command_payload
       rescue GitHub::RedCommitError => e
         Slash.reply RedCommitMessage.build \
           failing_contexts: e.failing_contexts,
-          request: request
+          command_payload: command_payload
       rescue GitHub::BadRefError => e
         Slash.reply BadRefMessage.build \
           repository: repo,
           ref: e.ref
       rescue SlashDeploy::EnvironmentLockedError => e
+        message_action = slashdeploy.create_message_action(
+          LockAction,
+          force: true,
+          repository: params['repository'],
+          environment: params['environment'],
+          message: params['message']
+        )
         Slash.reply EnvironmentLockedMessage.build \
           environment: env,
           lock: e.lock,
           slack_team: user.slack_team,
-          request: request
+          message_action: message_action,
+          command_payload: command_payload
       end
     end
   end

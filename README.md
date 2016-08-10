@@ -35,8 +35,8 @@ And more at <https://slashdeploy.io/docs>.
 ### Using ngrok
 
 1. Install [ngrok](https://ngrok.com/) and run `./ngrok http 3000`
-2. Create a [Slack App](https://api.slack.com/apps/new) and set your Slack Redirect URI to `http://xxx.ngrok.io/auth/slack/callback`
-3. Listen to `/deploy` commands by setting the Request URL to `https://xxx.ngrok.io/commands`
+2. Create a [Slack App](https://api.slack.com/apps/new), set your Slack Redirect URI to `http://xxx.ngrok.io/auth/slack/callback` and set your Interactive Messages Request URL to `https://xxx.ngrok.io/slack/actions`
+3. Listen to `/deploy` commands by setting the Request URL to `https://xxx.ngrok.io/slack/commands`
 4. Register a new [Github OAuth application](https://github.com/settings/applications/new)
 5. Set your Github Authorization callback URL to `http://xxx.ngrok.io/auth/github/callback`
 6. Using Slack and Github app credentials, set the following environment variables in a `.env` file:

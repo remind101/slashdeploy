@@ -7,7 +7,7 @@ RSpec.describe Slash::Middleware::Verify do
     context 'when the token matches' do
       it 'calls the handler' do
         h = described_class.new handler, 'secret'
-        env = { 'cmd' => Slash::Command.from_params('token' => 'secret') }
+        env = { 'cmd' => Slash::Command.from_params('token' => 'secret'), 'type' => 'cmd' }
 
         expect(handler).to receive(:call).with(env)
         h.call(env)
@@ -17,7 +17,7 @@ RSpec.describe Slash::Middleware::Verify do
     context 'when the token does not match' do
       it 'raises' do
         h = described_class.new handler, 'secret'
-        env = { 'cmd' => Slash::Command.from_params('token' => 'l33thacks') }
+        env = { 'cmd' => Slash::Command.from_params('token' => 'l33thacks'), 'type' => 'cmd' }
 
         expect(handler).to_not receive(:call).with(env)
         expect { h.call(env) }.to raise_error Slash::UnverifiedError

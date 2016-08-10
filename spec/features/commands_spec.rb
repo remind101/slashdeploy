@@ -120,10 +120,11 @@ RSpec.feature 'Slash Commands' do
     expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
 
     # Other users shouldn't be able to deploy now.
+    expect(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111').at_least(:once)
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`.")
+    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\nSteal the lock?", attachments: steal_lock_attachments('a1a111a1-1111-1a1a-a1a1-111aaa111111'))
 
     # But david should be able to deploy.
     expect do
@@ -144,10 +145,11 @@ RSpec.feature 'Slash Commands' do
     expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
 
     # Other users shouldn't be able to deploy now.
+    expect(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111').at_least(:once)
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\n> I'm testing some stuff\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`.")
+    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\n> I'm testing some stuff\nSteal the lock?", attachments: steal_lock_attachments('a1a111a1-1111-1a1a-a1a1-111aaa111111'))
   end
 
   scenario 'stealing a lock' do
@@ -157,16 +159,16 @@ RSpec.feature 'Slash Commands' do
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: '*staging* is already locked')
 
-    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
-    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\nYou can steal the lock with `/deploy lock staging on acme-inc/api!`.")
-
+    allow(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111')
     expect do
-      command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
+      command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
+    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\nSteal the lock?", attachments: steal_lock_attachments('a1a111a1-1111-1a1a-a1a1-111aaa111111'))
 
     command '/deploy lock staging on acme-inc/api!', as: slack_accounts(:steve)
     expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api (stolen from <@david>)')
 
+    allow(SecureRandom).to receive(:uuid).and_return('b1b111b1-1111-1b1b-b1b1-111bbb111111')
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
@@ -234,6 +236,58 @@ RSpec.feature 'Slash Commands' do
     end.to change { deployment_requests.count }.by(1)
   end
 
+  scenario 'stealing a lock by action' do
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
+
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: '*staging* is already locked')
+
+    allow(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111')
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
+    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\nSteal the lock?", attachments: steal_lock_attachments('a1a111a1-1111-1a1a-a1a1-111aaa111111'))
+
+    allow(SecureRandom).to receive(:uuid).and_return('b1b111b1-1111-1b1b-b1b1-111bbb111111')
+    expect do
+      command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
+    end.to_not change { deployment_requests }
+
+    expect do # Decline option was selected
+      action 'no', 'a1a111a1-1111-1a1a-a1a1-111aaa111111', as: slack_accounts(:steve)
+    end.to_not change { deployment_requests }
+    expect(action_response.message).to eq Slack::Message.new(text: 'Did not steal lock.')
+
+    action 'yes', 'a1a111a1-1111-1a1a-a1a1-111aaa111111', as: slack_accounts(:steve)
+    expect(action_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api (stolen from <@david>)')
+
+    allow(SecureRandom).to receive(:uuid).and_return('c1c111c1-1111-1c1c-c1c1-111ccc111111')
+    expect do
+      command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
+    end.to_not change { deployment_requests }
+  end
+
+  scenario 'trying to use a callback_id that does not exist' do
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
+
+    expect do
+      action 'yes', 'b1b111b1-1111-1b1b-b1b1-111bbb111111', as: slack_accounts(:steve)
+    end.to_not change { deployment_requests }
+    expect(action_response.message).to eq Slack::Message.new(text: "Oops! We had a problem running your command, but we've been notified")
+  end
+
+  scenario 'trying to perform an action that is not whitelisted' do
+    MessageAction.create!(
+      callback_id: 'b1b111b1-1111-1b1b-b1b1-111bbb111111',
+      action_params: '{}',
+      action: SlashDeploy::Auth.name
+    )
+    expect do
+      action 'yes', 'b1b111b1-1111-1b1b-b1b1-111bbb111111', as: slack_accounts(:steve)
+    end.to_not change { deployment_requests }
+    expect(action_response.message).to eq Slack::Message.new(text: "Oops! We had a problem running your command, but we've been notified")
+  end
+
   xscenario 'debugging exception tracking' do
     command '/deploy boom', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: "Oops! We had a problem running your command, but we've been notified")
@@ -250,5 +304,28 @@ RSpec.feature 'Slash Commands' do
   # rubocop:disable Style/MethodName
   def HEAD(repository, ref, sha)
     github.HEAD(repository, ref, sha)
+  end
+
+  def steal_lock_attachments(callback_id)
+    [
+      Slack::Attachment.new(
+        mrkdwn_in: ['text'],
+        callback_id: callback_id,
+        color: '#3AA3E3',
+        actions: [
+          Slack::Attachment::Action.new(
+            name: 'yes',
+            text: 'Yes',
+            type: 'button',
+            style: 'primary',
+            value: 'yes'),
+          Slack::Attachment::Action.new(
+            name: 'no',
+            text: 'No',
+            type: 'button',
+            value: 'no')
+        ]
+      )
+    ]
   end
 end

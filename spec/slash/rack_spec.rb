@@ -15,12 +15,14 @@ RSpec.describe Slash::Rack do
         )
         expect(handler).to receive(:call).with(
           'cmd' => Slash::Command.new(
-            Slash::Request.new(
+            Slash::CommandPayload.new(
               command: '/deploy',
               text: 'thing',
               token: 'foo'
             )
-          )
+          ),
+          'action' => nil,
+          'type' => 'cmd'
         ).and_return(Slash.say(Slack::Message.new(text: 'Hello')))
         status, headers, body = app.call(env)
         expect(status).to eq 200
