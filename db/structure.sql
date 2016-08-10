@@ -392,6 +392,14 @@ ALTER TABLE ONLY locks
 
 
 --
+-- Name: message_actions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY message_actions
+    ADD CONSTRAINT message_actions_pkey PRIMARY KEY (callback_id);
+
+
+--
 -- Name: repositories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -492,7 +500,7 @@ CREATE INDEX index_locks_on_environment_id ON locks USING btree (environment_id)
 -- Name: index_message_actions_on_callback_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_message_actions_on_callback_id ON message_actions USING btree (callback_id);
+CREATE UNIQUE INDEX index_message_actions_on_callback_id ON message_actions USING btree (callback_id);
 
 
 --

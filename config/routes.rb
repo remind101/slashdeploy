@@ -9,6 +9,9 @@ Rails.application.routes.draw do
   # Docs
   get '/docs' => 'documentation#index', as: :documentation
 
+  # For backwards compatibility
+  mount SlashDeploy.slack_commands, at: '/commands'
+
   mount SlashDeploy.slack_commands, at: '/slack/commands'
   mount SlashDeploy.slack_actions, at: '/slack/actions'
   post '/', to: SlashDeploy.github_webhooks, constraints: Hookshot.constraint
