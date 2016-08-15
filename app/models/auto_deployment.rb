@@ -11,14 +11,18 @@ class AutoDeployment < ActiveRecord::Base
   scope :active, -> { where(active: true) }
   scope :inactive, -> { where(active: false) }
 
-  # Marks this auto deployment as cancelled and deactivates it.
-  def cancel!
-    update_attributes!(active: false)
-  end
+  # Returns auto deployments that are older than the given auto deployment.
+  scope :older_than, -> (auto_deployment) { where(arel_table[:id].lt(auto_deployment.id)) }
 
-  # Marks this auto deployment as done and deactivates it.
+  # Marks this auto deployment as done and deactivates it, as well as any auto
+  # deployments to the environment that are older than this (which should be
+  # considered obsolete).
   def done!
-    update_attributes!(active: false)
+    transaction do
+      update_attributes!(active: false)
+      obsolete_auto_deployments = environment.auto_deployments.older_than(self).active
+      obsolete_auto_deployments.update_all(active: false)
+    end
   end
 
   # Records the contexts new state.

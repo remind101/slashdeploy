@@ -29,18 +29,6 @@ module SlashDeploy
     #
     # Returns an AutoDeployment.
     def create_auto_deployment(environment, sha, user)
-      existing = environment.active_auto_deployment
-      if existing
-        # This can happen if the user triggers the webhook manually.
-        return existing if existing.sha == sha
-
-        # If this environment has an existing active auto deployment, we'll
-        # cancel it before starting this auto deployment. We do this to prevent
-        # race conditions where commit status events for an older auto deployment
-        # could come in late.
-        existing.cancel!
-      end
-
       auto_deployment = environment.auto_deployments.create! user: user, sha: sha
       if auto_deployment.ready?
         auto_deploy auto_deployment
