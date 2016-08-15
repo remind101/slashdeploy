@@ -45,11 +45,6 @@ class Environment < ActiveRecord::Base
     active_lock.present?
   end
 
-  # Returns the currently active auto deployment, if there is one.
-  def active_auto_deployment
-    auto_deployments.active.first
-  end
-
   # Override the aliases setter to filter out aliases that match the name of
   # the environment.
   def aliases=(aliases)

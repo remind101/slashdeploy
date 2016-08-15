@@ -507,13 +507,6 @@ CREATE UNIQUE INDEX locked_environment ON locks USING btree (environment_id) WHE
 
 
 --
--- Name: unique_auto_deployment_per_environment; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE UNIQUE INDEX unique_auto_deployment_per_environment ON auto_deployments USING btree (environment_id) WHERE active;
-
-
---
 -- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -627,4 +620,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160609042717');
 INSERT INTO schema_migrations (version) VALUES ('20160725205816');
 
 INSERT INTO schema_migrations (version) VALUES ('20160727164721');
+
+INSERT INTO schema_migrations (version) VALUES ('20160815212720');
 

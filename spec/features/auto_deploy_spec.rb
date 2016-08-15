@@ -119,26 +119,77 @@ RSpec.feature 'Auto Deployment' do
     environment.required_contexts = ['ci/circleci', 'security/brakeman']
     environment.configure_auto_deploy('refs/heads/master')
 
+    commits = {
+      # Commit #1
+      a: '595ebd4ca061c4671ba89202aaf19c896f216635',
+      # Commit #2
+      b: '819d3357224b257d3589c49f82dae95b761f210a',
+      # Commit #3
+      c: '364d2a5e074c64b0dc1fe5cba2f428146d154a32'
+    }
+
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david),
-      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@595ebd4 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
-    push_event 'secret', sender: { id: github_accounts(:david).id }
-    status_event 'secret', context: 'ci/circleci', state: 'success'
-
-    expect(slack).to receive(:direct_message).with \
-      slack_accounts(:david),
-      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@ac5b9fd to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
-
-    # Push event for new commit (but same ref).
+    # This will simulate the first commit. The auto deployment for this will
+    # eventually get canceled, because the commit status contexts are slow.
     push_event 'secret', head_commit: {
-      id: 'ac5b9fd6a09a983a3091d4e8292dc32c'
+      id: commits[:a]
     }, sender: {
       id: github_accounts(:david).id
     }
 
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david),
+      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@819d335 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+
+    # Push the second commit
+    push_event 'secret', head_commit: {
+      id: commits[:b]
+    }, sender: { id: github_accounts(:david).id }
+
+    # Tests start passing on the second commit.
+    status_event 'secret', sha: commits[:b], context: 'ci/circleci', state: 'success'
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david),
+      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@364d2a5 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+
+    # Push the third commit.
+    push_event 'secret', head_commit: {
+      id: commits[:c]
+    }, sender: {
+      id: github_accounts(:david).id
+    }
+
+    # security/brakemen passes on second commit, triggers a deploy.
+    expect(github).to receive(:create_deployment).with(
+      users(:david),
+      DeploymentRequest.new(
+        repository: 'baxterthehacker/public-repo',
+        ref: commits[:b],
+        environment: 'production'
+      )
+    )
+    status_event 'secret', sha: commits[:b], context: 'security/brakeman', state: 'success'
+
+    # Everything passes on the third commit and triggers a deploy.
+    expect(github).to receive(:create_deployment).with(
+      users(:david),
+      DeploymentRequest.new(
+        repository: 'baxterthehacker/public-repo',
+        ref: commits[:c],
+        environment: 'production'
+      )
+    )
+    status_event 'secret', sha: commits[:c], context: 'ci/circleci', state: 'success'
+    status_event 'secret', sha: commits[:c], context: 'security/brakeman', state: 'success'
+
+    # Commit statuses finally come in for the first commit, but since the second commit was already deployed, it's a noop.
     expect(github).to_not receive(:create_deployment)
-    status_event 'secret', context: 'security/brakeman', state: 'success'
+    status_event 'secret', sha: commits[:a], context: 'ci/circleci', state: 'success'
+    status_event 'secret', sha: commits[:a], context: 'security/brakeman', state: 'success'
   end
 
   scenario 'receiving a `push` event for a deleted branch' do
