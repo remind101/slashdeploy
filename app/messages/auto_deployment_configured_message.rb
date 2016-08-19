@@ -7,7 +7,7 @@ class AutoDeploymentConfiguredMessage < SlackMessage
   def to_message
     Slack::Message.new text: text, attachments: [
       Slack::Attachment.new(
-        title: 'Ignore and deploy anyway?',
+        title: 'Deploy anyway?',
         callback_id: message_action.callback_id,
         color: '#3AA3E3',
         actions: SlackMessage.confirmation_actions
