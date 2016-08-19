@@ -250,7 +250,7 @@ RSpec.feature 'Slash Commands' do
 
     expect(command_response.message).to eq Slack::Message.new(text: 'acme-inc/api is configured to automatically deploy `refs/heads/master` to *production*.', attachments: [
       Slack::Attachment.new(
-        title: 'Ignore and deploy anyway?',
+        title: 'Deploy anyway?',
         callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111',
         color: '#3AA3E3',
         actions: SlackMessage.confirmation_actions
@@ -275,7 +275,7 @@ RSpec.feature 'Slash Commands' do
 
     expect(command_response.message).to eq Slack::Message.new(text: 'acme-inc/api is configured to automatically deploy `refs/heads/master` to *production*.', attachments: [
       Slack::Attachment.new(
-        title: 'Ignore and deploy anyway?',
+        title: 'Deploy anyway?',
         callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111',
         color: '#3AA3E3',
         actions: SlackMessage.confirmation_actions
