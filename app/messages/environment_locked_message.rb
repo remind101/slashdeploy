@@ -9,7 +9,7 @@ class EnvironmentLockedMessage < SlackMessage
   def to_message
     Slack::Message.new text: text(locker: locker), attachments: [
       Slack::Attachment.new(
-        mrkdwn_in: ['text'],
+        title: 'Steal the lock?',
         callback_id: message_action.callback_id,
         color: '#3AA3E3',
         actions: confirmation_actions
