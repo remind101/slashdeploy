@@ -8,4 +8,8 @@ class Lock < ActiveRecord::Base
   def unlock!
     update_attributes!(active: false)
   end
+
+  def repository
+    environment.repository
+  end
 end
