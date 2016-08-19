@@ -32,8 +32,7 @@ class LockCommand < BaseCommand
           environment:     env,
           lock:            e.lock,
           slack_team:      user.slack_team,
-          message_action:  message_action,
-          command_payload: command_payload
+          message_action:  message_action
       end
     end
   end

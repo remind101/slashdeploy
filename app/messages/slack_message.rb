@@ -33,7 +33,7 @@ class SlackMessage
     view.render(file: file).strip
   end
 
-  def confirmation_actions
+  def self.confirmation_actions
     [
       Slack::Attachment::Action.new(
         name: 'yes',

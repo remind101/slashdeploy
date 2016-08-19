@@ -3,7 +3,6 @@ class EnvironmentLockedMessage < SlackMessage
     attribute :environment, Environment
     attribute :lock, Lock
     attribute :message_action, MessageAction
-    attribute :command_payload, Slash::CommandPayload
   end
 
   def to_message
@@ -12,7 +11,7 @@ class EnvironmentLockedMessage < SlackMessage
         title: 'Steal the lock?',
         callback_id: message_action.callback_id,
         color: '#3AA3E3',
-        actions: confirmation_actions
+        actions: SlackMessage.confirmation_actions
       )
     ]
   end

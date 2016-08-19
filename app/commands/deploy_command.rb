@@ -20,13 +20,21 @@ class DeployCommand < BaseCommand
           last_deployment: resp.last_deployment
         respond env.in_channel?, m
       rescue SlashDeploy::EnvironmentAutoDeploys
+        message_action = slashdeploy.create_message_action(
+          DeployAction,
+          params.merge('force' => true)
+        )
         Slash.reply AutoDeploymentConfiguredMessage.build \
           environment: env,
-          command_payload: command_payload
+          message_action: message_action
       rescue GitHub::RedCommitError => e
+        message_action = slashdeploy.create_message_action(
+          DeployAction,
+          params.merge('force' => true)
+        )
         Slash.reply RedCommitMessage.build \
           failing_contexts: e.failing_contexts,
-          command_payload: command_payload
+          message_action: message_action
       rescue GitHub::BadRefError => e
         Slash.reply BadRefMessage.build \
           repository: repo,
@@ -43,8 +51,7 @@ class DeployCommand < BaseCommand
           environment: env,
           lock: e.lock,
           slack_team: user.slack_team,
-          message_action: message_action,
-          command_payload: command_payload
+          message_action: message_action
       end
     end
   end

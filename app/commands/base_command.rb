@@ -34,10 +34,6 @@ class BaseCommand
     env['cmd']
   end
 
-  def command_payload
-    cmd.payload
-  end
-
   def params
     env['params']
   end
