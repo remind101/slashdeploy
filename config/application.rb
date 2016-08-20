@@ -65,26 +65,29 @@ module SlashDeploy
     # commands actually came from Slack.
     config.x.slack.verification_token = ENV['SLACK_VERIFICATION_TOKEN']
 
-    # A random secret used to sign the `state` param in oauth urls.
-    config.x.state_key = ENV['STATE_KEY']
+    # A random secret used to sign JWT based logins.
+    jwt_secret = ENV['STATE_KEY']
+    config.x.state_key = jwt_secret
 
-    # OAuth2 Clients
-    require 'oauth2'
-    config.x.oauth.github = OAuth2::Client.new(
-      ENV['GITHUB_CLIENT_ID'],
-      ENV['GITHUB_CLIENT_SECRET'],
-      site: 'https://api.github.com',
-      authorize_url: 'https://github.com/login/oauth/authorize',
-      token_url: 'https://github.com/login/oauth/access_token'
-    )
-    config.x.oauth.slack = OAuth2::Client.new(
-      ENV['SLACK_CLIENT_ID'],
-      ENV['SLACK_CLIENT_SECRET'],
-      site: 'https://slack.com',
-      authorize_url: 'https://slack.com/oauth/authorize',
-      token_url: 'https://slack.com/api/oauth.access'
-    )
+    require 'omniauth/strategies/jwt'
+    config.middleware.use OmniAuth::Builder do
+      provider \
+        :github,
+        ENV['GITHUB_CLIENT_ID'],
+        ENV['GITHUB_CLIENT_SECRET'],
+        scope: 'repo_deployment'
+      provider \
+        :slack,
+        ENV['SLACK_CLIENT_ID'],
+        ENV['SLACK_CLIENT_SECRET'],
+        scope: 'identify',
+        setup: lambda { |env|
+          request = Rack::Request.new(env)
+          env['omniauth.strategy'].options[:scope] = request.params['scope'] if request.params['scope'].present?
+        }
+      provider \
+        :jwt,
+        jwt_secret
+    end
   end
 end
-
-require 'slashdeploy'

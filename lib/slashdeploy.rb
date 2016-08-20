@@ -14,7 +14,6 @@ module SlashDeploy
   GITHUB_REPO_REGEX = %r{([\w\-]+)\/([\w\-]+)}
 
   autoload :Service, 'slashdeploy/service'
-  autoload :State,   'slashdeploy/state'
   autoload :Auth, 'slashdeploy/auth'
 
   # Returns a Rack app for handling the slack slash commands.
@@ -25,7 +24,7 @@ module SlashDeploy
     handler = Slash::Middleware::Logging.new(handler)
 
     # Ensure that users are authorized
-    handler = Auth.new(handler, Rails.configuration.x.oauth.github, ::SlashDeploy.state)
+    handler = Auth.new(handler, Rails.configuration.x.state_key)
 
     # Strip extra whitespace from the text.
     handler = Slash::Middleware::NormalizeText.new(handler)
@@ -46,7 +45,7 @@ module SlashDeploy
     handler = Slash::Middleware::Logging.new(handler)
 
     # Ensure that users are authorized
-    handler = Auth.new(handler, Rails.configuration.x.oauth.github, ::SlashDeploy.state)
+    handler = Auth.new(handler, Rails.configuration.x.state_key)
 
     # Verify that the slash command came from slack.
     Slash::Middleware::Verify.new(handler, Rails.configuration.x.slack.verification_token)
