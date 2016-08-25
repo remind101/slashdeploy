@@ -4,12 +4,16 @@ class DeploymentStatusEvent < GitHubEventHandler
     return logger.info('no matching github user') unless user
     return logger.info('user does not have slack notifications enabled') unless user.slack_notifications?
     slashdeploy.direct_message \
-      user,
+      user.slack_account_for_github_organization(organization),
       GitHubDeploymentStatusMessage,
       event: event
   end
 
   private
+
+  def organization
+    event['repository']['owner']['login']
+  end
 
   def user
     @user ||= User.find_by_github_account_id(event['deployment']['creator']['id'])

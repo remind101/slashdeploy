@@ -20,7 +20,7 @@ RSpec.describe 'GitHub Webhooks' do
       users(:david).enable_slack_notifications!
 
       expect(slack).to receive(:direct_message).with(
-        slack_accounts(:david),
+        slack_accounts(:david_baxterthehacker),
         Slack::Message.new(attachments: [
           Slack::Attachment.new(
             color: '#ff0',
@@ -42,7 +42,7 @@ RSpec.describe 'GitHub Webhooks' do
         }
 
       expect(slack).to receive(:direct_message).with(
-        slack_accounts(:david),
+        slack_accounts(:david_baxterthehacker),
         Slack::Message.new(attachments: [
           Slack::Attachment.new(
             color: '#0f0',

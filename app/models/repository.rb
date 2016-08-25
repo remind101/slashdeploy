@@ -30,6 +30,12 @@ class Repository < ActiveRecord::Base
     environments.find { |env| env.auto_deploy?(ref) }
   end
 
+  # Returns the organization portion of the repository name.
+  def organization
+    matches = SlashDeploy::GITHUB_REPO_REGEX.match(name)
+    matches[1]
+  end
+
   def to_s
     name
   end

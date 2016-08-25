@@ -1,5 +1,8 @@
 acme:
   domain: "acme"
   github_organization: "acme-inc"
+baxterthehacker:
+  domain: "baxterthehacker"
+  github_organization: "baxterthehacker"
 skynet:
   domain: "skynet"

@@ -67,4 +67,12 @@ class User < ActiveRecord::Base
   def octokit_client
     @client ||= Octokit::Client.new(access_token: github_token)
   end
+
+  # Returns the SlackAccount that should be used when sending direct messages
+  # related to the GitHub organization.
+  #
+  # Returns nil if no matching account is found.
+  def slack_account_for_github_organization(organization)
+    slack_accounts.find { |account| account.github_organization == organization }
+  end
 end

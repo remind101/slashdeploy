@@ -3,6 +3,10 @@ class SlackAccount < ActiveRecord::Base
   belongs_to :user
   belongs_to :slack_team
 
+  def github_organization
+    slack_team.github_organization
+  end
+
   def team_id
     slack_team.id
   end

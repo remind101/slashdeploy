@@ -77,7 +77,7 @@ RSpec.feature 'Auto Deployment' do
     environment.configure_auto_deploy('refs/heads/master')
 
     expect(slack).to receive(:direct_message).with \
-      slack_accounts(:david),
+      slack_accounts(:david_baxterthehacker),
       Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
@@ -104,7 +104,7 @@ RSpec.feature 'Auto Deployment' do
     expect(github).to_not receive(:create_deployment)
 
     expect(slack).to receive(:direct_message).with \
-      slack_accounts(:david),
+      slack_accounts(:david_baxterthehacker),
       Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
@@ -129,7 +129,7 @@ RSpec.feature 'Auto Deployment' do
     }
 
     expect(slack).to receive(:direct_message).with \
-      slack_accounts(:david),
+      slack_accounts(:david_baxterthehacker),
       Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@595ebd4 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     # This will simulate the first commit. The auto deployment for this will
@@ -141,7 +141,7 @@ RSpec.feature 'Auto Deployment' do
     }
 
     expect(slack).to receive(:direct_message).with \
-      slack_accounts(:david),
+      slack_accounts(:david_baxterthehacker),
       Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@819d335 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     # Push the second commit
@@ -153,7 +153,7 @@ RSpec.feature 'Auto Deployment' do
     status_event 'secret', sha: commits[:b], context: 'ci/circleci', state: 'success'
 
     expect(slack).to receive(:direct_message).with \
-      slack_accounts(:david),
+      slack_accounts(:david_baxterthehacker),
       Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@364d2a5 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     # Push the third commit.

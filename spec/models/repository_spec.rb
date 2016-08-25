@@ -9,6 +9,13 @@ RSpec.describe Repository, type: :model do
     end
   end
 
+  describe '#organization' do
+    it 'returns the organization' do
+      repo = Repository.new(name: 'ejholmes/foo')
+      expect(repo.organization).to eq 'ejholmes'
+    end
+  end
+
   describe '#environment' do
     context 'when given and environment name' do
       it 'returns the environment with that name' do

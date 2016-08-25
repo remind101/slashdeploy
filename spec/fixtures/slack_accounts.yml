@@ -3,6 +3,11 @@ david:
   id: "U012AB1AB"
   user_name: david
   slack_team: acme
+david_baxterthehacker:
+  user: david
+  id: "U012AB1AC"
+  user_name: david
+  slack_team: baxterthehacker
 steve:
   user: steve
   id: "U123BC2BD"

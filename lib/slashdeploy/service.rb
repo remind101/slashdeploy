@@ -14,11 +14,9 @@ module SlashDeploy
     end
 
     # Sends a direct message to all of the users slack accounts.
-    def direct_message(user, klass, attributes = {})
-      user.slack_accounts.each do |account|
-        message = klass.build attributes.merge(account: account)
-        slack.direct_message(account, message)
-      end
+    def direct_message(account, klass, attributes = {})
+      message = klass.build attributes.merge(account: account)
+      slack.direct_message(account, message)
     end
 
     # Creates a new AutoDeployment for the given sha.
@@ -33,7 +31,7 @@ module SlashDeploy
       if auto_deployment.ready?
         auto_deploy auto_deployment
       else
-        direct_message user, AutoDeploymentCreatedMessage, auto_deployment: auto_deployment
+        direct_message user.slack_account_for_github_organization(environment.repository.organization), AutoDeploymentCreatedMessage, auto_deployment: auto_deployment
       end
       auto_deployment
     end

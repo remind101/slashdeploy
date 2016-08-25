@@ -11,7 +11,7 @@ require 'slashdeploy/errors'
 module SlashDeploy
   # Matches a GitHub repo
   # http://rubular.com/r/W1ebnRsMEh
-  GITHUB_REPO_REGEX = %r{[\w\-]+\/[\w\-]+}
+  GITHUB_REPO_REGEX = %r{([\w\-]+)\/([\w\-]+)}
 
   autoload :Service, 'slashdeploy/service'
   autoload :State,   'slashdeploy/state'
