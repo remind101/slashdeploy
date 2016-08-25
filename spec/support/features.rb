@@ -5,7 +5,7 @@ module Features
   include Rack::Test::Methods
 
   def app
-    SlashDeploy.app
+    Rails.application
   end
 
   # Runs a / command as the given slack account.

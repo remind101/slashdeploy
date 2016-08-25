@@ -62,17 +62,5 @@ module SlashDeploy
     def service
       @service ||= Service.new
     end
-
-    def github_webhooks
-      router = Hookshot::Router.new
-      router.handle :push,              PushEvent
-      router.handle :status,            StatusEvent
-      router.handle :deployment_status, DeploymentStatusEvent
-      router
-    end
-
-    def app
-      Rails.application
-    end
   end
 end

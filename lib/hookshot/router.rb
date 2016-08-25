@@ -13,6 +13,12 @@ module Hookshot
     # Rack app that gets called when a handler is not found.
     attr_accessor :not_found
 
+    def self.build(&block)
+      new.tap do |router|
+        router.instance_eval(&block)
+      end
+    end
+
     def apps
       @apps ||= {}
     end

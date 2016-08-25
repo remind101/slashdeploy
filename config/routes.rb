@@ -14,7 +14,14 @@ Rails.application.routes.draw do
 
   mount SlashDeploy.slack_commands, at: '/slack/commands'
   mount SlashDeploy.slack_actions, at: '/slack/actions'
-  post '/', to: SlashDeploy.github_webhooks, constraints: Hookshot.constraint
+
+  # GitHub
+  github_webhooks = Hookshot::Router.build do
+    handle :push,              PushEvent
+    handle :status,            StatusEvent
+    handle :deployment_status, DeploymentStatusEvent
+  end
+  post '/', to: github_webhooks, constraints: Hookshot.constraint
 
   root 'pages#index'
   # The priority is based upon order of creation: first created -> highest priority.
