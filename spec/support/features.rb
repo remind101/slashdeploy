@@ -1,6 +1,6 @@
 # This module gets included into full stack feature specs in spec/features.
 module Features
-  GITHUB_EVENTS = %i(status push deployment_status)
+  GITHUB_EVENTS = %i(status push deployment_status deployment)
 
   include Rack::Test::Methods
 

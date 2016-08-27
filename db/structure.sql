@@ -181,7 +181,8 @@ CREATE TABLE repositories (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     default_environment character varying,
-    github_secret character varying NOT NULL
+    github_secret character varying NOT NULL,
+    circleci_api_token character varying
 );
 
 
@@ -652,4 +653,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160727164721');
 INSERT INTO schema_migrations (version) VALUES ('20160804213314');
 
 INSERT INTO schema_migrations (version) VALUES ('20160815212720');
+
+INSERT INTO schema_migrations (version) VALUES ('20160825023722');
 

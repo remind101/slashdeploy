@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   github_webhooks = Hookshot::Router.build do
     handle :push,              PushEvent
     handle :status,            StatusEvent
+    handle :deployment,        DeploymentEvent
     handle :deployment_status, DeploymentStatusEvent
   end
   post '/', to: github_webhooks, constraints: Hookshot.constraint

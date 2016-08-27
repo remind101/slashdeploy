@@ -36,6 +36,16 @@ class Repository < ActiveRecord::Base
     matches[1]
   end
 
+  # Returns true if the repository is configured to deploy to the given target.
+  def deploy_to?(target)
+    case target.to_sym
+    when :circleci
+      circleci_api_token.present?
+    else
+      false
+    end
+  end
+
   def to_s
     name
   end

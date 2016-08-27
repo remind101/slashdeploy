@@ -13,6 +13,11 @@ module SlashDeploy
       fail RepoUnauthorized, repository unless github.access?(user, repository.to_s)
     end
 
+    def deploy(target, repository, deployment_event)
+      deployer = SlashDeploy.deployer_for(target)
+      deployer.deploy(repository, deployment_event)
+    end
+
     # Sends a direct message to all of the users slack accounts.
     def direct_message(account, klass, attributes = {})
       message = klass.build attributes.merge(account: account)
