@@ -32,6 +32,8 @@ And more at <https://slashdeploy.io/docs>.
 
 ## Development
 
+SlashDeploy requires PostgreSQL; you can install it through Homebrew on OSX and `apt-get` on Linux.
+
 ### Using ngrok
 
 1. Install [ngrok](https://ngrok.com/) and run `./ngrok http 3000`
