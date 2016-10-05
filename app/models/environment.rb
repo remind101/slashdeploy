@@ -35,6 +35,7 @@ class Environment < ActiveRecord::Base
     locks.active.create!(user: user, message: message)
   end
 
+  # Queues a user for the lock
   def queue!(user, message = nil)
     locks.waiting.create!(user: user, message: message)
     locks.waiting.length
@@ -48,6 +49,11 @@ class Environment < ActiveRecord::Base
   # Returns true if this environment is locked.
   def locked?
     active_lock.present?
+  end
+
+  # Returns the first lock in the queue, or nil
+  def next_in_line
+    locks.waiting.first
   end
 
   # Returns true if the environment already queued the user for a lock

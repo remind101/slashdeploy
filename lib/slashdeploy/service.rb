@@ -108,9 +108,25 @@ module SlashDeploy
 
       fail EnvironmentUnlockedError, 'no active lock' unless environment.locked?
 
-      return if environment.has_waiting_user(user)
+      return if environment.has_waiting_user?(user)
       position = environment.queue! user, options[:message]
       position
+    end
+
+    # Attempts to lock the environment for the next in line.
+    # Throws an error if the environment is still locked.
+    #
+    # environment - An Environment to lock.
+    # Returns a Lock, the new active one, or nil if no one is in queue.
+    def give_lock_to_next_user(environment)
+      fail EnvironmentLockedError, 'already locked' if environment.locked?
+
+      lock = environment.next_in_line
+      return unless lock.present?
+
+      lock.dequeue!
+      lock.lock!
+      lock
     end
 
     # Unlocks an environment.

@@ -7,6 +7,10 @@ class Lock < ActiveRecord::Base
   scope :waiting, -> { where(waiting: true) }
   scope :for_user, -> (user) { where(user_id: user.id) }
 
+  def lock!
+    update_attributes!(active: true)
+  end
+
   def unlock!
     update_attributes!(active: false)
   end
