@@ -21,6 +21,10 @@ module SlashDeploy
     end
   end
 
+  # Raised for queuing, which cannot be performed on an unlocked environment.
+  class EnvironmentUnlockedError < Error
+  end
+
   # Can be raised when there is no user to perform an auto deployment.
   class NoAutoDeployUser < Error
   end

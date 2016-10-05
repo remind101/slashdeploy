@@ -95,6 +95,24 @@ module SlashDeploy
         stolen: stolen
     end
 
+    # Attempts to queue the user for the environment lock.
+    # Throws an error if there is no active lock for the environment.
+    #
+    # environment - An Environment to lock.
+    # options     - A hash of options.
+    #               :message - An optional message.
+    #
+    # Returns a waiting Lock or Nil, if the user is already queued.
+    def queue_user_for_environment(user, environment, options = {})
+      authorize! user, environment.repository
+
+      fail EnvironmentUnlockedError, 'no active lock' unless environment.locked?
+
+      return if environment.has_waiting_user(user)
+      position = environment.queue! user, options[:message]
+      position
+    end
+
     # Unlocks an environment.
     #
     # environment - An Environment to unlock

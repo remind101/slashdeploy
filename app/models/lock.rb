@@ -4,9 +4,15 @@ class Lock < ActiveRecord::Base
   belongs_to :user
 
   scope :active, -> { where(active: true) }
+  scope :waiting, -> { where(waiting: true) }
+  scope :for_user, -> (user) { where(user_id: user.id) }
 
   def unlock!
     update_attributes!(active: false)
+  end
+
+  def dequeue!
+    update_attributes!(waiting: false)
   end
 
   def repository

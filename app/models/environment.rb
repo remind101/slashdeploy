@@ -35,6 +35,11 @@ class Environment < ActiveRecord::Base
     locks.active.create!(user: user, message: message)
   end
 
+  def queue!(user, message = nil)
+    locks.waiting.create!(user: user, message: message)
+    locks.waiting.length
+  end
+
   # Returns the currently active lock for this environment, or nil if there is none.
   def active_lock
     locks.active.first
@@ -43,6 +48,11 @@ class Environment < ActiveRecord::Base
   # Returns true if this environment is locked.
   def locked?
     active_lock.present?
+  end
+
+  # Returns true if the environment already queued the user for a lock
+  def has_waiting_user?(user)
+    locks.waiting.for_user(user).present?
   end
 
   # Override the aliases setter to filter out aliases that match the name of

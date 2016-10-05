@@ -135,7 +135,8 @@ CREATE TABLE locks (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     environment_id integer NOT NULL,
-    user_id integer NOT NULL
+    user_id integer NOT NULL,
+    waiting boolean DEFAULT false NOT NULL
 );
 
 
@@ -652,4 +653,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160727164721');
 INSERT INTO schema_migrations (version) VALUES ('20160804213314');
 
 INSERT INTO schema_migrations (version) VALUES ('20160815212720');
+
+INSERT INTO schema_migrations (version) VALUES ('20161005204501');
 

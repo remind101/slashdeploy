@@ -16,6 +16,7 @@ class LockCommand < BaseCommand
             stolen_lock: resp.stolen,
             slack_team: user.slack_team
         else
+          #user already owns the active lock
           Slash.say AlreadyLockedMessage.build \
             environment: env
         end

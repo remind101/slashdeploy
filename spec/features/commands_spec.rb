@@ -360,10 +360,10 @@ RSpec.feature 'Slash Commands' do
 
   def steal_lock_attachment(callback_id)
     Slack::Attachment.new(
-      title: 'Steal the lock?',
+      title: EnvironmentLockedMessage.attachment_title,
       callback_id: callback_id,
       color: '#3AA3E3',
-      actions: SlackMessage.confirmation_actions
+      actions: EnvironmentLockedMessage.confirmation_actions
     )
   end
 end
