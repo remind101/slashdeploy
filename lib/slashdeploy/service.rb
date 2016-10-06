@@ -98,6 +98,7 @@ module SlashDeploy
     # Attempts to queue the user for the environment lock.
     # Throws an error if there is no active lock for the environment.
     #
+    # user - A User to own the lock
     # environment - An Environment to lock.
     # options     - A hash of options.
     #               :message - An optional message.
@@ -108,9 +109,26 @@ module SlashDeploy
 
       fail EnvironmentUnlockedError, 'no active lock' unless environment.locked?
 
-      return if environment.has_waiting_user?(user)
+      return if environment.has_waiting_user?(user) or environment.active_lock.user == user
       position = environment.queue! user, options[:message]
       position
+    end
+
+    # Attempts to remove the user from the queue for the environment lock.
+    # Throws an error if there is no active lock for the environment (and thus no queue)
+    #
+    # user - A User whose queue spot will be removed
+    # environment - An Environment to lock.
+    #
+    # Returns true if the user was removed, false if the user was not in the queue
+    def dequeue_user_for_environment(user, environment)
+      authorize! user, environment.repository
+
+      fail EnvironmentUnlockedError, 'no active lock' unless environment.locked?
+
+      return false unless environment.has_waiting_user?(user)
+      environment.dequeue! user
+      true
     end
 
     # Attempts to lock the environment for the next in line.

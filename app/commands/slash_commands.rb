@@ -17,6 +17,7 @@ class SlashCommands
     router.match match_regexp(/^boom$/), BoomCommand
     router.match match_regexp(/^#{REPO}(@#{REF})?( to #{ENV})?(?<force>!)?$/), DeployCommand
     router.match match_regexp(/^queue #{ENV} on #{REPO}(:(?<message>.*))?$/), QueueCommand
+    router.match match_regexp(/^dequeue #{ENV} on #{REPO}$/), DequeueCommand
 
     router.not_found = -> (env) do
       env['params'] = { 'not_found' => true }

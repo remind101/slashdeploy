@@ -41,6 +41,13 @@ class Environment < ActiveRecord::Base
     locks.waiting.length
   end
 
+  # Removes a user from the queue
+  def dequeue!(user)
+    locks.waiting.for_user(user).each do |lock|
+      lock.dequeue!
+    end
+  end
+
   # Returns the currently active lock for this environment, or nil if there is none.
   def active_lock
     locks.active.first

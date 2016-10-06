@@ -1,5 +1,5 @@
-# QueueCommand handles the `/deploy queue` command.
-class QueueCommand < BaseCommand
+# DequeueCommand handles the `/deploy dequeue` command.
+class DequeueCommand < BaseCommand
   def run
     transaction do
       repo = Repository.with_name(params['repository'])
@@ -9,11 +9,11 @@ class QueueCommand < BaseCommand
       return Slash.reply(ValidationErrorMessage.build(record: env)) if env.invalid?
 
       begin
-        position = slashdeploy.queue_user_for_environment(user.user, env, message: params['message'].try(:strip))
-        if position
-          Slash.say QueuedMessage.build environment: env, position: position
+        removed = slashdeploy.dequeue_user_for_environment(user.user, env)
+        if removed
+          Slash.say DequeuedMessage.build environment: env
         else
-          Slash.say AlreadyQueuedMessage.build environment: env
+          Slash.say NotInQueueMessage.build environment: env
         end
       rescue SlashDeploy::EnvironmentUnlockedError => e
         Slash.say AlreadyUnlockedMessage.build environment: env
