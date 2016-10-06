@@ -7,6 +7,8 @@ To force a deployment, ignoring any commit statuses: /deploy REPO!
 To list known environments you can deploy a repo to: /deploy where REPO
 To lock an environment: /deploy lock ENVIRONMENT on REPO: MESSAGE
 To unlock a previously locked environment: /deploy unlock ENVIRONMENT on REPO
+To queue for an environment's lock: /deploy queue ENVIRONMENT on REPO: MESSAGE
+To remove yourself from a queue: /deploy dequeue ENVIRONMENT on REPO
 EOF
 
   values do
