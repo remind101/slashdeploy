@@ -109,7 +109,7 @@ module SlashDeploy
 
       fail EnvironmentUnlockedError, 'no active lock' unless environment.locked?
 
-      return if environment.has_waiting_user?(user) or environment.active_lock.user == user
+      return if environment.waiting_user?(user) || environment.active_lock.user == user
       position = environment.queue! user, options[:message]
       position
     end
@@ -126,7 +126,7 @@ module SlashDeploy
 
       fail EnvironmentUnlockedError, 'no active lock' unless environment.locked?
 
-      return false unless environment.has_waiting_user?(user)
+      return false unless environment.waiting_user?(user)
       environment.dequeue! user
       true
     end

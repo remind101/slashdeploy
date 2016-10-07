@@ -16,6 +16,9 @@ Metrics/LineLength:
 Metrics/MethodLength:
   Enabled: false
 
+Metrics/ClassLength:
+  Max: 150
+
 Metrics/AbcSize:
   Enabled: false
 

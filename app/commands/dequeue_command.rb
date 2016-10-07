@@ -15,7 +15,7 @@ class DequeueCommand < BaseCommand
         else
           Slash.say NotInQueueMessage.build environment: env
         end
-      rescue SlashDeploy::EnvironmentUnlockedError => e
+      rescue SlashDeploy::EnvironmentUnlockedError
         Slash.say AlreadyUnlockedMessage.build environment: env
       end
     end

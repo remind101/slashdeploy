@@ -12,12 +12,14 @@ class UnlockCommand < BaseCommand
       new_active_lock = slashdeploy.give_lock_to_next_user(env)
 
       if new_active_lock
-        Thread.new {
+        Thread.new do
           slashdeploy.direct_message \
-          new_active_lock.user.slack_account_for_github_organization(repo.organization),
-          LockedMessage,
-          { environment: env, stolen_lock: false, slack_team: user.slack_team }
-        }
+            new_active_lock.user.slack_account_for_github_organization(repo.organization),
+            LockedMessage,
+            environment: env,
+            stolen_lock: false,
+            slack_team: user.slack_team
+        end
 
         Slash.say PassedLockMessage.build \
           environment: env,

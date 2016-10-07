@@ -29,22 +29,22 @@ class EnvironmentLockedMessage < SlackMessage
   # has an option to queue
   def self.confirmation_actions
     [
-        Slack::Attachment::Action.new(
-            name: 'yes',
-            text: 'Yes',
-            type: 'button',
-            style: 'primary',
-            value: 'yes'),
-        Slack::Attachment::Action.new(
-            name: 'queue',
-            text: 'Queue',
-            type: 'button',
-            value: 'queue'),
-        Slack::Attachment::Action.new(
-            name: 'no',
-            text: 'No',
-            type: 'button',
-            value: 'no')
+      Slack::Attachment::Action.new(
+        name: 'yes',
+        text: 'Yes',
+        type: 'button',
+        style: 'primary',
+        value: 'yes'),
+      Slack::Attachment::Action.new(
+        name: 'queue',
+        text: 'Queue',
+        type: 'button',
+        value: 'queue'),
+      Slack::Attachment::Action.new(
+        name: 'no',
+        text: 'No',
+        type: 'button',
+        value: 'no')
     ]
   end
 end
