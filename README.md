@@ -40,8 +40,8 @@ And more at <https://slashdeploy.io/docs>.
 4. Register a new [Github OAuth application](https://github.com/settings/applications/new)
 5. Set your Github Authorization callback URL to `http://xxx.ngrok.io/auth/github/callback`
 6. Using Slack and Github app credentials, set the following environment variables in a `.env` file:
-  - `GITHUB_CLIENT`
-  - `SLACK_CLIENT`
+  - `GITHUB_CLIENT` (set to `github` to use the actual client, a fake one is set otherwise)
+  - `SLACK_CLIENT` (set to `slack` to use the actual client, a fake one is set otherwise)
   - `GITHUB_CLIENT_ID`
   - `GITHUB_CLIENT_SECRET`
   - `SLACK_CLIENT_ID`
@@ -58,3 +58,5 @@ The full test suite can be run with:
 ```
 $ ./bin/rake
 ```
+### Error Logging
+ To have errors get reported to [Rollbar](https://rollbar.com), set an environment variable `ROLLBAR_ACCESS_TOKEN`.
