@@ -26,8 +26,8 @@ class Repository < ActiveRecord::Base
 
   # Returns the environment that's configured to auto deploy this ref.
   # Returns nil if there is no environment configured for this branch.
-  def auto_deploy_environment_for_ref(ref)
-    environments.find { |env| env.auto_deploy?(ref) }
+  def auto_deploy_environments_for_ref(ref)
+    environments.select { |env| env.auto_deploy?(ref) }
   end
 
   # Returns the organization portion of the repository name.

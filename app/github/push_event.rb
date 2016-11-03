@@ -6,9 +6,11 @@ class PushEvent < GitHubEventHandler
 
     logger.info "ref=#{event['ref']} sha=#{sha} sender=#{event['sender']['login']}"
     transaction do
-      return logger.info 'not configured for automatic deployments' unless environment
-      auto_deployment = slashdeploy.create_auto_deployment(environment, sha, deployer)
-      logger.info "auto_deployment=#{auto_deployment.id} ready=#{auto_deployment.ready?} deployer=#{auto_deployment.user.identifier}"
+      return logger.info 'not configured for automatic deployments' unless environments
+      environments.each do |environment|
+        auto_deployment = slashdeploy.create_auto_deployment(environment, sha, deployer(environment))
+        logger.info "auto_deployment=#{auto_deployment.id} ready=#{auto_deployment.ready?} deployer=#{auto_deployment.user.identifier}"
+      end
     end
   end
 
@@ -30,17 +32,15 @@ class PushEvent < GitHubEventHandler
   end
 
   # Returns the environment that's configured to auto deploy this git ref.
-  def environment
-    @environment = repository.auto_deploy_environment_for_ref(event['ref'])
+  def environments
+    @environments ||= repository.auto_deploy_environments_for_ref(event['ref'])
   end
 
   # Returns the user that should be attributed with the deployment. This will
   # be the user that pushed to GitHub if we know who they are in SlashDeploy.
-  def deployer
-    @deployer ||= begin
-                    account = GitHubAccount.find_by(id: event['sender']['id'])
-                    user = account ? account.user : environment.auto_deploy_user
-                    user || fail(SlashDeploy::NoAutoDeployUser)
-                  end
+  def deployer(environment)
+    account = GitHubAccount.find_by(id: event['sender']['id'])
+    user = account ? account.user : environment.auto_deploy_user
+    user || fail(SlashDeploy::NoAutoDeployUser)
   end
 end
