@@ -36,6 +36,31 @@ RSpec.feature 'Auto Deployment' do
     push_event 'secret', sender: { id: github_accounts(:david).id }
   end
 
+  scenario 'receiving a `push` event from GitHub when the staging and production environments are configured to auto deploy the master branch' do
+    repo = Repository.with_name('baxterthehacker/public-repo')
+    production = repo.environment('production')
+    production.configure_auto_deploy('refs/heads/master')
+    staging = repo.environment('staging')
+    staging.configure_auto_deploy('refs/heads/master')
+
+    expect(github).to receive(:create_deployment).with \
+      users(:david),
+      DeploymentRequest.new(
+        repository: 'baxterthehacker/public-repo',
+        ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
+        environment: 'production'
+      )
+    expect(github).to receive(:create_deployment).with \
+      users(:david),
+      DeploymentRequest.new(
+        repository: 'baxterthehacker/public-repo',
+        ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
+        environment: 'staging'
+      )
+
+    push_event 'secret', sender: { id: github_accounts(:david).id }
+  end
+
   scenario 'receiving a `push` event when the environment is locked' do
     repo = Repository.with_name('baxterthehacker/public-repo')
     environment = repo.environment('production')
@@ -90,6 +115,44 @@ RSpec.feature 'Auto Deployment' do
         repository: 'baxterthehacker/public-repo',
         ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
         environment: 'production'
+      )
+
+    status_event 'secret', context: 'security/brakeman', state: 'success'
+  end
+
+  scenario 'receiving a `status` event when multiple environments are configured to deploy on successful commit statuses' do
+    repo = Repository.with_name('baxterthehacker/public-repo')
+    production = repo.environment('production')
+    production.required_contexts = ['ci/circleci', 'security/brakeman']
+    production.configure_auto_deploy('refs/heads/master')
+    staging = repo.environment('staging')
+    staging.required_contexts = ['ci/circleci', 'security/brakeman']
+    staging.configure_auto_deploy('refs/heads/master')
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david_baxterthehacker),
+      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david_baxterthehacker),
+      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *staging* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+
+    push_event 'secret', sender: { id: github_accounts(:david).id }
+    status_event 'secret', context: 'ci/circleci', state: 'pending'
+    status_event 'secret', context: 'ci/circleci', state: 'success'
+
+    expect(github).to receive(:create_deployment).with \
+      users(:david),
+      DeploymentRequest.new(
+        repository: 'baxterthehacker/public-repo',
+        ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
+        environment: 'production'
+      )
+    expect(github).to receive(:create_deployment).with \
+      users(:david),
+      DeploymentRequest.new(
+        repository: 'baxterthehacker/public-repo',
+        ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
+        environment: 'staging'
       )
 
     status_event 'secret', context: 'security/brakeman', state: 'success'
