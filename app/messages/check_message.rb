@@ -1,4 +1,4 @@
-class CheckLockMessage < SlackMessage
+class CheckMessage < SlackMessage
   values do
     attribute :environment, Environment
     attribute :lock, Lock

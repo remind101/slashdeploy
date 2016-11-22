@@ -1,5 +1,5 @@
-# CheckLockCommand handles the `/deploy check lock` command.
-class CheckLockCommand < BaseCommand
+# CheckCommand handles the `/deploy check` command.
+class CheckCommand < BaseCommand
   def run
     transaction do
       repo = Repository.with_name(params['repository'])
@@ -8,7 +8,7 @@ class CheckLockCommand < BaseCommand
       env = repo.environment(params['environment'])
       return Slash.reply(ValidationErrorMessage.build(record: env)) if env.invalid?
 
-      Slash.say CheckLockMessage.build \
+      Slash.say CheckMessage.build \
         environment: env,
         lock: env.active_lock,
         slack_team: user.slack_team

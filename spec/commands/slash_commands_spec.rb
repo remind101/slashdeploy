@@ -22,7 +22,7 @@ RSpec.describe SlashCommands do
       check_route(a, 'unlock staging on acme-inc/api', UnlockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
       check_route(a, 'unlock staging on api', UnlockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
 
-      check_route(a, 'check lock production on acme-inc/api', CheckLockCommand, 'repository' => 'acme-inc/api', 'environment' => 'production')
+      check_route(a, 'check production on acme-inc/api', CheckCommand, 'repository' => 'acme-inc/api', 'environment' => 'production')
 
       check_route(a, 'boom', BoomCommand, {})
 
