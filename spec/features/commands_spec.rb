@@ -157,6 +157,18 @@ RSpec.feature 'Slash Commands' do
     end.to change { deployment_requests.count }.by(1)
   end
 
+  scenario 'checking a locked branch' do
+    # It says that it's locked after someone locks it.
+    command "/deploy lock staging on acme-inc/api: I'm testing some stuff", as: slack_accounts(:david)
+    command '/deploy check lock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\n> I'm testing some stuff")
+
+    # It says it's unlocked after unlocking it.
+    command '/deploy unlock staging on acme-inc/api', as: slack_accounts(:david)
+    command '/deploy check lock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: "*staging* isn't locked.")
+  end
+
   scenario 'locking a branch with a message' do
     command "/deploy lock staging on acme-inc/api: I'm testing some stuff", as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')

@@ -14,6 +14,7 @@ class SlashCommands
     router.match match_regexp(/^where #{REPO}$/), EnvironmentsCommand
     router.match match_regexp(/^lock #{ENV} on #{REPO}(:(?<message>.*(?<!\!$)))?(?<force>!)?$/), LockCommand
     router.match match_regexp(/^unlock #{ENV} on #{REPO}$/), UnlockCommand
+    router.match match_regexp(/^check lock #{ENV} on #{REPO}$/), CheckLockCommand
     router.match match_regexp(/^boom$/), BoomCommand
     router.match match_regexp(/^#{REPO}(@#{REF})?( to #{ENV})?(?<force>!)?$/), DeployCommand
 
