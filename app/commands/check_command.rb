@@ -10,7 +10,6 @@ class CheckCommand < BaseCommand
 
       Slash.say CheckMessage.build \
         environment: env,
-        lock: env.active_lock,
         slack_team: user.slack_team
     end
   end
