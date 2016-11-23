@@ -161,12 +161,15 @@ RSpec.feature 'Slash Commands' do
     # It says that it's locked after someone locks it.
     command "/deploy lock staging on acme-inc/api: I'm testing some stuff", as: slack_accounts(:david)
     command '/deploy check staging on acme-inc/api', as: slack_accounts(:david)
-    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\n> I'm testing some stuff")
+
+    attachment = Slack::Attachment.new(text: "*staging* was locked by <@david> less than a minute ago.\n> I'm testing some stuff")
+    expect(command_response.message).to eq Slack::Message.new(attachments: [attachment])
 
     # It says it's unlocked after unlocking it.
     command '/deploy unlock staging on acme-inc/api', as: slack_accounts(:david)
     command '/deploy check staging on acme-inc/api', as: slack_accounts(:david)
-    expect(command_response.message).to eq Slack::Message.new(text: "*staging* isn't locked.")
+    attachment = Slack::Attachment.new(text: "*staging* isn't locked.")
+    expect(command_response.message).to eq Slack::Message.new(attachments: [attachment])
   end
 
   scenario 'locking a branch with a message' do
