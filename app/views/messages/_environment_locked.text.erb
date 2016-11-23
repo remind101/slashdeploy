@@ -1,0 +1,2 @@
+*<%= @environment %>* was locked by <@<%= @locker.slack_username %>> <%= time_ago_in_words(@lock.created_at) %> ago.<% if @lock.message %>
+> <%= @lock.message %><% end %>

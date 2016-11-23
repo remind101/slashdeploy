@@ -1,0 +1,5 @@
+<% if @lock %>
+<%= render "environment_locked" %>
+<% else %>
+*<%= @environment %>* isn't locked.
+<% end %>
