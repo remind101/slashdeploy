@@ -58,6 +58,7 @@ SlashDeploy requires PostgreSQL; you can install it through Homebrew on OSX and 
 The full test suite can be run with:
 
 ```
+$ ./bin/rake db:setup
 $ ./bin/rake
 ```
 ### Error Logging

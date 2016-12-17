@@ -141,7 +141,7 @@ RSpec.feature 'Slash Commands' do
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@david> less than a minute ago.', attachments: [steal_lock_attachment('a1a111a1-1111-1a1a-a1a1-111aaa111111')])
+    expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@U012AB1AB> less than a minute ago.', attachments: [steal_lock_attachment('a1a111a1-1111-1a1a-a1a1-111aaa111111')])
 
     # But david should be able to deploy.
     expect do
@@ -162,7 +162,7 @@ RSpec.feature 'Slash Commands' do
     command "/deploy lock staging on acme-inc/api: I'm testing some stuff", as: slack_accounts(:david)
     command '/deploy check staging on acme-inc/api', as: slack_accounts(:david)
 
-    attachment = Slack::Attachment.new(mrkdwn_in: ['text'], color: '#F00', title: 'Lock Status', text: "*staging* was locked by <@david> less than a minute ago.\n> I'm testing some stuff")
+    attachment = Slack::Attachment.new(mrkdwn_in: ['text'], color: '#F00', title: 'Lock Status', text: "*staging* was locked by <@U012AB1AB> less than a minute ago.\n> I'm testing some stuff")
     expect(command_response.message).to eq Slack::Message.new(text: 'acme-inc/api (*staging*)', attachments: [attachment])
 
     # It says it's unlocked after unlocking it.
@@ -181,7 +181,7 @@ RSpec.feature 'Slash Commands' do
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@david> less than a minute ago.\n> I'm testing some stuff", attachments: [steal_lock_attachment('a1a111a1-1111-1a1a-a1a1-111aaa111111')])
+    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@U012AB1AB> less than a minute ago.\n> I'm testing some stuff", attachments: [steal_lock_attachment('a1a111a1-1111-1a1a-a1a1-111aaa111111')])
   end
 
   scenario 'stealing a lock' do
@@ -195,10 +195,10 @@ RSpec.feature 'Slash Commands' do
     expect do
       command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@david> less than a minute ago.', attachments: [steal_lock_attachment('a1a111a1-1111-1a1a-a1a1-111aaa111111')])
+    expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@U012AB1AB> less than a minute ago.', attachments: [steal_lock_attachment('a1a111a1-1111-1a1a-a1a1-111aaa111111')])
 
     command '/deploy lock staging on acme-inc/api!', as: slack_accounts(:steve)
-    expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api (stolen from <@david>)')
+    expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api (stolen from <@U012AB1AB>)')
 
     allow(SecureRandom).to receive(:uuid).and_return('b1b111b1-1111-1b1b-b1b1-111bbb111111')
     expect do
@@ -312,7 +312,7 @@ RSpec.feature 'Slash Commands' do
 
     allow(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111')
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
-    expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@david> less than a minute ago.', attachments: [steal_lock_attachment('a1a111a1-1111-1a1a-a1a1-111aaa111111')])
+    expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@U012AB1AB> less than a minute ago.', attachments: [steal_lock_attachment('a1a111a1-1111-1a1a-a1a1-111aaa111111')])
 
     allow(SecureRandom).to receive(:uuid).and_return('b1b111b1-1111-1b1b-b1b1-111bbb111111')
     expect do
@@ -325,7 +325,7 @@ RSpec.feature 'Slash Commands' do
     expect(action_response.message).to eq Slack::Message.new(text: 'Did not steal lock.')
 
     action 'yes', 'a1a111a1-1111-1a1a-a1a1-111aaa111111', as: slack_accounts(:steve)
-    expect(action_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api (stolen from <@david>)')
+    expect(action_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api (stolen from <@U012AB1AB>)')
 
     allow(SecureRandom).to receive(:uuid).and_return('c1c111c1-1111-1c1c-c1c1-111ccc111111')
     expect do

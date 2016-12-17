@@ -9,13 +9,23 @@ class SlackUser < SimpleDelegator
 
   # Returns this users slack username under the given slack team.
   def slack_username
-    account = user.slack_accounts.find { |a| a.team_id == slack_team.id }
-    return unless account # TODO: Raise?
-    account.user_name
+    return unless slack_account
+    slack_account.user_name
+  end
+
+  def slack_userid
+    return unless slack_account
+    slack_account.id
   end
 
   # Returns the real User object.
   def user
     __getobj__
+  end
+
+  private
+
+  def slack_account
+    @slack_account ||= user.slack_accounts.find { |a| a.team_id == slack_team.id }
   end
 end
