@@ -103,7 +103,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
@@ -131,10 +131,10 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *staging* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *staging* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
@@ -166,7 +166,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
@@ -206,7 +206,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@595ebd4 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@595ebd4 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     # This will simulate the first commit. The auto deployment for this will
     # eventually get canceled, because the commit status contexts are slow.
@@ -218,7 +218,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@819d335 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@819d335 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     # Push the second commit
     push_event 'secret', head_commit: {
@@ -230,7 +230,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@364d2a5 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@364d2a5 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     # Push the third commit.
     push_event 'secret', head_commit: {
