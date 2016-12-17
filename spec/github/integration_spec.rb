@@ -17,7 +17,7 @@ RSpec.describe GitHub::Integration do
         stub_request(:post, "https://api.github.com/installations/816/access_tokens").
           with(headers: {'Accept'=>'application/vnd.github.machine-man-preview+json'}).
           to_return(status: 200, body: '{ "token": "v1.1f699f1069f60xxx", "expires_at": "2016-07-11T22:14:10Z", "on_behalf_of": null }', headers: { 'Content-Type' => 'application/json' })
-        expect(integration.installation_token(816)).to eq 'v1.1f699f1069f60xxx'
+        expect(integration.installation_token(816).token).to eq 'v1.1f699f1069f60xxx'
       end
     end
 
@@ -26,7 +26,7 @@ RSpec.describe GitHub::Integration do
         stub_request(:post, "https://api.github.com/installations/816/access_tokens").
           with(headers: {'Accept'=>'application/vnd.github.machine-man-preview+json'}, body: '{"user_id":1}').
           to_return(status: 200, body: '{ "token": "v1.1f699f1069f60xxx", "expires_at": "2016-07-11T22:14:10Z", "on_behalf_of": null }', headers: { 'Content-Type' => 'application/json' })
-        expect(integration.installation_token(816, on_behalf_of: 1)).to eq 'v1.1f699f1069f60xxx'
+        expect(integration.installation_token(816, on_behalf_of: 1).token).to eq 'v1.1f699f1069f60xxx'
       end
     end
   end
