@@ -1,6 +1,8 @@
 require 'github/errors'
 
 module GitHub
+  autoload :Integration, 'github/integration'
+
   module Client
     autoload :Octokit, 'github/client/octokit'
     autoload :Fake,    'github/client/fake'
