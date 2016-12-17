@@ -164,16 +164,29 @@ RSpec.feature 'Auto Deployment' do
     environment.required_contexts = ['ci/circleci', 'security/brakeman']
     environment.configure_auto_deploy('refs/heads/master')
 
-    expect(github).to_not receive(:create_deployment)
-
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
       Slack::Message.new(text: "Hey <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david_baxterthehacker),
+      Slack::Message.new(text: "Hey <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but *ci/circleci* failed.\nYou can fix *ci/circleci* and I'll try again.", attachments: [])
+
     status_event 'secret', context: 'ci/circleci', state: 'failure'
     status_event 'secret', context: 'security/brakeman', state: 'success'
+
+    # So, maybe the user triggers a new build manually.
+    expect(github).to receive(:create_deployment).with \
+      users(:david),
+      DeploymentRequest.new(
+        repository: 'baxterthehacker/public-repo',
+        ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
+        environment: 'production'
+      )
+    status_event 'secret', context: 'ci/circleci', state: 'success'
   end
 
   scenario 'receiving a new `push` event for a new HEAD of the ref when there is a previous auto deployment' do

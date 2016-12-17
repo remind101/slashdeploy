@@ -36,6 +36,30 @@ module SlashDeploy
       auto_deployment
     end
 
+    # Used to track when a commit status context changes state. This will track
+    # the new commit status, then deploy any auto deployments that are ready.
+    # If the new status is failing, the user will receive a DM letting them
+    # know.
+    #
+    # sha     - The string sha that the commit status context is for.
+    # context - A CommitStatusContext object representing the state of the context.
+    #
+    # Returns nothing.
+    def track_context_state_change(sha, context)
+      status = Status.track(sha, context)
+      AutoDeployment.lock.active.where(sha: sha).each do |auto_deployment|
+        if auto_deployment.ready?
+          auto_deploy auto_deployment
+        else
+          if status.failure?
+            user = auto_deployment.user
+            account = user.slack_account_for_github_organization(auto_deployment.environment.repository.organization)
+            direct_message account, AutoDeploymentFailedMessage, auto_deployment: auto_deployment, status: status
+          end
+        end
+      end
+    end
+
     # Creates a new deployment request as the given user.
     #
     # user        - The User requesting the deployment.

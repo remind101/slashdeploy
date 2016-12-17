@@ -25,11 +25,6 @@ class AutoDeployment < ActiveRecord::Base
     end
   end
 
-  # Records the contexts new state.
-  def context_state(context, state)
-    statuses.create! state: state, context: context
-  end
-
   # Returns true if all of the required contexts for the environment have passed.
   def ready?
     # If the environment doesn't have any required_contexts configured, just

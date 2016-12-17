@@ -14,4 +14,14 @@ class Status < ActiveRecord::Base
   end
 
   delegate :success?, :failure?, to: :commit_status_context
+
+  # Tracks the new state of a context on a commit.
+  #
+  # sha                   - The String sha.
+  # commit_status_context - a CommitStatusContext object representing the new state of the commit.
+  #
+  # Returns the Status object.
+  def self.track(sha, commit_status_context)
+    create! sha: sha, context: commit_status_context.context, state: commit_status_context.state
+  end
 end
