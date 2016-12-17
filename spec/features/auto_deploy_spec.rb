@@ -103,7 +103,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
@@ -131,10 +131,10 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *staging* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *staging* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
@@ -164,15 +164,68 @@ RSpec.feature 'Auto Deployment' do
     environment.required_contexts = ['ci/circleci', 'security/brakeman']
     environment.configure_auto_deploy('refs/heads/master')
 
-    expect(github).to_not receive(:create_deployment)
-
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
     status_event 'secret', context: 'ci/circleci', state: 'failure'
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david_baxterthehacker),
+      Slack::Message.new(text: ':wave: <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but some required commit status contexts failed.', attachments: [
+        Slack::Attachment.new(title: 'ci/circleci', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text']),
+        Slack::Attachment.new(pretext: "_I'll try deploying again when you fix the issues above._", mrkdwn_in: ['pretext'])
+      ])
+    status_event 'secret', context: 'security/brakeman', state: 'success'
+
+    # So, maybe the user triggers a new build manually.
+    expect(github).to receive(:create_deployment).with \
+      users(:david),
+      DeploymentRequest.new(
+        repository: 'baxterthehacker/public-repo',
+        ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
+        environment: 'production'
+      )
+    status_event 'secret', context: 'ci/circleci', state: 'success'
+  end
+
+  scenario 'receiving a `failed` and `errored` status event' do
+    repo = Repository.with_name('baxterthehacker/public-repo')
+    environment = repo.environment('production')
+    environment.required_contexts = ['ci/circleci', 'security/brakeman']
+    environment.configure_auto_deploy('refs/heads/master')
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david_baxterthehacker),
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+
+    push_event 'secret', sender: { id: github_accounts(:david).id }
+    status_event 'secret', context: 'ci/circleci', state: 'pending'
+    status_event 'secret', context: 'ci/circleci', state: 'failure'
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david_baxterthehacker),
+      Slack::Message.new(text: ':wave: <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but some required commit status contexts failed.', attachments: [
+        Slack::Attachment.new(title: 'ci/circleci', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text']),
+        Slack::Attachment.new(title: 'security/brakeman', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text']),
+        Slack::Attachment.new(pretext: "_I'll try deploying again when you fix the issues above._", mrkdwn_in: ['pretext'])
+      ])
+    status_event 'secret', context: 'security/brakeman', state: 'error'
+
+    status_event 'secret', context: 'ci/circleci', state: 'pending'
+    status_event 'secret', context: 'security/brakeman', state: 'pending'
+
+    status_event 'secret', context: 'ci/circleci', state: 'success'
+
+    expect(github).to receive(:create_deployment).with \
+      users(:david),
+      DeploymentRequest.new(
+        repository: 'baxterthehacker/public-repo',
+        ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
+        environment: 'production'
+      )
     status_event 'secret', context: 'security/brakeman', state: 'success'
   end
 
@@ -193,7 +246,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@595ebd4 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@595ebd4 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     # This will simulate the first commit. The auto deployment for this will
     # eventually get canceled, because the commit status contexts are slow.
@@ -205,7 +258,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@819d335 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@819d335 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     # Push the second commit
     push_event 'secret', head_commit: {
@@ -217,7 +270,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey @david. I'll start a deployment of baxterthehacker/public-repo@364d2a5 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@364d2a5 to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
 
     # Push the third commit.
     push_event 'secret', head_commit: {

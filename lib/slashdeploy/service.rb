@@ -28,12 +28,46 @@ module SlashDeploy
     # Returns an AutoDeployment.
     def create_auto_deployment(environment, sha, user)
       auto_deployment = environment.auto_deployments.create! user: user, sha: sha
-      if auto_deployment.ready?
+      state = auto_deployment.state
+      case state
+      when AutoDeployment::STATE_READY
         auto_deploy auto_deployment
+      when AutoDeployment::STATE_PENDING
+        direct_message \
+          auto_deployment.slack_account, \
+          AutoDeploymentCreatedMessage, \
+          auto_deployment: auto_deployment
       else
-        direct_message user.slack_account_for_github_organization(environment.repository.organization), AutoDeploymentCreatedMessage, auto_deployment: auto_deployment
+        fail "Unhandled #{state} state"
       end
       auto_deployment
+    end
+
+    # Used to track when a commit status context changes state. This will track
+    # the new commit status, then deploy any auto deployments that are ready.
+    # If the new status is failing, the user will receive a DM letting them
+    # know.
+    #
+    # status - a Status object representing the new state.
+    #
+    # Returns nothing.
+    def track_context_state_change(status)
+      AutoDeployment.lock.active.where(sha: status.sha).each do |auto_deployment|
+        state = auto_deployment.state
+        case state
+        when AutoDeployment::STATE_READY
+          auto_deploy auto_deployment
+        when AutoDeployment::STATE_FAILED
+          direct_message \
+            auto_deployment.slack_account, \
+            AutoDeploymentFailedMessage, \
+            auto_deployment: auto_deployment
+        when AutoDeployment::STATE_PENDING
+          nil
+        else
+          fail "Unhandled #{state} state"
+        end
+      end
     end
 
     # Creates a new deployment request as the given user.
@@ -108,6 +142,22 @@ module SlashDeploy
       lock.unlock!
     end
 
+    # Creates a MessageAction, generating a uuid for the callback_id
+    #
+    #  action - The class that the message action will execute. Implements BaseAction.
+    #  options - params hash that will be passed to the command
+    #
+    #  Returns a MessageAction
+    def create_message_action(action, options = {})
+      MessageAction.create!(
+        callback_id: SecureRandom.uuid,
+        action_params: options.to_json,
+        action: action.name
+      )
+    end
+
+    private
+
     # Triggers an auto deployment if the AutoDeployment is ready.
     #
     # auto_deployment - An AutoDeployment.
@@ -129,22 +179,6 @@ module SlashDeploy
         auto_deployment.done!
       end
     end
-
-    # Creates a MessageAction, generating a uuid for the callback_id
-    #
-    #  action - The class that the message action will execute. Implements BaseAction.
-    #  options - params hash that will be passed to the command
-    #
-    #  Returns a MessageAction
-    def create_message_action(action, options = {})
-      MessageAction.create!(
-        callback_id: SecureRandom.uuid,
-        action_params: options.to_json,
-        action: action.name
-      )
-    end
-
-    private
 
     def deployment_request(environment, ref, options = {})
       DeploymentRequest.new(

@@ -14,10 +14,18 @@ class CommitStatusContext
   end
 
   def success?
-    state == 'success'
+    state == SUCCESS
   end
 
   def failure?
-    !success?
+    state == FAILURE || state == ERROR
+  end
+
+  def pending?
+    state == PENDING
+  end
+
+  def to_s
+    "#{context} (#{state})"
   end
 end
