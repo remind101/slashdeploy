@@ -174,7 +174,10 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: ':wave: <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but some required commit status contexts failed.', attachments: [Slack::Attachment.new(title: 'ci/circleci', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text'])])
+      Slack::Message.new(text: ':wave: <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but some required commit status contexts failed.', attachments: [
+        Slack::Attachment.new(title: 'ci/circleci', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text']),
+        Slack::Attachment.new(pretext: "_I'll try deploying again when you fix the issues above._", mrkdwn_in: ['pretext'])
+      ])
     status_event 'secret', context: 'security/brakeman', state: 'success'
 
     # So, maybe the user triggers a new build manually.
@@ -206,7 +209,8 @@ RSpec.feature 'Auto Deployment' do
       slack_accounts(:david_baxterthehacker),
       Slack::Message.new(text: ':wave: <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but some required commit status contexts failed.', attachments: [
         Slack::Attachment.new(title: 'ci/circleci', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text']),
-        Slack::Attachment.new(title: 'security/brakeman', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text'])
+        Slack::Attachment.new(title: 'security/brakeman', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text']),
+        Slack::Attachment.new(pretext: "_I'll try deploying again when you fix the issues above._", mrkdwn_in: ['pretext'])
       ])
     status_event 'secret', context: 'security/brakeman', state: 'error'
 
