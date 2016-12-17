@@ -42,4 +42,9 @@ class AutoDeployment < ActiveRecord::Base
 
     true
   end
+
+  # Returns the slack account that should be used when DM'ing the user about this auto deployment.
+  def slack_account
+    user.slack_account_for_github_organization(environment.repository.organization)
+  end
 end

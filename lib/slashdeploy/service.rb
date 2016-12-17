@@ -31,7 +31,7 @@ module SlashDeploy
       if auto_deployment.ready?
         auto_deploy auto_deployment
       else
-        direct_message user.slack_account_for_github_organization(environment.repository.organization), AutoDeploymentCreatedMessage, auto_deployment: auto_deployment
+        direct_message auto_deployment.slack_account, AutoDeploymentCreatedMessage, auto_deployment: auto_deployment
       end
       auto_deployment
     end
@@ -52,9 +52,7 @@ module SlashDeploy
           auto_deploy auto_deployment
         else
           if status.failure?
-            user = auto_deployment.user
-            account = user.slack_account_for_github_organization(auto_deployment.environment.repository.organization)
-            direct_message account, AutoDeploymentFailedMessage, auto_deployment: auto_deployment, status: status
+            direct_message auto_deployment.slack_account, AutoDeploymentFailedMessage, auto_deployment: auto_deployment, status: status
           end
         end
       end
