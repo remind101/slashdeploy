@@ -10,8 +10,9 @@ module GitHub
       @contexts = contexts
     end
 
-    def failing_contexts
-      contexts.select(&:failure?)
+    # Returns the contexts that are in a failing, or pending state.
+    def bad_contexts
+      contexts.select { |context| !context.success? }
     end
   end
 

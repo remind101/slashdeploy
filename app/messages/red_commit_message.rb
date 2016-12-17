@@ -1,6 +1,6 @@
 class RedCommitMessage < SlackMessage
   values do
-    attribute :failing_contexts, Array[CommitStatusContext]
+    attribute :contexts, Array[CommitStatusContext]
     attribute :message_action, MessageAction
   end
 

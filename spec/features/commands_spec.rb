@@ -96,8 +96,24 @@ RSpec.feature 'Slash Commands' do
     end.to_not change { deployment_requests }
 
     expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip, attachments: [Slack::Attachment.new(title: 'Ignore status checks and deploy anyway?', callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111', color: '#3AA3E3', actions: SlackMessage.confirmation_actions)])
-    The following commit status checks failed:
-    * ci
+    The following commit status checks are not passing:
+    * *ci* [failure]
+    TEXT
+
+    expect do
+      command '/deploy acme-inc/api@failing to production!', as: slack_accounts(:david)
+    end.to change { deployment_requests.count }.by(1)
+  end
+
+  scenario 'performing a deployment of a branch that has pending commit status contexts' do
+    expect(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111').at_least(:once)
+    expect do
+      command '/deploy acme-inc/api@pending to production', as: slack_accounts(:david)
+    end.to_not change { deployment_requests }
+
+    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip, attachments: [Slack::Attachment.new(title: 'Ignore status checks and deploy anyway?', callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111', color: '#3AA3E3', actions: SlackMessage.confirmation_actions)])
+    The following commit status checks are not passing:
+    * *ci* [pending]
     TEXT
 
     expect do
@@ -112,8 +128,8 @@ RSpec.feature 'Slash Commands' do
     end.to_not change { deployment_requests }
 
     expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip, attachments: [Slack::Attachment.new(title: 'Ignore status checks and deploy anyway?', callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111', color: '#3AA3E3', actions: SlackMessage.confirmation_actions)])
-    The following commit status checks failed:
-    * ci
+    The following commit status checks are not passing:
+    * *ci* [failure]
     TEXT
 
     expect do

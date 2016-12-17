@@ -1,4 +1,4 @@
-The following commit status checks failed:
-<% @failing_contexts.each do |context| %>
-* <%= context.context %>
+The following commit status checks are not passing:
+<% @contexts.each do |context| %>
+* *<%= context.context %>* [<%= context.state %>]
 <% end %>

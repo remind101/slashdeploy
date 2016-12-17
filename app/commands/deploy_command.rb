@@ -33,7 +33,7 @@ class DeployCommand < BaseCommand
           params.merge('force' => true)
         )
         Slash.reply RedCommitMessage.build \
-          failing_contexts: e.failing_contexts,
+          contexts: e.bad_contexts,
           message_action: message_action
       rescue GitHub::BadRefError => e
         Slash.reply BadRefMessage.build \
