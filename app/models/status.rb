@@ -8,13 +8,6 @@ class Status < ActiveRecord::Base
   # Pruneable returns all statuses that aren't part of an active auto deployment.
   scope :pruneable, -> { joins(:auto_deployment).merge(AutoDeployment.inactive) }
 
-  # Returns a CommitStatusContext object for this Status.
-  def commit_status_context
-    CommitStatusContext.new(state: state, context: context)
-  end
-
-  delegate :success?, :failure?, to: :commit_status_context
-
   # Tracks the new state of a context on a commit.
   #
   # event - a GitHub `status` event payload.
@@ -28,4 +21,11 @@ class Status < ActiveRecord::Base
       description: event['description'],
       target_url: event['target_url']
   end
+
+  # Returns a CommitStatusContext object for this Status.
+  def commit_status_context
+    CommitStatusContext.new(state: state, context: context)
+  end
+
+  delegate :pending?, :success?, :failure?, to: :commit_status_context
 end

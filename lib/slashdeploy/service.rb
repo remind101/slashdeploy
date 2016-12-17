@@ -28,10 +28,17 @@ module SlashDeploy
     # Returns an AutoDeployment.
     def create_auto_deployment(environment, sha, user)
       auto_deployment = environment.auto_deployments.create! user: user, sha: sha
-      if auto_deployment.ready?
+      state = auto_deployment.state
+      case state
+      when AutoDeployment::STATE_READY
         auto_deploy auto_deployment
+      when AutoDeployment::STATE_PENDING
+        direct_message \
+          auto_deployment.slack_account, \
+          AutoDeploymentCreatedMessage, \
+          auto_deployment: auto_deployment
       else
-        direct_message auto_deployment.slack_account, AutoDeploymentCreatedMessage, auto_deployment: auto_deployment
+        fail "Unhandled #{state} state"
       end
       auto_deployment
     end
@@ -46,12 +53,19 @@ module SlashDeploy
     # Returns nothing.
     def track_context_state_change(status)
       AutoDeployment.lock.active.where(sha: status.sha).each do |auto_deployment|
-        if auto_deployment.ready?
+        state = auto_deployment.state
+        case state
+        when AutoDeployment::STATE_READY
           auto_deploy auto_deployment
+        when AutoDeployment::STATE_FAILED
+          direct_message \
+            auto_deployment.slack_account, \
+            AutoDeploymentFailedMessage, \
+            auto_deployment: auto_deployment
+        when AutoDeployment::STATE_PENDING
+          nil
         else
-          if status.failure?
-            direct_message auto_deployment.slack_account, AutoDeploymentFailedMessage, auto_deployment: auto_deployment, status: status
-          end
+          fail "Unhandled #{state} state"
         end
       end
     end

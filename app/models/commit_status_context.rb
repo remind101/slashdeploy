@@ -20,4 +20,13 @@ class CommitStatusContext
   def failure?
     state == FAILURE || state == ERROR
   end
+
+  def pending?
+    return true unless state # Zero value is PENDING state.
+    state == PENDING
+  end
+
+  def to_s
+    "#{context} (#{state})"
+  end
 end

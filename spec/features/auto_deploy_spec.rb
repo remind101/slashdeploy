@@ -170,12 +170,11 @@ RSpec.feature 'Auto Deployment' do
 
     push_event 'secret', sender: { id: github_accounts(:david).id }
     status_event 'secret', context: 'ci/circleci', state: 'pending'
+    status_event 'secret', context: 'ci/circleci', state: 'failure'
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
       Slack::Message.new(text: ':wave: <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but some required commit status contexts failed.', attachments: [Slack::Attachment.new(title: 'ci/circleci', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text'])])
-
-    status_event 'secret', context: 'ci/circleci', state: 'failure'
     status_event 'secret', context: 'security/brakeman', state: 'success'
 
     # So, maybe the user triggers a new build manually.
@@ -187,6 +186,48 @@ RSpec.feature 'Auto Deployment' do
         environment: 'production'
       )
     status_event 'secret', context: 'ci/circleci', state: 'success'
+  end
+
+  scenario 'receiving a `failed` and `errored` status event' do
+    repo = Repository.with_name('baxterthehacker/public-repo')
+    environment = repo.environment('production')
+    environment.required_contexts = ['ci/circleci', 'security/brakeman']
+    environment.configure_auto_deploy('refs/heads/master')
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david_baxterthehacker),
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* and *security/brakeman* are passing.", attachments: [])
+
+    push_event 'secret', sender: { id: github_accounts(:david).id }
+    status_event 'secret', context: 'ci/circleci', state: 'pending'
+    status_event 'secret', context: 'ci/circleci', state: 'failure'
+
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david_baxterthehacker),
+      Slack::Message.new(text: ':wave: <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but some required commit status contexts failed.', attachments: [
+        Slack::Attachment.new(title: 'ci/circleci', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text']),
+        Slack::Attachment.new(title: 'security/brakeman', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text'])
+      ])
+    status_event 'secret', context: 'security/brakeman', state: 'error'
+
+    # TODO(ejholmes): Would be nice if this didn't show up at this point.
+    # Ideally, we wouldn't DM the user again until everything was passing I
+    # think.
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david_baxterthehacker),
+      Slack::Message.new(text: ':wave: <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but some required commit status contexts failed.', attachments: [
+        Slack::Attachment.new(title: 'security/brakeman', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text'])
+      ])
+    status_event 'secret', context: 'ci/circleci', state: 'success'
+
+    expect(github).to receive(:create_deployment).with \
+      users(:david),
+      DeploymentRequest.new(
+        repository: 'baxterthehacker/public-repo',
+        ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
+        environment: 'production'
+      )
+    status_event 'secret', context: 'security/brakeman', state: 'success'
   end
 
   scenario 'receiving a new `push` event for a new HEAD of the ref when there is a previous auto deployment' do

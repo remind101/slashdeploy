@@ -1,12 +1,11 @@
 class AutoDeploymentFailedMessage < SlackMessage
   values do
     attribute :account, SlackAccount
-    attribute :status, Status
     attribute :auto_deployment, AutoDeployment
   end
 
   def to_message
-    Slack::Message.new text: text, attachments: [
+    attachments = auto_deployment.failing_statuses.map do |status|
       Slack::Attachment.new(
         mrkdwn_in: ['text'],
         title: status.context,
@@ -14,6 +13,7 @@ class AutoDeploymentFailedMessage < SlackMessage
         text: status.description,
         color: '#F00'
       )
-    ]
+    end
+    Slack::Message.new text: text, attachments: attachments
   end
 end
