@@ -32,4 +32,4 @@ And more at <https://slashdeploy.io/docs>.
 
 ## Contributing
 
-Contributions are highly welcome! If you'd like to contribut, please read [CONTRIBUTING.md](./CONTRIBUTING.md)
+Contributions are highly welcome! If you'd like to contribute, please read [CONTRIBUTING.md](./CONTRIBUTING.md)
