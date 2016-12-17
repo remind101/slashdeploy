@@ -1,4 +1,4 @@
-### Tests
+## Tests
 
 The full test suite can be run with:
 
