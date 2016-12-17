@@ -130,6 +130,22 @@ module SlashDeploy
       lock.unlock!
     end
 
+    # Creates a MessageAction, generating a uuid for the callback_id
+    #
+    #  action - The class that the message action will execute. Implements BaseAction.
+    #  options - params hash that will be passed to the command
+    #
+    #  Returns a MessageAction
+    def create_message_action(action, options = {})
+      MessageAction.create!(
+        callback_id: SecureRandom.uuid,
+        action_params: options.to_json,
+        action: action.name
+      )
+    end
+
+    private
+
     # Triggers an auto deployment if the AutoDeployment is ready.
     #
     # auto_deployment - An AutoDeployment.
@@ -151,22 +167,6 @@ module SlashDeploy
         auto_deployment.done!
       end
     end
-
-    # Creates a MessageAction, generating a uuid for the callback_id
-    #
-    #  action - The class that the message action will execute. Implements BaseAction.
-    #  options - params hash that will be passed to the command
-    #
-    #  Returns a MessageAction
-    def create_message_action(action, options = {})
-      MessageAction.create!(
-        callback_id: SecureRandom.uuid,
-        action_params: options.to_json,
-        action: action.name
-      )
-    end
-
-    private
 
     def deployment_request(environment, ref, options = {})
       DeploymentRequest.new(
