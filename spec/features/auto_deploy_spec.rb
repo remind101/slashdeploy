@@ -173,7 +173,7 @@ RSpec.feature 'Auto Deployment' do
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: "Hey <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but *ci/circleci* failed.\nYou can fix *ci/circleci* and I'll try again.", attachments: [])
+      Slack::Message.new(attachments: [Slack::Attachment.new(text: "Hey <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but *ci/circleci* failed.\nYou can fix *ci/circleci* and I'll try again.", color: '#F00', mrkdwn_in: ['text'])])
 
     status_event 'secret', context: 'ci/circleci', state: 'failure'
     status_event 'secret', context: 'security/brakeman', state: 'success'
