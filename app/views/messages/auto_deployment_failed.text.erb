@@ -1,2 +1,1 @@
-Hey <@<%= @account.id %>>. I was going to deploy <%= @auto_deployment.environment.repository %>@<%= @auto_deployment.sha[0...7] %> to *<%= @auto_deployment.environment %>* for you, but *<%= @status.context %>* failed.
-You can fix *<%= @status.context %>* and I'll try again.
+:wave: <@<%= @account.id %>>. I was going to deploy <%= @auto_deployment.environment.repository %>@<%= @auto_deployment.sha[0...7] %> to *<%= @auto_deployment.environment %>* for you, but some required commit status contexts failed.

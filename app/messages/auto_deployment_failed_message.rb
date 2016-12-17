@@ -6,10 +6,12 @@ class AutoDeploymentFailedMessage < SlackMessage
   end
 
   def to_message
-    Slack::Message.new attachments: [
+    Slack::Message.new text: text, attachments: [
       Slack::Attachment.new(
         mrkdwn_in: ['text'],
-        text: text,
+        title: status.context,
+        title_link: status.target_url,
+        text: status.description,
         color: '#F00'
       )
     ]

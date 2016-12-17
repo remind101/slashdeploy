@@ -41,13 +41,11 @@ module SlashDeploy
     # If the new status is failing, the user will receive a DM letting them
     # know.
     #
-    # sha     - The string sha that the commit status context is for.
-    # context - A CommitStatusContext object representing the state of the context.
+    # status - a Status object representing the new state.
     #
     # Returns nothing.
-    def track_context_state_change(sha, context)
-      status = Status.track(sha, context)
-      AutoDeployment.lock.active.where(sha: sha).each do |auto_deployment|
+    def track_context_state_change(status)
+      AutoDeployment.lock.active.where(sha: status.sha).each do |auto_deployment|
         if auto_deployment.ready?
           auto_deploy auto_deployment
         else

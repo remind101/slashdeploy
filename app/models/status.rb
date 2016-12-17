@@ -17,11 +17,15 @@ class Status < ActiveRecord::Base
 
   # Tracks the new state of a context on a commit.
   #
-  # sha                   - The String sha.
-  # commit_status_context - a CommitStatusContext object representing the new state of the commit.
+  # event - a GitHub `status` event payload.
   #
   # Returns the Status object.
-  def self.track(sha, commit_status_context)
-    create! sha: sha, context: commit_status_context.context, state: commit_status_context.state
+  def self.track(event)
+    create! \
+      sha: event['sha'],
+      context: event['context'],
+      state: event['state'],
+      description: event['description'],
+      target_url: event['target_url']
   end
 end

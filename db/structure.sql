@@ -2,12 +2,17 @@
 -- PostgreSQL database dump
 --
 
+-- Dumped from database version 9.6.1
+-- Dumped by pg_dump version 9.6.1
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
@@ -30,7 +35,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: auto_deployments; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: auto_deployments; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE auto_deployments (
@@ -64,7 +69,7 @@ ALTER SEQUENCE auto_deployments_id_seq OWNED BY auto_deployments.id;
 
 
 --
--- Name: early_accesses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: early_accesses; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE early_accesses (
@@ -75,7 +80,7 @@ CREATE TABLE early_accesses (
 
 
 --
--- Name: environments; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: environments; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE environments (
@@ -113,7 +118,7 @@ ALTER SEQUENCE environments_id_seq OWNED BY environments.id;
 
 
 --
--- Name: github_accounts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: github_accounts; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE github_accounts (
@@ -125,7 +130,7 @@ CREATE TABLE github_accounts (
 
 
 --
--- Name: locks; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: locks; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE locks (
@@ -159,7 +164,7 @@ ALTER SEQUENCE locks_id_seq OWNED BY locks.id;
 
 
 --
--- Name: message_actions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: message_actions; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE message_actions (
@@ -172,7 +177,7 @@ CREATE TABLE message_actions (
 
 
 --
--- Name: repositories; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: repositories; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE repositories (
@@ -205,7 +210,7 @@ ALTER SEQUENCE repositories_id_seq OWNED BY repositories.id;
 
 
 --
--- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE schema_migrations (
@@ -214,7 +219,7 @@ CREATE TABLE schema_migrations (
 
 
 --
--- Name: slack_accounts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: slack_accounts; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE slack_accounts (
@@ -226,7 +231,7 @@ CREATE TABLE slack_accounts (
 
 
 --
--- Name: slack_bots; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: slack_bots; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE slack_bots (
@@ -239,7 +244,7 @@ CREATE TABLE slack_bots (
 
 
 --
--- Name: slack_teams; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: slack_teams; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE slack_teams (
@@ -252,14 +257,16 @@ CREATE TABLE slack_teams (
 
 
 --
--- Name: statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: statuses; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE statuses (
     id integer NOT NULL,
     sha character varying NOT NULL,
     context character varying NOT NULL,
-    state character varying NOT NULL
+    state character varying NOT NULL,
+    target_url text,
+    description text
 );
 
 
@@ -283,7 +290,7 @@ ALTER SEQUENCE statuses_id_seq OWNED BY statuses.id;
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE users (
@@ -314,49 +321,49 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: auto_deployments id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY auto_deployments ALTER COLUMN id SET DEFAULT nextval('auto_deployments_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: environments id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY environments ALTER COLUMN id SET DEFAULT nextval('environments_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: locks id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY locks ALTER COLUMN id SET DEFAULT nextval('locks_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: repositories id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY repositories ALTER COLUMN id SET DEFAULT nextval('repositories_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: statuses id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY statuses ALTER COLUMN id SET DEFAULT nextval('statuses_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 
 --
--- Name: auto_deployments_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: auto_deployments auto_deployments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY auto_deployments
@@ -364,7 +371,7 @@ ALTER TABLE ONLY auto_deployments
 
 
 --
--- Name: environments_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: environments environments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY environments
@@ -372,7 +379,7 @@ ALTER TABLE ONLY environments
 
 
 --
--- Name: github_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: github_accounts github_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY github_accounts
@@ -380,7 +387,7 @@ ALTER TABLE ONLY github_accounts
 
 
 --
--- Name: locks_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: locks locks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY locks
@@ -388,7 +395,7 @@ ALTER TABLE ONLY locks
 
 
 --
--- Name: message_actions_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: message_actions message_actions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY message_actions
@@ -396,7 +403,7 @@ ALTER TABLE ONLY message_actions
 
 
 --
--- Name: repositories_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: repositories repositories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY repositories
@@ -404,7 +411,7 @@ ALTER TABLE ONLY repositories
 
 
 --
--- Name: slack_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: slack_accounts slack_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY slack_accounts
@@ -412,7 +419,7 @@ ALTER TABLE ONLY slack_accounts
 
 
 --
--- Name: slack_bots_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: slack_bots slack_bots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY slack_bots
@@ -420,7 +427,7 @@ ALTER TABLE ONLY slack_bots
 
 
 --
--- Name: slack_teams_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: slack_teams slack_teams_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY slack_teams
@@ -428,7 +435,7 @@ ALTER TABLE ONLY slack_teams
 
 
 --
--- Name: statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: statuses statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY statuses
@@ -436,7 +443,7 @@ ALTER TABLE ONLY statuses
 
 
 --
--- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users
@@ -444,105 +451,105 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: index_auto_deployments_on_environment_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_auto_deployments_on_environment_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_auto_deployments_on_environment_id ON auto_deployments USING btree (environment_id);
 
 
 --
--- Name: index_auto_deployments_on_environment_id_and_sha; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_auto_deployments_on_environment_id_and_sha; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_auto_deployments_on_environment_id_and_sha ON auto_deployments USING btree (environment_id, sha);
 
 
 --
--- Name: index_auto_deployments_on_sha; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_auto_deployments_on_sha; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_auto_deployments_on_sha ON auto_deployments USING btree (sha);
 
 
 --
--- Name: index_auto_deployments_on_user_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_auto_deployments_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_auto_deployments_on_user_id ON auto_deployments USING btree (user_id);
 
 
 --
--- Name: index_environments_on_repository_id_and_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_environments_on_repository_id_and_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_environments_on_repository_id_and_name ON environments USING btree (repository_id, name);
 
 
 --
--- Name: index_github_accounts_on_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_github_accounts_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_github_accounts_on_id ON github_accounts USING btree (id);
 
 
 --
--- Name: index_locks_on_environment_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_locks_on_environment_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_locks_on_environment_id ON locks USING btree (environment_id);
 
 
 --
--- Name: index_message_actions_on_callback_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_message_actions_on_callback_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_message_actions_on_callback_id ON message_actions USING btree (callback_id);
 
 
 --
--- Name: index_slack_accounts_on_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_slack_accounts_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_slack_accounts_on_id ON slack_accounts USING btree (id);
 
 
 --
--- Name: index_slack_bots_on_slack_team_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_slack_bots_on_slack_team_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_slack_bots_on_slack_team_id ON slack_bots USING btree (slack_team_id);
 
 
 --
--- Name: index_slack_teams_on_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_slack_teams_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_slack_teams_on_id ON slack_teams USING btree (id);
 
 
 --
--- Name: index_statuses_on_sha; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_statuses_on_sha; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_statuses_on_sha ON statuses USING btree (sha);
 
 
 --
--- Name: locked_environment; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: locked_environment; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX locked_environment ON locks USING btree (environment_id) WHERE active;
 
 
 --
--- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (version);
 
 
 --
--- Name: fk_rails_20382263b5; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: auto_deployments fk_rails_20382263b5; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY auto_deployments
@@ -550,7 +557,7 @@ ALTER TABLE ONLY auto_deployments
 
 
 --
--- Name: fk_rails_31d9175b41; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: locks fk_rails_31d9175b41; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY locks
@@ -558,7 +565,7 @@ ALTER TABLE ONLY locks
 
 
 --
--- Name: fk_rails_426f571216; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: locks fk_rails_426f571216; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY locks
@@ -566,7 +573,7 @@ ALTER TABLE ONLY locks
 
 
 --
--- Name: fk_rails_4a418d4e27; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: slack_accounts fk_rails_4a418d4e27; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY slack_accounts
@@ -574,7 +581,7 @@ ALTER TABLE ONLY slack_accounts
 
 
 --
--- Name: fk_rails_5e1f7e1725; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: auto_deployments fk_rails_5e1f7e1725; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY auto_deployments
@@ -582,7 +589,7 @@ ALTER TABLE ONLY auto_deployments
 
 
 --
--- Name: fk_rails_877068538c; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: github_accounts fk_rails_877068538c; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY github_accounts
@@ -590,7 +597,7 @@ ALTER TABLE ONLY github_accounts
 
 
 --
--- Name: fk_rails_a29af68464; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: slack_accounts fk_rails_a29af68464; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY slack_accounts
@@ -598,7 +605,7 @@ ALTER TABLE ONLY slack_accounts
 
 
 --
--- Name: fk_rails_f7496bfdf1; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: environments fk_rails_f7496bfdf1; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY environments
@@ -609,7 +616,7 @@ ALTER TABLE ONLY environments
 -- PostgreSQL database dump complete
 --
 
-SET search_path TO "$user",public;
+SET search_path TO "$user", public;
 
 INSERT INTO schema_migrations (version) VALUES ('20160203003153');
 
@@ -652,4 +659,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160727164721');
 INSERT INTO schema_migrations (version) VALUES ('20160804213314');
 
 INSERT INTO schema_migrations (version) VALUES ('20160815212720');
+
+INSERT INTO schema_migrations (version) VALUES ('20161217031700');
 

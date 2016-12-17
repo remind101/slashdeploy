@@ -2,9 +2,9 @@
   "id": 214015194,
   "sha": "0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c",
   "name": "baxterthehacker/public-repo",
-  "target_url": null,
+  "target_url": "https://ci.com/tests",
   "context": "default",
-  "description": null,
+  "description": "Tests passed",
   "state": "success",
   "commit": {
     "sha": "0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c",
