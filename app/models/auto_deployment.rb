@@ -39,10 +39,29 @@ class AutoDeployment < ActiveRecord::Base
   # Returns the current state of this AutoDeployment.
   def state
     return STATE_INACTIVE unless active?
-    return STATE_READY if environment.required_contexts.blank?
-    return STATE_READY if required_statuses.all?(&:success?)
-    return STATE_FAILED if required_statuses.all? { |context| !context.pending? }
-    STATE_PENDING
+
+    statuses = required_statuses
+
+    # If any statuses are in a "pending" state, then the auto deployment is
+    # also pending.
+    return STATE_PENDING if statuses.any?(&:pending?)
+
+    # For an AutoDeployment to be considered "ready" to be deployed, all of the
+    # required commit status contexts need to be in a `success` state.
+    return STATE_READY if statuses.all?(&:success?)
+
+    # If we've reached here, then some of the required commit status contexts
+    # are not in a `success` state (could be `pending`, `error` or `failure`).
+    # If all of the required commit statuses are NOT in a pending state (e.g
+    # some are `failure` and some are `success`), we'll considered this auto
+    # deployment to be in a `failed` state.
+    #
+    # It's entirely possible for an auto deployment to transition from `failed`
+    # to `pending` or `ready` if the user fixes the commit status that is
+    # failing.
+    return STATE_FAILED if statuses.any?(&:failure?)
+
+    fail 'Unreachable'
   end
 
   def ready?
@@ -54,10 +73,9 @@ class AutoDeployment < ActiveRecord::Base
   # object for it yet.
   def required_statuses
     # TODO(ejholmes): Optimize this query.
-    environment.required_contexts.map do |context|
-      status = statuses.order('id desc').find_by(context: context)
-      status || Status.new(context: context, state: nil)
-    end.compact
+    required_contexts.map do |context|
+      statuses.latest(context)
+    end
   end
 
   # Returns the required commit status contexts that are currently in a failing state.
@@ -68,5 +86,11 @@ class AutoDeployment < ActiveRecord::Base
   # Returns the slack account that should be used when DM'ing the user about this auto deployment.
   def slack_account
     user.slack_account_for_github_organization(environment.repository.organization)
+  end
+
+  private
+
+  def required_contexts
+    environment.required_contexts || []
   end
 end

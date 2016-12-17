@@ -22,7 +22,6 @@ class CommitStatusContext
   end
 
   def pending?
-    return true unless state # Zero value is PENDING state.
     state == PENDING
   end
 

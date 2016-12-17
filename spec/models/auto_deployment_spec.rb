@@ -43,7 +43,7 @@ RSpec.describe AutoDeployment, type: :model do
         expect(auto_deployment.required_statuses.length).to eq 2
         expect(auto_deployment.required_statuses[0]).to eq ci
         expect(auto_deployment.required_statuses[1].context).to eq 'security/brakeman'
-        expect(auto_deployment.required_statuses[1].state).to eq nil
+        expect(auto_deployment.required_statuses[1].state).to eq CommitStatusContext::PENDING
       end
     end
 

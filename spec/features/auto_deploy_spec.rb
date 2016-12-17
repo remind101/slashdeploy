@@ -210,14 +210,9 @@ RSpec.feature 'Auto Deployment' do
       ])
     status_event 'secret', context: 'security/brakeman', state: 'error'
 
-    # TODO(ejholmes): Would be nice if this didn't show up at this point.
-    # Ideally, we wouldn't DM the user again until everything was passing I
-    # think.
-    expect(slack).to receive(:direct_message).with \
-      slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: ':wave: <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but some required commit status contexts failed.', attachments: [
-        Slack::Attachment.new(title: 'security/brakeman', title_link: 'https://ci.com/tests', text: 'Tests passed', color: '#F00', mrkdwn_in: ['text'])
-      ])
+    status_event 'secret', context: 'ci/circleci', state: 'pending'
+    status_event 'secret', context: 'security/brakeman', state: 'pending'
+
     status_event 'secret', context: 'ci/circleci', state: 'success'
 
     expect(github).to receive(:create_deployment).with \

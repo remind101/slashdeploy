@@ -22,6 +22,13 @@ class Status < ActiveRecord::Base
       target_url: event['target_url']
   end
 
+  # Returns the most recently tracked status for the given context. If no
+  # status has been tracked for the context yet, it will return a null status
+  # in a `pending` state.
+  def self.latest(context)
+    order('id desc').find_by(context: context) || new(context: context, state: CommitStatusContext::PENDING)
+  end
+
   # Returns a CommitStatusContext object for this Status.
   def commit_status_context
     CommitStatusContext.new(state: state, context: context)
