@@ -28,22 +28,22 @@ class GitHubEventHandler
 
         logger.info("repository=#{repo_name}")
 
-        scope = {
-          event: @event
-        }
+        @repository = Repository.find_by(name: repo_name)
+        unless @repository
+          logger.info("repository doesn't exist in SlashDeploy")
+          fail(UnknownRepository, "Received GitHub webhook for unknown repository: #{repo_name}")
+        end
 
         if event['installation']
           return [403, {}, ['']] unless Hookshot.verify(req, @secret)
         else
-          @repository = Repository.find_by(name: repo_name)
-          unless @repository
-            logger.info("repository doesn't exist in SlashDeploy")
-            fail(UnknownRepository, "Received GitHub webhook for unknown repository: #{repo_name}")
-          end
           return [403, {}, ['']] unless Hookshot.verify(req, @repository.github_secret)
-          scope[:repository] = @repository.name
         end
 
+        scope = {
+          event: @event,
+          repository: @repository.name
+        }
         Rollbar.scoped(scope) do
           run
         end
