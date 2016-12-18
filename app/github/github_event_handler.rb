@@ -7,12 +7,13 @@ class GitHubEventHandler
   UnknownRepository = Class.new(SlashDeploy::Error)
 
   def self.call(env)
-    new(env, ::SlashDeploy.service).call
+    new(env, ::SlashDeploy.service, ENV['GITHUB_WEBHOOK_SECRET']).call
   end
 
-  def initialize(env, slashdeploy)
+  def initialize(env, slashdeploy, secret = nil)
     @env = env
     @slashdeploy = slashdeploy
+    @secret = secret
   end
 
   def call
@@ -27,17 +28,22 @@ class GitHubEventHandler
 
         logger.info("repository=#{repo_name}")
 
-        @repository = Repository.find_by(name: repo_name)
-        unless @repository
-          logger.info("repository doesn't exist in SlashDeploy")
-          fail(UnknownRepository, "Received GitHub webhook for unknown repository: #{repo_name}")
-        end
-        return [403, {}, ['']] unless Hookshot.verify(req, @repository.github_secret)
-
         scope = {
-          repository: @repository.name,
           event: @event
         }
+
+        if event['installation']
+          return [403, {}, ['']] unless Hookshot.verify(req, @secret)
+        else
+          @repository = Repository.find_by(name: repo_name)
+          unless @repository
+            logger.info("repository doesn't exist in SlashDeploy")
+            fail(UnknownRepository, "Received GitHub webhook for unknown repository: #{repo_name}")
+          end
+          return [403, {}, ['']] unless Hookshot.verify(req, @repository.github_secret)
+          scope[:repository] = @repository.name
+        end
+
         Rollbar.scoped(scope) do
           run
         end
