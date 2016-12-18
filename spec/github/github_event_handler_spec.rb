@@ -29,7 +29,7 @@ RSpec.describe GitHubEventHandler do
     end
 
     context 'when the signature matches' do
-      it 'returns a 200 and calls the handler', focus: true do
+      it 'returns a 200 and calls the handler' do
         req = Rack::MockRequest.new(handler)
         resp = req.post \
           '/',
