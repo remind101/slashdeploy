@@ -42,3 +42,7 @@ Metrics/PerceivedComplexity:
 
 Style/GlobalVars:
   Enabled: false
+
+Style/StringLiterals:
+  Exclude:
+    - 'app/messages/**/*'

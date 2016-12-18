@@ -1,3 +1,5 @@
+require 'tilt'
+
 class SlackMessage
   include Virtus.value_object
   include ActionView::Helpers
@@ -16,6 +18,15 @@ class SlackMessage
   end
 
   protected
+
+  def renderr(template)
+    t = Tilt.new 'template.erb' do
+      template
+    end
+    ctx = dup
+    ctx.__send__(:extend, ActionView::Helpers)
+    t.render(ctx).strip
+  end
 
   def text(extra_assigns = {})
     render(nil, extra_assigns)

@@ -9,11 +9,16 @@ To lock an environment: /deploy lock ENVIRONMENT on REPO: MESSAGE
 To unlock a previously locked environment: /deploy unlock ENVIRONMENT on REPO
 EOF
 
+  TEXT = <<EOF
+<% if @not_found %>I don't know that command. Here's what I do know:
+<% end %>#{USAGE}
+EOF
+
   values do
     attribute :not_found, Boolean
   end
 
   def to_message
-    Slack::Message.new text: text(usage: USAGE)
+    Slack::Message.new text: renderr(TEXT)
   end
 end

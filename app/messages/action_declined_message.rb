@@ -3,7 +3,9 @@ class ActionDeclinedMessage < SlackMessage
     attribute :declined_action_text, String
   end
 
+  TEXT = "Did not <%= @declined_action_text %>."
+
   def to_message
-    Slack::Message.new text: text
+    Slack::Message.new text: renderr(TEXT)
   end
 end
