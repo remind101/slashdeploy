@@ -170,7 +170,14 @@ module SlashDeploy
         environment = auto_deployment.environment
 
         # Check if the environment we're deploying to is locked.
-        return if environment.locked?
+        if environment.locked?
+          direct_message \
+            auto_deployment.slack_account, \
+            AutoDeploymentLockedMessage, \
+            auto_deployment: auto_deployment, \
+            lock: environment.active_lock
+          return
+        end
         github.create_deployment(
           auto_deployment.user,
           deployment_request(environment, auto_deployment.sha)

@@ -67,6 +67,9 @@ RSpec.feature 'Auto Deployment' do
     environment.configure_auto_deploy('refs/heads/master')
     environment.lock! users(:david)
 
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david_baxterthehacker),
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I was going to deploy baxterthehacker/public-repo@0d1a26e to *production* for you, but it's currently locked.\n*production* was locked by <@U012AB1AC> less than a minute ago.", attachments: [])
     push_event 'secret', sender: { id: github_accounts(:david).id }
   end
 
