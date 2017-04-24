@@ -10,12 +10,11 @@ RSpec.describe GitHubEventHandler do
 
   describe '#call from installation' do
     context 'when the repo is not found' do
-      # This should never actually happen. If it does, it means something is
-      # misconfigured.
-      it 'raises an error' do
+      # This could happen if the integration is installed organization wide.
+      it 'verifies the signature and creates the repository' do
         req = Rack::MockRequest.new(handler)
         expect do
-          req.post \
+          resp = req.post \
             '/',
             input: {
               repository: {
@@ -25,8 +24,10 @@ RSpec.describe GitHubEventHandler do
                 id: 1234
               }
             }.to_json,
-            'CONTENT_TYPE' => 'application/json'
-        end.to raise_error GitHubEventHandler::UnknownRepository
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_HUB_SIGNATURE' => 'sha1=1290d145b7ac29e87238b4b129bc10076e22387f'
+          expect(resp.status).to eq 200
+        end.to change { Repository.count }
       end
     end
 
@@ -65,61 +66,7 @@ RSpec.describe GitHubEventHandler do
             }
           }.to_json,
           'CONTENT_TYPE' => 'application/json',
-          'HTTP_X_HUB_SIGNATURE' => 'sha1=711d4165381d119b533db4411b93df70d9309fc1'
-        expect(resp.status).to eq 200
-      end
-    end
-  end
-
-  describe '#call from webhook' do
-    context 'when the repo is not found' do
-      # This should never actually happen. If it does, it means something is
-      # misconfigured.
-      it 'raises an error' do
-        req = Rack::MockRequest.new(handler)
-        expect do
-          req.post \
-            '/',
-            input: {
-              repository: {
-                full_name: 'acme-inc/api'
-              }
-            }.to_json,
-            'CONTENT_TYPE' => 'application/json'
-        end.to raise_error GitHubEventHandler::UnknownRepository
-      end
-    end
-
-    context 'when the signature does not match' do
-      it 'returns a 403' do
-        Repository.create!(name: 'acme-inc/api', github_secret: 'secret')
-        req = Rack::MockRequest.new(handler)
-        resp = req.post \
-          '/',
-          input: {
-            repository: {
-              full_name: 'acme-inc/api'
-            }
-          }.to_json,
-          'CONTENT_TYPE' => 'application/json',
-          'HTTP_X_HUB_SIGNATURE' => 'sha1=abcd'
-        expect(resp.status).to eq 403
-      end
-    end
-
-    context 'when the signature matches' do
-      it 'returns a 200 and calls the handler' do
-        Repository.create!(name: 'acme-inc/api', github_secret: 'secret')
-        req = Rack::MockRequest.new(handler)
-        resp = req.post \
-          '/',
-          input: {
-            repository: {
-              full_name: 'acme-inc/api'
-            }
-          }.to_json,
-          'CONTENT_TYPE' => 'application/json',
-          'HTTP_X_HUB_SIGNATURE' => 'sha1=a6a982a7d5a5925ba8cd5a5bc8826ffb84947ed3'
+          'HTTP_X_HUB_SIGNATURE' => 'sha1=1290d145b7ac29e87238b4b129bc10076e22387f'
         expect(resp.status).to eq 200
       end
     end

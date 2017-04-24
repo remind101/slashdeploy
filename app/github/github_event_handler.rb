@@ -7,13 +7,21 @@ class GitHubEventHandler
   UnknownRepository = Class.new(SlashDeploy::Error)
 
   def self.call(env)
-    new(env, ::SlashDeploy.service, ENV['GITHUB_WEBHOOK_SECRET']).call
+    new(env, ::SlashDeploy.service, Rails.configuration.x.integration_secret).call
   end
 
   def initialize(env, slashdeploy, secret = nil)
     @env = env
     @slashdeploy = slashdeploy
     @secret = secret
+  end
+
+  def installation?
+    event['installation'].present?
+  end
+
+  def integration_secret?
+    @secret.present?
   end
 
   def call
@@ -28,17 +36,17 @@ class GitHubEventHandler
 
         logger.info("repository=#{repo_name}")
 
-        @repository = Repository.find_by(name: repo_name)
-        unless @repository
-          logger.info("repository doesn't exist in SlashDeploy")
-          fail(UnknownRepository, "Received GitHub webhook for unknown repository: #{repo_name}")
-        end
+        # Just a sanity check to make sure all webhooks are from an
+        # integration.
+        fail StandardError, 'Not an installation' unless installation?
+        fail StandardError, 'No integration secret set' unless integration_secret?
 
-        if event['installation']
-          return [403, {}, ['']] unless Hookshot.verify(req, @secret)
-        else
-          return [403, {}, ['']] unless Hookshot.verify(req, @repository.github_secret)
-        end
+        # When the webhook comes from an installation, we'll verify the
+        # request using a global secret, then create the repository if
+        # needed. This is done to support installing SlashDeploy
+        # organization wide.
+        return [403, {}, ['']] unless Hookshot.verify(req, @secret)
+        @repository = Repository.with_name(repo_name)
 
         scope = {
           event: @event,

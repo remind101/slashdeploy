@@ -68,7 +68,7 @@ module Features
 
   # Triggers a github event against SlashDeploy.
   def github_event(event, secret, payload = {})
-    body = payload.to_json
+    body = payload.merge(installation: { id: 1234 }).to_json
     post \
       '/',
       body,
