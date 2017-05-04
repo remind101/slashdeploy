@@ -30,6 +30,13 @@ Deploy a branch:
 
 And more at <https://slashdeploy.io/docs>.
 
+## Features
+
+* Create GitHub Deployments directly from Slack.
+* Receive Slack DM's whenever GitHub Deployments change status.
+* Trigger GitHub Deployments when a set of commit statuses pass (Continuous Delivery).
+* Environment locking.
+
 ## Contributing
 
 Contributions are highly welcome! If you'd like to contribute, please read [CONTRIBUTING.md](./CONTRIBUTING.md)
