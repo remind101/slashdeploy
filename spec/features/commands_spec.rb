@@ -137,6 +137,17 @@ RSpec.feature 'Slash Commands' do
       text: '*production* was locked by <@U012AB1AB> less than a minute ago.'
     )
     expect(command_response.message).to eq Slack::Message.new(text: 'acme-inc/api (*production*)', attachments: [attachment])
+
+    # Once we're holding the lock, we shouldn't be asked to lock it again.
+    command '/deploy acme-inc/api@topic to production', as: slack_accounts(:david)
+    expect(deployment_requests).to eq [
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'topic', environment: 'production')],
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'topic', environment: 'production')]
+    ]
+
+    expect(command_response.message).to eq Slack::Message.new(
+      text: 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/4c7b474c6e1c81553a16d1082cebfa60|topic> to *production* (no change)'
+    )
   end
 
   scenario 'performing a deployment of a topic branch and then re-deploying the default ref' do
