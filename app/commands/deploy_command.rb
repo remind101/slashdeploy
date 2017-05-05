@@ -15,9 +15,35 @@ class DeployCommand < BaseCommand
           params['ref'],
           force: params['force']
         )
+
+        # If we deployed a ref that's not the environment's default, we'll ask
+        # them if they want to lock the environment.
+        lock_action = if resp.deployment.ref != env.default_ref
+                        slashdeploy.create_message_action(
+                          LockAction,
+                          repository: repo.to_s,
+                          environment: env.to_s
+                        )
+                      end
+
+        # If the environment is locked by this user, and they're deploying the
+        # default ref for the environment, then ask them if they want to unlock
+        # it. This hinges on the assumption that you generally lock when you
+        # want to test feature branches.
+        unlock_action = if env.locked_by?(user.user) && resp.deployment.ref == env.default_ref
+                          slashdeploy.create_message_action(
+                            UnlockAction,
+                            repository: repo.to_s,
+                            environment: env.to_s
+                          )
+                        end
+
         m = DeploymentCreatedMessage.build \
+          environment: env,
           deployment: resp.deployment,
-          last_deployment: resp.last_deployment
+          last_deployment: resp.last_deployment,
+          lock_action: lock_action,
+          unlock_action: unlock_action
         respond env.in_channel?, m
       rescue SlashDeploy::EnvironmentAutoDeploys
         message_action = slashdeploy.create_message_action(

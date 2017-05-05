@@ -40,6 +40,10 @@ class Environment < ActiveRecord::Base
     locks.active.first
   end
 
+  def locked_by?(user)
+    locked? && active_lock.user == user
+  end
+
   # Returns true if this environment is locked.
   def locked?
     active_lock.present?
@@ -80,6 +84,12 @@ class Environment < ActiveRecord::Base
     repository.environments
       .where.not(id: id)
       .named(name)
+  end
+
+  # Returns the slack account that should be used when DM'ing the user about
+  # this environment.
+  def slack_account_for(user)
+    repository.slack_account_for(user)
   end
 
   def to_s
