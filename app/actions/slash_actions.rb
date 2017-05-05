@@ -2,23 +2,21 @@
 # actions. This class routes whitelisted action names to the appropriate
 # action.
 class SlashActions
-  attr_reader :registry
+  ACTIONS = [
+    LockAction,
+    UnlockAction,
+    DeployAction
+  ]
 
-  def self.registry
-    registry = Slash::ActionRegistry.new
-    registry.register 'LockAction', LockAction
-    registry.register 'UnlockAction', UnlockAction
-    registry.register 'DeployAction', DeployAction
-
-    registry
-  end
+  attr_reader :actions
 
   def self.build
-    new registry
+    actions = ACTIONS.each_with_object({}) { |klass, h| h[klass.name] = klass }
+    new actions
   end
 
-  def initialize(registry)
-    @registry = registry
+  def initialize(actions)
+    @actions = actions
   end
 
   def call(env)
@@ -30,7 +28,19 @@ class SlashActions
 
     Rollbar.scoped(scope) do
       begin
-        registry.call(env)
+        callback_id = env['action'].payload.callback_id
+        message_action = MessageAction.find_by_callback_id(callback_id)
+        if message_action
+          action = actions[message_action.action]
+          if action
+            env['message_action'] = message_action
+            action.call(env)
+          else
+            Slash.reply ErrorMessage.build
+          end
+        else
+          Slash.reply ErrorMessage.build
+        end
       rescue SlashDeploy::RepoUnauthorized => e
         Slash.reply UnauthorizedMessage.build \
           repository: e.repository

@@ -11,10 +11,6 @@ module Slash
       @payload = payload
     end
 
-    def empty?
-      payload.attributes.all? { |_k, v| v.nil? }
-    end
-
     def ===(other)
       payload == other.payload
     end

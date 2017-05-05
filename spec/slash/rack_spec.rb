@@ -21,7 +21,6 @@ RSpec.describe Slash::Rack do
               token: 'foo'
             )
           ),
-          'action' => nil,
           'type' => 'cmd'
         ).and_return(Slash.say(Slack::Message.new(text: 'Hello')))
         status, headers, body = app.call(env)
