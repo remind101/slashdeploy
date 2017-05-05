@@ -36,6 +36,12 @@ class Repository < ActiveRecord::Base
     matches[1]
   end
 
+  # Returns the slack account that should be used when DM'ing the user about
+  # this repository.
+  def slack_account_for(user)
+    user.slack_account_for_github_organization(organization)
+  end
+
   def to_s
     name
   end

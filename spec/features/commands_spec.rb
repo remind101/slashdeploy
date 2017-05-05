@@ -87,15 +87,121 @@ RSpec.feature 'Slash Commands' do
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'topic', environment: 'production')]
     ]
+
+    callback_id = command_response.message.attachments[0].callback_id
+    expect(command_response.message).to eq Slack::Message.new(
+      text: 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/4c7b474c6e1c81553a16d1082cebfa60|topic> to *production* (no change)',
+      attachments: [
+        Slack::Attachment.new(
+          mrkdwn_in: ['text'],
+          title: 'Lock production?',
+          text: 'The default ref for *production* is `master`, but you deployed `topic`.',
+          callback_id: callback_id,
+          color: '#3AA3E3',
+          actions: SlackMessage.confirmation_actions
+        )
+      ]
+    )
+  end
+
+  scenario 'performing a deployment of a topic branch and locking via the message button' do
+    command '/deploy acme-inc/api@topic to production', as: slack_accounts(:david)
+    expect(deployment_requests).to eq [
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'topic', environment: 'production')]
+    ]
+
+    callback_id = command_response.message.attachments[0].callback_id
+    expect(command_response.message).to eq Slack::Message.new(
+      text: 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/4c7b474c6e1c81553a16d1082cebfa60|topic> to *production* (no change)',
+      attachments: [
+        Slack::Attachment.new(
+          mrkdwn_in: ['text'],
+          title: 'Lock production?',
+          text: 'The default ref for *production* is `master`, but you deployed `topic`.',
+          callback_id: callback_id,
+          color: '#3AA3E3',
+          actions: SlackMessage.confirmation_actions
+        )
+      ]
+    )
+
+    action 'yes', callback_id, as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: 'Locked *production* on acme-inc/api')
+
+    command '/deploy check production on acme-inc/api', as: slack_accounts(:david)
+
+    attachment = Slack::Attachment.new(
+      mrkdwn_in: ['text'],
+      color: '#F00',
+      title: 'Lock Status',
+      text: '*production* was locked by <@U012AB1AB> less than a minute ago.'
+    )
+    expect(command_response.message).to eq Slack::Message.new(text: 'acme-inc/api (*production*)', attachments: [attachment])
+
+    # Once we're holding the lock, we shouldn't be asked to lock it again.
+    command '/deploy acme-inc/api@topic to production', as: slack_accounts(:david)
+    expect(deployment_requests).to eq [
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'topic', environment: 'production')],
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'topic', environment: 'production')]
+    ]
+
+    expect(command_response.message).to eq Slack::Message.new(
+      text: 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/4c7b474c6e1c81553a16d1082cebfa60|topic> to *production* (no change)'
+    )
+  end
+
+  scenario 'performing a deployment of a topic branch and then re-deploying the default ref' do
+    command '/deploy acme-inc/api@topic to production', as: slack_accounts(:david)
+    expect(deployment_requests).to eq [
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'topic', environment: 'production')]
+    ]
+
+    callback_id = command_response.message.attachments[0].callback_id
+    expect(command_response.message).to eq Slack::Message.new(
+      text: 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/4c7b474c6e1c81553a16d1082cebfa60|topic> to *production* (no change)',
+      attachments: [
+        Slack::Attachment.new(
+          mrkdwn_in: ['text'],
+          title: 'Lock production?',
+          text: 'The default ref for *production* is `master`, but you deployed `topic`.',
+          callback_id: callback_id,
+          color: '#3AA3E3',
+          actions: SlackMessage.confirmation_actions
+        )
+      ]
+    )
+
+    action 'yes', callback_id, as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: 'Locked *production* on acme-inc/api')
+
+    command '/deploy acme-inc/api@master to production', as: slack_accounts(:david)
+
+    callback_id = command_response.message.attachments[0].callback_id
+    expect(command_response.message).to eq Slack::Message.new(
+      text: 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/ad80a1b3e1a94b98ce99b71a48f811f1|master> to *production* (<https://github.com/acme-inc/api/compare/4c7b474...ad80a1b|diff>)',
+      attachments: [
+        Slack::Attachment.new(
+          mrkdwn_in: ['text'],
+          title: 'Unlock production?',
+          text: 'You just deployed the default ref for *production*. Do you want to unlock it?',
+          callback_id: callback_id,
+          color: '#3AA3E3',
+          actions: SlackMessage.confirmation_actions
+        )
+      ]
+    )
+
+    action 'yes', callback_id, as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: 'Unlocked *production* on acme-inc/api')
   end
 
   scenario 'performing a deployment of a branch that has failing commit status contexts' do
-    expect(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111').at_least(:once)
     expect do
       command '/deploy acme-inc/api@failing to production', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
 
-    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip, attachments: [Slack::Attachment.new(title: 'Ignore status checks and deploy anyway?', callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111', color: '#3AA3E3', actions: SlackMessage.confirmation_actions)])
+    callback_id = command_response.message.attachments[0].callback_id
+    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip, attachments: [Slack::Attachment.new(title: 'Ignore status checks and deploy anyway?', callback_id: callback_id, color: '#3AA3E3', actions: SlackMessage.confirmation_actions)])
     The following commit status checks are not passing:
     * *ci* [failure]
     TEXT
@@ -106,12 +212,12 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'performing a deployment of a branch that has pending commit status contexts' do
-    expect(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111').at_least(:once)
     expect do
       command '/deploy acme-inc/api@pending to production', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
 
-    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip, attachments: [Slack::Attachment.new(title: 'Ignore status checks and deploy anyway?', callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111', color: '#3AA3E3', actions: SlackMessage.confirmation_actions)])
+    callback_id = command_response.message.attachments[0].callback_id
+    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip, attachments: [Slack::Attachment.new(title: 'Ignore status checks and deploy anyway?', callback_id: callback_id, color: '#3AA3E3', actions: SlackMessage.confirmation_actions)])
     The following commit status checks are not passing:
     * *ci* [pending]
     TEXT
@@ -122,19 +228,32 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'performing a deployment of a branch that has failing commit status contexts by action' do
-    expect(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111').at_least(:once)
     expect do
       command '/deploy acme-inc/api@failing to production', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
 
-    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip, attachments: [Slack::Attachment.new(title: 'Ignore status checks and deploy anyway?', callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111', color: '#3AA3E3', actions: SlackMessage.confirmation_actions)])
+    callback_id = command_response.message.attachments[0].callback_id
+    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip, attachments: [Slack::Attachment.new(title: 'Ignore status checks and deploy anyway?', callback_id: callback_id, color: '#3AA3E3', actions: SlackMessage.confirmation_actions)])
     The following commit status checks are not passing:
     * *ci* [failure]
     TEXT
 
     expect do
-      action 'yes', 'a1a111a1-1111-1a1a-a1a1-111aaa111111', as: slack_accounts(:david)
-      expect(action_response.message).to eq Slack::Message.new(text: 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/46c2acc4e588924340adcd108cfc948b|failing> to *production* (no change)')
+      action 'yes', callback_id, as: slack_accounts(:david)
+      callback_id = action_response.message.attachments[0].callback_id
+      expect(action_response.message).to eq Slack::Message.new(
+        text: 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/46c2acc4e588924340adcd108cfc948b|failing> to *production* (no change)',
+        attachments: [
+          Slack::Attachment.new(
+            mrkdwn_in: ['text'],
+            title: 'Lock production?',
+            text: 'The default ref for *production* is `master`, but you deployed `failing`.',
+            callback_id: callback_id,
+            color: '#3AA3E3',
+            actions: SlackMessage.confirmation_actions
+          )
+        ]
+      )
     end.to change { deployment_requests.count }.by(1)
   end
 
@@ -153,11 +272,12 @@ RSpec.feature 'Slash Commands' do
     expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
 
     # Other users shouldn't be able to deploy now.
-    expect(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111').at_least(:once)
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@U012AB1AB> less than a minute ago.', attachments: [steal_lock_attachment('a1a111a1-1111-1a1a-a1a1-111aaa111111')])
+
+    callback_id = command_response.message.attachments[0].callback_id
+    expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@U012AB1AB> less than a minute ago.', attachments: [steal_lock_attachment(callback_id)])
 
     # But david should be able to deploy.
     expect do
@@ -193,11 +313,12 @@ RSpec.feature 'Slash Commands' do
     expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
 
     # Other users shouldn't be able to deploy now.
-    expect(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111').at_least(:once)
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@U012AB1AB> less than a minute ago.\n> I'm testing some stuff", attachments: [steal_lock_attachment('a1a111a1-1111-1a1a-a1a1-111aaa111111')])
+
+    callback_id = command_response.message.attachments[0].callback_id
+    expect(command_response.message).to eq Slack::Message.new(text: "*staging* was locked by <@U012AB1AB> less than a minute ago.\n> I'm testing some stuff", attachments: [steal_lock_attachment(callback_id)])
   end
 
   scenario 'stealing a lock' do
@@ -207,16 +328,16 @@ RSpec.feature 'Slash Commands' do
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: '*staging* is already locked')
 
-    allow(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111')
     expect do
       command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
-    expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@U012AB1AB> less than a minute ago.', attachments: [steal_lock_attachment('a1a111a1-1111-1a1a-a1a1-111aaa111111')])
+
+    callback_id = command_response.message.attachments[0].callback_id
+    expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@U012AB1AB> less than a minute ago.', attachments: [steal_lock_attachment(callback_id)])
 
     command '/deploy lock staging on acme-inc/api!', as: slack_accounts(:steve)
     expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api (stolen from <@U012AB1AB>)')
 
-    allow(SecureRandom).to receive(:uuid).and_return('b1b111b1-1111-1b1b-b1b1-111bbb111111')
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
@@ -274,15 +395,15 @@ RSpec.feature 'Slash Commands' do
     environment = repo.environment('production')
     environment.configure_auto_deploy('refs/heads/master')
 
-    allow(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111')
     expect do
       command '/deploy acme-inc/api@master', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
 
+    callback_id = command_response.message.attachments[0].callback_id
     expect(command_response.message).to eq Slack::Message.new(text: 'acme-inc/api is configured to automatically deploy `refs/heads/master` to *production*.', attachments: [
       Slack::Attachment.new(
         title: 'Deploy anyway?',
-        callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111',
+        callback_id: callback_id,
         color: '#3AA3E3',
         actions: SlackMessage.confirmation_actions
       )
@@ -299,22 +420,22 @@ RSpec.feature 'Slash Commands' do
     environment = repo.environment('production')
     environment.configure_auto_deploy('refs/heads/master')
 
-    allow(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111')
     expect do
       command '/deploy acme-inc/api@master', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
 
+    callback_id = command_response.message.attachments[0].callback_id
     expect(command_response.message).to eq Slack::Message.new(text: 'acme-inc/api is configured to automatically deploy `refs/heads/master` to *production*.', attachments: [
       Slack::Attachment.new(
         title: 'Deploy anyway?',
-        callback_id: 'a1a111a1-1111-1a1a-a1a1-111aaa111111',
+        callback_id: callback_id,
         color: '#3AA3E3',
         actions: SlackMessage.confirmation_actions
       )
     ])
 
     expect do
-      action 'yes', 'a1a111a1-1111-1a1a-a1a1-111aaa111111', as: slack_accounts(:steve)
+      action 'yes', callback_id, as: slack_accounts(:steve)
       expect(action_response.message).to eq Slack::Message.new(text: 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/ad80a1b3e1a94b98ce99b71a48f811f1|master> to *production* (no change)')
     end.to change { deployment_requests.count }.by(1)
   end
@@ -326,24 +447,23 @@ RSpec.feature 'Slash Commands' do
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: '*staging* is already locked')
 
-    allow(SecureRandom).to receive(:uuid).and_return('a1a111a1-1111-1a1a-a1a1-111aaa111111')
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:steve)
-    expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@U012AB1AB> less than a minute ago.', attachments: [steal_lock_attachment('a1a111a1-1111-1a1a-a1a1-111aaa111111')])
 
-    allow(SecureRandom).to receive(:uuid).and_return('b1b111b1-1111-1b1b-b1b1-111bbb111111')
+    callback_id = command_response.message.attachments[0].callback_id
+    expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@U012AB1AB> less than a minute ago.', attachments: [steal_lock_attachment(callback_id)])
+
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
 
     expect do # Decline option was selected
-      action 'no', 'a1a111a1-1111-1a1a-a1a1-111aaa111111', as: slack_accounts(:steve)
+      action 'no', callback_id, as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
     expect(action_response.message).to eq Slack::Message.new(text: 'Did not steal lock.')
 
-    action 'yes', 'a1a111a1-1111-1a1a-a1a1-111aaa111111', as: slack_accounts(:steve)
+    action 'yes', callback_id, as: slack_accounts(:steve)
     expect(action_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api (stolen from <@U012AB1AB>)')
 
-    allow(SecureRandom).to receive(:uuid).and_return('c1c111c1-1111-1c1c-c1c1-111ccc111111')
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
     end.to_not change { deployment_requests }

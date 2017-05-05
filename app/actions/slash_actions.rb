@@ -7,6 +7,7 @@ class SlashActions
   def self.registry
     registry = Slash::ActionRegistry.new
     registry.register 'LockAction', LockAction
+    registry.register 'UnlockAction', UnlockAction
     registry.register 'DeployAction', DeployAction
 
     registry
