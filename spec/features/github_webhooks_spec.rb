@@ -25,8 +25,8 @@ RSpec.describe 'GitHub Webhooks' do
           Slack::Attachment.new(
             color: '#ff0',
             mrkdwn_in: ['text'],
-            text: 'Deploy <|#710692> of baxterthehacker/public-repo@<https://github.com/baxterthehacker/public-repo/commits/9049f1265b7d61be4a8904a9a27120d2064dab3b|master> to *production* started',
-            fallback: 'Deploy started'
+            text: 'Deployment <|#710692> of baxterthehacker/public-repo@<https://github.com/baxterthehacker/public-repo/commits/9049f1265b7d61be4a8904a9a27120d2064dab3b|master> to *production* started',
+            fallback: 'Deployment started'
           )
         ])
       ).once
@@ -47,8 +47,8 @@ RSpec.describe 'GitHub Webhooks' do
           Slack::Attachment.new(
             color: '#0f0',
             mrkdwn_in: ['text'],
-            text: 'Deploy <|#710692> of baxterthehacker/public-repo@<https://github.com/baxterthehacker/public-repo/commits/9049f1265b7d61be4a8904a9a27120d2064dab3b|master> to *production* succeeded',
-            fallback: 'Deploy succeeded'
+            text: 'Deployment <|#710692> of baxterthehacker/public-repo@<https://github.com/baxterthehacker/public-repo/commits/9049f1265b7d61be4a8904a9a27120d2064dab3b|master> to *production* succeeded',
+            fallback: 'Deployment succeeded'
           )
         ])
       ).once

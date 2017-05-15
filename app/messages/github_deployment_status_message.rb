@@ -19,7 +19,7 @@ class GitHubDeploymentStatusMessage < SlackMessage
         color: color,
         mrkdwn_in: ['text'],
         text: text(verb: verb),
-        fallback: "Deploy #{verb}"
+        fallback: "Deployment #{verb}"
       )
     ]
   end
