@@ -40,7 +40,7 @@ SET default_with_oids = false;
 
 CREATE TABLE auto_deployments (
     id integer NOT NULL,
-    user_id integer NOT NULL,
+    user_id integer,
     environment_id integer NOT NULL,
     sha character varying NOT NULL,
     active boolean DEFAULT true NOT NULL,
@@ -661,4 +661,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160804213314');
 INSERT INTO schema_migrations (version) VALUES ('20160815212720');
 
 INSERT INTO schema_migrations (version) VALUES ('20161217031700');
+
+INSERT INTO schema_migrations (version) VALUES ('20170612220101');
 

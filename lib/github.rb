@@ -4,6 +4,7 @@ module GitHub
   module Client
     autoload :Octokit, 'github/client/octokit'
     autoload :Fake,    'github/client/fake'
+    autoload :App,     'github/app'
 
     def self.new(kind)
       case kind.try(:to_sym)

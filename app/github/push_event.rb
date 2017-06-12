@@ -40,7 +40,6 @@ class PushEvent < GitHubEventHandler
   # be the user that pushed to GitHub if we know who they are in SlashDeploy.
   def deployer(environment)
     account = GitHubAccount.find_by(id: event['sender']['id'])
-    user = account ? account.user : environment.auto_deploy_user
-    user || fail(SlashDeploy::NoAutoDeployUser)
+    account ? account.user : GitHubApp.new(installation)
   end
 end

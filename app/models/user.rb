@@ -20,6 +20,10 @@ class User < ActiveRecord::Base
     "#{id}:#{username}"
   end
 
+  def deployer
+    self
+  end
+
   def username
     github_account.login
   end

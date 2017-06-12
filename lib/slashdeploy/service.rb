@@ -15,6 +15,7 @@ module SlashDeploy
 
     # Sends a direct message to all of the users slack accounts.
     def direct_message(account, klass, attributes = {})
+      return unless account
       message = klass.build attributes.merge(account: account)
       slack.direct_message(account, message)
     end
@@ -27,7 +28,7 @@ module SlashDeploy
     #
     # Returns an AutoDeployment.
     def create_auto_deployment(environment, sha, user)
-      auto_deployment = environment.auto_deployments.create! user: user, sha: sha
+      auto_deployment = environment.auto_deployments.enqueue user, sha
       state = auto_deployment.state
       case state
       when AutoDeployment::STATE_READY

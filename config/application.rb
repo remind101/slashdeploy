@@ -47,6 +47,8 @@ module SlashDeploy
     #   github
     config.x.github_client = ENV['GITHUB_CLIENT']
     config.x.integration_secret = ENV['GITHUB_WEBHOOK_SECRET']
+    config.x.github_app_private_pem = ENV['GITHUB_APP_PRIVATE_PEM']
+    config.x.github_app_id = ENV['GITHUB_APP_ID']
 
     # The name of the slack backend to use. Possible options are:
     #

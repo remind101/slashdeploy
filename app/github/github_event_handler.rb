@@ -20,6 +20,10 @@ class GitHubEventHandler
     event['installation'].present?
   end
 
+  def installation
+    event['installation']['id']
+  end
+
   def integration_secret?
     @secret.present?
   end

@@ -25,6 +25,16 @@ class AutoDeployment < ActiveRecord::Base
   # Returns auto deployments that are older than the given auto deployment.
   scope :older_than, -> (auto_deployment) { where(arel_table[:id].lt(auto_deployment.id)) }
 
+  def self.enqueue(user, sha)
+    create! user: user.deployer, sha: sha
+  end
+
+  # Returns the user to attribute the deployment to. If there's no User, it
+  # will be attributed to the SlashDeploy app itself.
+  def user
+    super || GitHubApp
+  end
+
   # Marks this auto deployment as done and deactivates it, as well as any auto
   # deployments to the environment that are older than this (which should be
   # considered obsolete).

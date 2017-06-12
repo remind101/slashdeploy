@@ -79,7 +79,7 @@ RSpec.feature 'Auto Deployment' do
     environment.configure_auto_deploy('refs/heads/master', fallback_user: users(:steve))
 
     expect(github).to receive(:create_deployment).with \
-      users(:steve),
+      GitHubApp,
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
         ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
@@ -89,13 +89,25 @@ RSpec.feature 'Auto Deployment' do
     push_event 'secret', sender: { id: 1234567 }
   end
 
-  scenario 'receiving a `push` event from GitHub from a user that has never logged into slashdeploy, when there is no fallback' do
+  scenario 'receiving a `status` event from GitHub from a user that has never logged into slashdeploy' do
     repo = Repository.with_name('baxterthehacker/public-repo')
     environment = repo.environment('production')
-    environment.configure_auto_deploy('refs/heads/master')
-    expect do
-      push_event 'secret', sender: { id: 1234567 }
-    end.to raise_error SlashDeploy::NoAutoDeployUser
+    environment.required_contexts = ['ci/circleci', 'security/brakeman']
+    environment.configure_auto_deploy('refs/heads/master', fallback_user: users(:steve))
+
+    push_event 'secret', sender: { id: 1234567 }
+    status_event 'secret', context: 'ci/circleci', state: 'pending'
+    status_event 'secret', context: 'ci/circleci', state: 'success'
+
+    expect(github).to receive(:create_deployment).with \
+      GitHubApp,
+      DeploymentRequest.new(
+        repository: 'baxterthehacker/public-repo',
+        ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
+        environment: 'production'
+      )
+
+    status_event 'secret', context: 'security/brakeman', state: 'success'
   end
 
   scenario 'receiving a `status` event when the repository is configured to deploy on successful commit statuses' do
