@@ -82,6 +82,8 @@ GEM
     concurrent-ruby (1.0.0)
     crack (0.4.2)
       safe_yaml (~> 1.0.0)
+    ddtrace (0.7.2)
+      msgpack
     debug_inspector (0.0.2)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
@@ -124,6 +126,7 @@ GEM
     mime-types (2.99)
     mini_portile2 (2.0.0)
     minitest (5.8.4)
+    msgpack (1.1.0)
     multi_json (1.11.2)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
@@ -274,6 +277,7 @@ DEPENDENCIES
   byebug
   capybara
   codeclimate-test-reporter
+  ddtrace
   dogstatsd-ruby
   faraday
   faraday_middleware
@@ -302,4 +306,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.12.5
+   1.14.5

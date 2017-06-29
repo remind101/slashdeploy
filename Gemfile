@@ -12,6 +12,7 @@ gem 'postgres_ext'
 gem 'oj'
 gem 'puma'
 gem 'sass'
+gem 'ddtrace'
 
 gem 'faraday'
 gem 'faraday_middleware'
