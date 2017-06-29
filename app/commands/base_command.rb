@@ -14,9 +14,13 @@ class BaseCommand
   end
 
   def call
-    logger.with_module(self.class) do
-      logger.info('running command')
-      run
+    $tracer.trace('slack.command') do |span|
+      span.resource = self.class.name
+
+      logger.with_module(self.class) do
+        logger.info('running command')
+        run
+      end
     end
   end
 
