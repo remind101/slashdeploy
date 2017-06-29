@@ -12,7 +12,7 @@ module Slash
     # Call parses the slack slash command and calls the handler.
     def call(env)
       req = ::Rack::Request.new(env)
-      params = {}
+      params = {'rack.env' => env}
 
       payload = req.POST['payload']
       if payload

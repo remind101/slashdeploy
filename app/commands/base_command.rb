@@ -14,13 +14,12 @@ class BaseCommand
   end
 
   def call
-    $tracer.trace('slack.command') do |span|
-      span.resource = self.class.name
+    span = env['rack.env'][:datadog_rack_request_span]
+    span.resource = self.class.name
 
-      logger.with_module(self.class) do
-        logger.info('running command')
-        run
-      end
+    logger.with_module(self.class) do
+      logger.info('running command')
+      run
     end
   end
 

@@ -25,6 +25,9 @@ class GitHubEventHandler
   end
 
   def call
+    span = env[:datadog_rack_request_span]
+    span.resource = self.class.name
+
     logger.with_module('github event') do
       logger.with_module(self.class) do
         env['rack.input'] = StringIO.new env['rack.input'].read
