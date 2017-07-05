@@ -1,3 +1,4 @@
 'baxterthehacker/public-repo':
   name: 'baxterthehacker/public-repo'
   github_secret: secret
+  installation_id: 1234

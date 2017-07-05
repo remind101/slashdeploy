@@ -17,4 +17,5 @@
 /tmp
 /spec/examples.txt
 database.yml
-.env
+.env*
+*.pem

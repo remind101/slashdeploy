@@ -1,5 +1,6 @@
 # Represents a GitHub repository.
 class Repository < ActiveRecord::Base
+  belongs_to :installation
   has_many :environments
   validates :name, repository: true
 

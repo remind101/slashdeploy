@@ -1,6 +1,6 @@
 # This module gets included into full stack feature specs in spec/features.
 module Features
-  GITHUB_EVENTS = %i(status push deployment_status)
+  GITHUB_EVENTS = %i(status push deployment_status installation)
 
   include Rack::Test::Methods
 
@@ -68,7 +68,7 @@ module Features
 
   # Triggers a github event against SlashDeploy.
   def github_event(event, secret, payload = {})
-    body = payload.merge(installation: { id: 1234 }).to_json
+    body = payload.to_json
     post \
       '/',
       body,

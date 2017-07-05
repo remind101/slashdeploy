@@ -15,6 +15,20 @@ RSpec.describe 'GitHub Webhooks' do
     end
   end
 
+  describe 'installation' do
+    it 'creates an installation' do
+      expect do
+        installation_event 'secret', installation: { id: 2 }
+      end.to change { Installation.count }.by(1)
+    end
+
+    it 'deletes an installation' do
+      expect do
+        installation_event 'secret', action: 'deleted'
+      end.to change { Installation.count }.by(-1)
+    end
+  end
+
   describe 'deployment_status' do
     scenario 'getting slack notifications when deployment statuses change' do
       users(:david).enable_slack_notifications!

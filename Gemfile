@@ -7,7 +7,7 @@ gem 'rails', '4.2.5.1'
 gem 'uglifier', '>= 1.3.0'
 gem 'jquery-rails'
 gem 'turbolinks'
-gem 'octokit'
+gem 'octokit', '~> 4.7.0'
 gem 'virtus'
 gem 'pg'
 gem 'postgres_ext'
@@ -15,7 +15,7 @@ gem 'oj'
 gem 'puma'
 gem 'sass'
 
-gem 'faraday'
+gem 'faraday', '0.9.1'
 gem 'faraday_middleware'
 
 # Visibility
@@ -52,4 +52,5 @@ group :development do
   gem 'spring'
   gem 'foreman'
   gem 'brakeman'
+  gem 'dotenv-rails', '~> 2.2'
 end
