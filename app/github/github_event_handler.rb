@@ -51,7 +51,7 @@ class GitHubEventHandler
           repo_name = @event['repository']['full_name']
           logger.info("repository=#{repo_name}")
           @repository = Repository.with_name(repo_name)
-          @repository.update_attributes!(installation: Installation.find(event['installation']['id']))
+          @repository.update_column(:installation_id, Installation.find(event['installation']['id']).id)
           scope[:repository] = @repository.name
         end
 
