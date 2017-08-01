@@ -86,7 +86,18 @@ class AutoDeployment < ActiveRecord::Base
   # Returns the slack account that should be used when DM'ing the user about
   # this auto deployment.
   def slack_account
-    environment.slack_account_for(user)
+    environment.slack_account_for(deployer)
+  end
+
+  # Returns the entity we should attribute the deployment to.
+  #
+  # It's possible that SlashDeploy doesn't know the GitHub user that created
+  # the GitHub Deployment, if they've never logged into SlashDeploy. In that
+  # case, we attribute the deployment to the GitHub app itself. From a security
+  # perspective, this is safe because we've already verified that the webhook
+  # we received was from GitHub, and we trust GitHub.
+  def deployer
+    user || environment.installation
   end
 
   private

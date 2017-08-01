@@ -76,10 +76,10 @@ RSpec.feature 'Auto Deployment' do
   scenario 'receiving a `push` event from GitHub from a user that has never logged into slashdeploy' do
     repo = Repository.with_name('baxterthehacker/public-repo')
     environment = repo.environment('production')
-    environment.configure_auto_deploy('refs/heads/master', fallback_user: users(:steve))
+    environment.configure_auto_deploy('refs/heads/master')
 
     expect(github).to receive(:create_deployment).with \
-      users(:steve),
+      installations(:baxterthehacker),
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
         ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
@@ -89,13 +89,15 @@ RSpec.feature 'Auto Deployment' do
     push_event 'secret', sender: { id: 1234567 }
   end
 
-  scenario 'receiving a `push` event from GitHub from a user that has never logged into slashdeploy, when there is no fallback' do
+  scenario 'receiving a `push` event from GitHub from a user that has never logged into slashdeploy, when the environment is locked' do
     repo = Repository.with_name('baxterthehacker/public-repo')
     environment = repo.environment('production')
     environment.configure_auto_deploy('refs/heads/master')
-    expect do
-      push_event 'secret', sender: { id: 1234567 }
-    end.to raise_error SlashDeploy::NoAutoDeployUser
+    environment.lock! users(:david)
+
+    expect(github).to_not receive(:create_deployment)
+
+    push_event 'secret', sender: { id: 1234567 }
   end
 
   scenario 'receiving a `status` event when the repository is configured to deploy on successful commit statuses' do

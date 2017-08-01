@@ -40,7 +40,7 @@ SET default_with_oids = false;
 
 CREATE TABLE auto_deployments (
     id integer NOT NULL,
-    user_id integer NOT NULL,
+    user_id integer,
     environment_id integer NOT NULL,
     sha character varying NOT NULL,
     active boolean DEFAULT true NOT NULL,
@@ -130,6 +130,17 @@ CREATE TABLE github_accounts (
 
 
 --
+-- Name: installations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE installations (
+    id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: locks; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -186,7 +197,8 @@ CREATE TABLE repositories (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     default_environment character varying,
-    github_secret character varying NOT NULL
+    github_secret character varying NOT NULL,
+    installation_id integer
 );
 
 
@@ -387,6 +399,14 @@ ALTER TABLE ONLY github_accounts
 
 
 --
+-- Name: installations installations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY installations
+    ADD CONSTRAINT installations_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: locks locks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -490,6 +510,13 @@ CREATE UNIQUE INDEX index_environments_on_repository_id_and_name ON environments
 --
 
 CREATE UNIQUE INDEX index_github_accounts_on_id ON github_accounts USING btree (id);
+
+
+--
+-- Name: index_installations_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_installations_on_id ON installations USING btree (id);
 
 
 --
@@ -661,4 +688,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160804213314');
 INSERT INTO schema_migrations (version) VALUES ('20160815212720');
 
 INSERT INTO schema_migrations (version) VALUES ('20161217031700');
+
+INSERT INTO schema_migrations (version) VALUES ('20170704235901');
 

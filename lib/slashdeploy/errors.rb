@@ -20,8 +20,4 @@ module SlashDeploy
       @lock = lock
     end
   end
-
-  # Can be raised when there is no user to perform an auto deployment.
-  class NoAutoDeployUser < Error
-  end
 end

@@ -56,8 +56,8 @@ class Environment < ActiveRecord::Base
   end
 
   # Configures this environment to auto deploy the given branch.
-  def configure_auto_deploy(ref, options = {})
-    self.update_attributes!(auto_deploy_ref: ref, auto_deploy_user: options[:fallback_user])
+  def configure_auto_deploy(ref)
+    self.update_attributes!(auto_deploy_ref: ref)
   end
 
   # Checks if this environment is configured to automatically deploy the given ref.
@@ -90,6 +90,10 @@ class Environment < ActiveRecord::Base
   # this environment.
   def slack_account_for(user)
     repository.slack_account_for(user)
+  end
+
+  def installation
+    repository.installation
   end
 
   def to_s

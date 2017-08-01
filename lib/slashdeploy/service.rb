@@ -15,6 +15,7 @@ module SlashDeploy
 
     # Sends a direct message to all of the users slack accounts.
     def direct_message(account, klass, attributes = {})
+      return unless account
       message = klass.build attributes.merge(account: account)
       slack.direct_message(account, message)
     end
@@ -179,7 +180,7 @@ module SlashDeploy
           return
         end
         github.create_deployment(
-          auto_deployment.user,
+          auto_deployment.deployer,
           deployment_request(environment, auto_deployment.sha)
         )
       ensure

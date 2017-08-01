@@ -23,6 +23,7 @@ Rails.application.routes.draw do
   # GitHub
   github_webhooks = Hookshot::Router.build do
     handle :push,              PushEvent
+    handle :installation,      InstallationEvent
     handle :status,            StatusEvent
     handle :deployment_status, DeploymentStatusEvent
   end

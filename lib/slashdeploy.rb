@@ -14,7 +14,11 @@ module SlashDeploy
   GITHUB_REPO_REGEX = %r{([\w\-]+)\/([\w\-]+)}
 
   autoload :Service, 'slashdeploy/service'
-  autoload :Auth, 'slashdeploy/auth'
+  autoload :Auth,    'slashdeploy/auth'
+
+  def self.github_app
+    @github_app ||= GitHub::App.build(Rails.configuration.x.github_app_id, Rails.configuration.x.github_app_private_pem)
+  end
 
   # Returns a Rack app for handling the slack slash commands.
   def self.commands_handler

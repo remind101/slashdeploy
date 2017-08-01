@@ -32,10 +32,6 @@ class GitHubEventHandler
         @event = JSON.parse req.body.read
         req.body.rewind # rewind body so downstream can re-read.
 
-        repo_name = @event['repository']['full_name']
-
-        logger.info("repository=#{repo_name}")
-
         # Just a sanity check to make sure all webhooks are from an
         # integration.
         fail StandardError, 'Not an installation' unless installation?
@@ -46,12 +42,19 @@ class GitHubEventHandler
         # needed. This is done to support installing SlashDeploy
         # organization wide.
         return [403, {}, ['']] unless Hookshot.verify(req, @secret)
-        @repository = Repository.with_name(repo_name)
 
         scope = {
-          event: @event,
-          repository: @repository.name
+          event: @event
         }
+
+        if @event['repository']
+          repo_name = @event['repository']['full_name']
+          logger.info("repository=#{repo_name}")
+          @repository = Repository.with_name(repo_name)
+          @repository.update_attributes!(installation: Installation.find(event['installation']['id']))
+          scope[:repository] = @repository.name
+        end
+
         Rollbar.scoped(scope) do
           run
         end
