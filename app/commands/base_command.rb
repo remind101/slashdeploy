@@ -26,8 +26,12 @@ class BaseCommand
 
   private
 
+  def account
+    env['account']
+  end
+
   def user
-    env['user']
+    account.user
   end
 
   def cmd

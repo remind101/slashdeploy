@@ -26,9 +26,13 @@ class BaseAction
 
   private
 
+  def account
+    env['account']
+  end
+
   # The User object
   def user
-    env['user']
+    account.user
   end
 
   # The Slash::Action object

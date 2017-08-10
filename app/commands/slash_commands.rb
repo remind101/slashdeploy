@@ -43,7 +43,8 @@ class SlashCommands
   end
 
   def call(env)
-    user = env['user']
+    account = env['account']
+    user = account.user
 
     scope = {
       person: { id: user.id, username: user.username }

@@ -10,7 +10,7 @@ class RepositoryMatcher
       break unless params
 
       if params['repository'].present? && !params['repository'].include?('/')
-        team = env['user'].slack_team
+        team = env['account'].slack_team
         if team.github_organization.present?
           params['repository'] = "#{team.github_organization}/#{params['repository']}"
         else

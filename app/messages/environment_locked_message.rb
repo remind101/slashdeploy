@@ -19,6 +19,6 @@ class EnvironmentLockedMessage < SlackMessage
   private
 
   def locker
-    slack_user lock.user
+    slack_account lock.user
   end
 end

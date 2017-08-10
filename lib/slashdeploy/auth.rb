@@ -27,7 +27,7 @@ module SlashDeploy
         account.save!
       end
 
-      env['user'] = SlackUser.new(account.user, account.slack_team)
+      env['account'] = account
 
       begin
         handler.call(env)

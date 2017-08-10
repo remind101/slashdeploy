@@ -49,7 +49,7 @@ class SlackMessage
     ]
   end
 
-  def slack_user(user)
-    SlackUser.new(user, slack_team)
+  def slack_account(user)
+    user.slack_accounts.find { |a| a.team_id == slack_team.id }
   end
 end

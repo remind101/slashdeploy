@@ -20,7 +20,8 @@ class CheckMessage < SlackMessage
   end
 
   def locker
-    slack_user lock.try(:user)
+    return unless lock
+    slack_account lock.user
   end
 
   def lock

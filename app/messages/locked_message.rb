@@ -11,6 +11,6 @@ class LockedMessage < SlackMessage
   private
 
   def stealer
-    slack_user(stolen_lock.user) if stolen_lock
+    slack_account(stolen_lock.user) if stolen_lock
   end
 end

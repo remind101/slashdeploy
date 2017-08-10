@@ -8,7 +8,7 @@ class UnlockCommand < BaseCommand
       env = repo.environment(params['environment'])
       return Slash.reply(ValidationErrorMessage.build(record: env)) if env.invalid?
 
-      slashdeploy.unlock_environment(user.user, env)
+      slashdeploy.unlock_environment(user, env)
       Slash.say UnlockedMessage.build \
         environment: env
     end

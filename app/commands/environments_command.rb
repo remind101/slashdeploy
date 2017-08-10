@@ -5,7 +5,7 @@ class EnvironmentsCommand < BaseCommand
       repo = Repository.with_name(params['repository'])
       return Slash.reply(ValidationErrorMessage.build(record: repo)) if repo.invalid?
 
-      slashdeploy.authorize! user.user, repo
+      slashdeploy.authorize! user, repo
 
       Slash.say EnvironmentsMessage.build \
         repository: repo
