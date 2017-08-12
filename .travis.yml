@@ -1,7 +1,7 @@
 language: ruby
 cache: bundler
 rvm:
-- 2.2.4
+- 2.2.6
 before_script: "./bin/rake db:setup"
 script: "./bin/rake"
 notifications:

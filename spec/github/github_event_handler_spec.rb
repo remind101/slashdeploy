@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe GitHubEventHandler do
+  fixtures :installations
+
   let(:handler) do
     Class.new(GitHubEventHandler) do
       def run

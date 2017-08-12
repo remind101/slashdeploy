@@ -505,11 +505,6 @@ RSpec.feature 'Slash Commands' do
     expect(action_response.message).to eq Slack::Message.new(text: "Oops! We had a problem running your command, but we've been notified")
   end
 
-  xscenario 'debugging exception tracking' do
-    command '/deploy boom', as: slack_accounts(:david)
-    expect(command_response.message).to eq Slack::Message.new(text: "Oops! We had a problem running your command, but we've been notified")
-  end
-
   def deployment_requests
     github.requests
   end
