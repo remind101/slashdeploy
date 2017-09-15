@@ -119,7 +119,8 @@ RSpec.feature 'Auto Deployment' do
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
         ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
-        environment: 'production'
+        environment: 'production',
+        required_contexts: ['ci/circleci', 'security/brakeman']
       )
 
     status_event 'secret', context: 'security/brakeman', state: 'success'
@@ -150,14 +151,16 @@ RSpec.feature 'Auto Deployment' do
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
         ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
-        environment: 'production'
+        environment: 'production',
+        required_contexts: ['ci/circleci', 'security/brakeman']
       )
     expect(github).to receive(:create_deployment).with \
       users(:david),
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
         ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
-        environment: 'staging'
+        environment: 'staging',
+        required_contexts: ['ci/circleci', 'security/brakeman']
       )
 
     status_event 'secret', context: 'security/brakeman', state: 'success'
@@ -191,7 +194,8 @@ RSpec.feature 'Auto Deployment' do
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
         ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
-        environment: 'production'
+        environment: 'production',
+        required_contexts: ['ci/circleci', 'security/brakeman']
       )
     status_event 'secret', context: 'ci/circleci', state: 'success'
   end
@@ -229,7 +233,8 @@ RSpec.feature 'Auto Deployment' do
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
         ref: '0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c',
-        environment: 'production'
+        environment: 'production',
+        required_contexts: ['ci/circleci', 'security/brakeman']
       )
     status_event 'secret', context: 'security/brakeman', state: 'success'
   end
@@ -290,7 +295,8 @@ RSpec.feature 'Auto Deployment' do
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
         ref: commits[:b],
-        environment: 'production'
+        environment: 'production',
+        required_contexts: ['ci/circleci', 'security/brakeman']
       )
     )
     status_event 'secret', sha: commits[:b], context: 'security/brakeman', state: 'success'
@@ -301,7 +307,8 @@ RSpec.feature 'Auto Deployment' do
       DeploymentRequest.new(
         repository: 'baxterthehacker/public-repo',
         ref: commits[:c],
-        environment: 'production'
+        environment: 'production',
+        required_contexts: ['ci/circleci', 'security/brakeman']
       )
     )
     status_event 'secret', sha: commits[:c], context: 'ci/circleci', state: 'success'

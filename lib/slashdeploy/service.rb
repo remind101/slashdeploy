@@ -193,7 +193,7 @@ module SlashDeploy
       req.repository = environment.repository.to_s
       req.environment = environment.to_s
       req.ref = ref || environment.default_ref
-      req.required_contexts = options[:force] ? [] : nil
+      req.required_contexts = options[:force] ? [] : environment.required_contexts
       req
     end
   end
