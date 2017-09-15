@@ -10,7 +10,7 @@ module GitHub
           auto_merge: false,
           task: 'deploy'
         }
-        options[:required_contexts] = [] if req.force
+        options[:required_contexts] = req.required_contexts unless req.required_contexts.nil?
 
         github_deployment = user.octokit_client.create_deployment(req.repository, req.ref, options)
         deployment_from_github(req.repository, github_deployment)

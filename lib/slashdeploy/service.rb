@@ -189,12 +189,12 @@ module SlashDeploy
     end
 
     def deployment_request(environment, ref, options = {})
-      DeploymentRequest.new(
-        repository:  environment.repository.to_s,
-        environment: environment.to_s,
-        ref:         ref || environment.default_ref,
-        force:       options[:force]
-      )
+      req = DeploymentRequest.new
+      req.repository = environment.repository.to_s
+      req.environment = environment.to_s
+      req.ref = ref || environment.default_ref
+      req.required_contexts = options[:force] ? [] : nil
+      req
     end
   end
 end

@@ -16,8 +16,8 @@ module GitHub
       end
 
       def create_deployment(user, req)
-        fail RedCommitError, [CommitStatusContext.new(context: 'ci', state: CommitStatusContext::FAILURE)] if req.ref == 'failing' && !req.force
-        fail RedCommitError, [CommitStatusContext.new(context: 'ci', state: CommitStatusContext::PENDING)] if req.ref == 'pending' && !req.force
+        fail RedCommitError, [CommitStatusContext.new(context: 'ci', state: CommitStatusContext::FAILURE)] if req.ref == 'failing' && !req.force?
+        fail RedCommitError, [CommitStatusContext.new(context: 'ci', state: CommitStatusContext::PENDING)] if req.ref == 'pending' && !req.force?
         fail BadRefError, req.ref if req.ref == 'non-existent-branch'
         requests << [user, req]
         id = @ids
