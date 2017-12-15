@@ -36,6 +36,9 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.0'
   gem 'rspec-activemodel-mocks'
   gem 'rubocop'
+
+  gem 'pry',                       '0.10.3'
+  gem 'pry-rails',                 '0.3.4'
 end
 
 group :test do
