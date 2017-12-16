@@ -2,7 +2,6 @@ require 'rails_helper'
 
 RSpec.feature 'Slash Commands' do
   fixtures :all
-  let(:slack) { instance_double(Slack::Client) }
 
   before do
     github.reset
@@ -11,8 +10,6 @@ RSpec.feature 'Slash Commands' do
     HEAD('acme-inc/api', 'master',  'ad80a1b3e1a94b98ce99b71a48f811f1')
     HEAD('acme-inc/api', 'topic',   '4c7b474c6e1c81553a16d1082cebfa60')
     HEAD('acme-inc/api', 'failing', '46c2acc4e588924340adcd108cfc948b')
-
-    allow(SlashDeploy.service).to receive(:slack).and_return(slack)
   end
 
   after do
@@ -352,9 +349,6 @@ RSpec.feature 'Slash Commands' do
     callback_id = command_response.message.attachments[0].callback_id
     expect(command_response.message).to eq Slack::Message.new(text: '*staging* was locked by <@U012AB1AB> less than a minute ago.', attachments: [steal_lock_attachment(callback_id)])
 
-    expect(slack).to receive(:direct_message).with \
-      slack_accounts(:david),
-      Slack::Message.new(text: "Your lock for *staging* on acme-inc/api was stolen by <@#{slack_accounts(:steve).id}>", theif: slack_accounts(:steve))
     command '/deploy lock staging on acme-inc/api!', as: slack_accounts(:steve)
     expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api (stolen from <@U012AB1AB>)')
 
@@ -481,9 +475,6 @@ RSpec.feature 'Slash Commands' do
     end.to_not change { deployment_requests }
     expect(action_response.message).to eq Slack::Message.new(text: 'Did not steal lock.')
 
-    expect(slack).to receive(:direct_message).with \
-      slack_accounts(:david),
-      Slack::Message.new(text: "Your lock for *staging* on acme-inc/api was stolen by <@#{slack_accounts(:steve).id}>", theif: slack_accounts(:steve))
     action 'yes', callback_id, as: slack_accounts(:steve)
     expect(action_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api (stolen from <@U012AB1AB>)')
 
