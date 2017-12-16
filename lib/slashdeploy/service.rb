@@ -119,6 +119,13 @@ module SlashDeploy
       if lock
         return if lock.user == user # Already locked, nothing to do.
         fail EnvironmentLockedError, lock unless options[:force]
+        if environment['account']
+          direct_message \
+            lock.user.slack_account_for_github_organization(environment['account'].github_organization),
+            LockStolenMessage,
+            environment: environment,
+            thief: user
+        end
         lock.unlock!
       end
 
