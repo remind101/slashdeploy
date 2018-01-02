@@ -12,4 +12,8 @@ class Lock < ActiveRecord::Base
   def repository
     environment.repository
   end
+
+  def slack_account
+    environment.slack_account_for(user)
+  end
 end

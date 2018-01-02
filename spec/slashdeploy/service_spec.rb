@@ -2,11 +2,14 @@ require 'rails_helper'
 
 RSpec.describe SlashDeploy::Service do
   fixtures :users
+  fixtures :slack_accounts
 
   let(:github) { instance_double(GitHub::Client, access?: true) }
+  let(:slack) { instance_double(Slack::Client) }
   let(:service) do
     described_class.new.tap do |service|
       service.github = github
+      service.slack = slack
     end
   end
 
@@ -71,9 +74,13 @@ RSpec.describe SlashDeploy::Service do
         repo = stub_model(Repository, name: 'acme-inc/api')
         lock = stub_model(Lock, user: users(:steve))
         env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: lock)
+        expect(lock).to receive(:environment).and_return(env)
         expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
         expect(lock).to receive(:unlock!)
         expect(env).to receive(:lock!).with(users(:david), 'Testing some stuff')
+        expect(slack).to receive(:direct_message).with(
+          slack_accounts(:steve),
+          Slack::Message.new(text: "Your lock for *staging* on acme-inc/api was stolen by <@#{slack_accounts(:david).id}>"))
         resp = service.lock_environment(users(:david), env, message: 'Testing some stuff', force: true)
         expect(resp.stolen).to eq lock
       end
