@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 ruby '2.2.6'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.5.1'
+gem 'rails', '~> 4.2.5.1'
 gem 'uglifier', '>= 1.3.0'
 gem 'jquery-rails'
 gem 'turbolinks'
@@ -35,7 +35,7 @@ group :development, :test do
   gem 'byebug'
   gem 'rspec-rails', '~> 3.0'
   gem 'rspec-activemodel-mocks'
-  gem 'rubocop'
+  gem 'rubocop', '~> 0.49.0'
 
   gem 'pry',                       '0.10.3'
   gem 'pry-rails',                 '0.3.4'

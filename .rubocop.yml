@@ -42,3 +42,87 @@ Metrics/PerceivedComplexity:
 
 Style/GlobalVars:
   Enabled: false
+
+Style/SignalException:
+  Enabled: false
+
+Style/Alias:
+  Enabled: false
+
+Style/PercentLiteralDelimiters:
+  Enabled: false
+
+Style/MutableConstant:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Lint/AmbiguousBlockAssociation:
+  Enabled: false
+
+Layout/IndentArray:
+  Enabled: false
+
+Layout/IndentHeredoc:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: false
+
+Layout/MultilineMethodCallBraceLayout:
+  Enabled: false
+
+Layout/SpaceInLambdaLiteral:
+  Enabled: false
+
+Style/EmptyMethod:
+  Enabled: false
+
+Style/NestedParenthesizedCalls:
+  Enabled: false
+
+Lint/UnusedBlockArgument:
+  Enabled: false
+
+Lint/HandleExceptions:
+  Enabled: false
+
+Style/HashSyntax:
+  Enabled: false
+
+Style/GuardClause:
+  Enabled: false
+
+Performance/RedundantMerge:
+  Enabled: false
+
+Style/SymbolArray:
+  Enabled: false
+
+Style/TernaryParentheses:
+  Enabled: false
+
+Style/RedundantParentheses:
+  Enabled: false
+
+Style/InverseMethods:
+  Enabled: false
+
+Layout/MultilineMethodCallIndentation:
+  Enabled: false
+
+Style/RedundantSelf:
+  Enabled: false
+
+Bundler/OrderedGems:
+  Enabled: false
+
+Style/FileName:
+  Enabled: false
+
+Style/IfInsideElse:
+  Enabled: false
+
+Lint/IneffectiveAccessModifier:
+  Enabled: false
