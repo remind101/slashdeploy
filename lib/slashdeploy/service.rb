@@ -184,10 +184,16 @@ module SlashDeploy
             lock: environment.active_lock
           return
         end
+
+        # An auto_deployment in the 'ready' state doesn't need context checks.
+        # So when creating the GitHub Deployment we set force to true.
         github.create_deployment(
           auto_deployment.deployer,
-          deployment_request(environment, auto_deployment.sha)
+          deployment_request(
+            environment, auto_deployment.sha, force: true
+          )
         )
+
       ensure
         auto_deployment.done!
       end
