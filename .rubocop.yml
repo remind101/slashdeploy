@@ -126,3 +126,6 @@ Style/IfInsideElse:
 
 Lint/IneffectiveAccessModifier:
   Enabled: false
+
+Layout/EmptyLinesAroundExceptionHandlingKeywords:
+  Enabled: false
