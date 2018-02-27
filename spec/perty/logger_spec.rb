@@ -7,7 +7,7 @@ RSpec.describe Perty::Logger do
     buf = StringIO.new
     logger = Perty::Logger.new(Logger.new(buf))
     logger.info 'foo'
-    expect(buf.string).to eq "\e[0mfoo\n"
+    expect(buf.string).to eq "foo\n"
   end
 
   describe '#with_requet_id' do
@@ -15,7 +15,7 @@ RSpec.describe Perty::Logger do
       buf = StringIO.new
       logger = Perty::Logger.new(Logger.new(buf))
       logger.with_request_id('id') { logger.info 'foo' }
-      expect(buf.string).to eq "\e[0mrequest_id=id \e[0mfoo\n"
+      expect(buf.string).to eq "request_id=id foo\n"
     end
   end
 
@@ -24,7 +24,7 @@ RSpec.describe Perty::Logger do
       buf = StringIO.new
       logger = Perty::Logger.new(Logger.new(buf))
       logger.with_module('slack commands') { logger.info 'foo' }
-      expect(buf.string).to eq "\e[32m[slack commands] \e[0mfoo\n"
+      expect(buf.string).to eq "[slack commands] foo\n"
     end
 
     it 'allows for nested modules' do
@@ -37,8 +37,8 @@ RSpec.describe Perty::Logger do
         logger.info 'bar'
       end
       expect(buf.string).to eq <<-MSG.strip_heredoc
-      \e[32m[slack commands] \e[32m[DeployCommand] \e[0mfoo
-      \e[32m[slack commands] \e[0mbar
+      [slack commands] [DeployCommand] foo
+      [slack commands] bar
       MSG
     end
   end
@@ -48,7 +48,7 @@ RSpec.describe Perty::Logger do
       buf = StringIO.new
       logger = Perty::Logger.new(Logger.new(buf))
       logger.with_module('slack commands') { logger.with_request_id('id') { logger.info 'foo' } }
-      expect(buf.string).to eq "\e[32m[slack commands] \e[0mrequest_id=id \e[0mfoo\n"
+      expect(buf.string).to eq "[slack commands] request_id=id foo\n"
     end
   end
 end

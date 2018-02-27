@@ -14,10 +14,10 @@ module Perty
       def call(severity, timestamp, progname, msg)
         parts = []
         modules.each do |mod|
-          parts << ["\e[32m[#{mod}]"]
+          parts << ["[#{mod}]"]
         end
-        parts << ["\e[0mrequest_id=#{context[:request_id]}"] if context[:request_id]
-        parts << "\e[0m#{msg}"
+        parts << ["request_id=#{context[:request_id]}"] if context[:request_id]
+        parts << msg
         super(severity, timestamp, progname, parts.join(' '))
       end
 
