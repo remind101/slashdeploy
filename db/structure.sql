@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.6
--- Dumped by pg_dump version 9.6.6
+-- Dumped from database version 9.6.1
+-- Dumped by pg_dump version 9.6.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -198,7 +198,8 @@ CREATE TABLE repositories (
     updated_at timestamp without time zone NOT NULL,
     default_environment character varying,
     github_secret character varying NOT NULL,
-    installation_id integer
+    installation_id integer,
+    raw_config text
 );
 
 
@@ -690,4 +691,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160815212720');
 INSERT INTO schema_migrations (version) VALUES ('20161217031700');
 
 INSERT INTO schema_migrations (version) VALUES ('20170704235901');
+
+INSERT INTO schema_migrations (version) VALUES ('20180308001951');
 

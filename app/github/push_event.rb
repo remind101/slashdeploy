@@ -6,6 +6,7 @@ class PushEvent < GitHubEventHandler
 
     logger.info "ref=#{event['ref']} sha=#{sha} sender=#{event['sender']['login']}"
     transaction do
+      slashdeploy.update_repository_config(repository) if default_branch?
       return logger.info 'not configured for automatic deployments' unless environments
       environments.each do |environment|
         auto_deployment = slashdeploy.create_auto_deployment(environment, sha, deployer)
@@ -15,6 +16,10 @@ class PushEvent < GitHubEventHandler
   end
 
   private
+
+  def default_branch?
+    event['ref'] == "refs/heads/#{event['repository']['default_branch']}"
+  end
 
   # Returns true if this push event was triggered from a fork.
   def fork?

@@ -8,6 +8,7 @@ RSpec.feature 'Auto Deployment' do
   before do
     allow(SlashDeploy.service).to receive(:github).and_return(github)
     allow(SlashDeploy.service).to receive(:slack).and_return(slack)
+    allow(github).to receive(:contents).and_return(nil)
   end
 
   scenario 'receiving a `push` event from GitHub when the repo is not enabled for auto deployments' do

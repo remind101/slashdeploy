@@ -13,6 +13,12 @@ module SlashDeploy
   # http://rubular.com/r/Ecpz7KLRyE
   GITHUB_REPO_REGEX = %r{([\w\-]+)\/([\w\-\.]+)}
 
+  # The file name for SlashDeploy configuration. Similiar to something like
+  # .circleci or .travis.yml. Note that this much match that SlashDeploy
+  # integrations permissions configuration, so that it only has read access to
+  # this single file.
+  CONFIG_FILE_NAME = ".slashdeploy.yml"
+
   autoload :Service, 'slashdeploy/service'
   autoload :Auth,    'slashdeploy/auth'
 

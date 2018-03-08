@@ -1,3 +1,4 @@
+require 'base64'
 require 'octokit'
 
 module GitHub
@@ -35,6 +36,14 @@ module GitHub
         true
       rescue ::Octokit::NotFound
         false
+      end
+
+      def contents(repository, path)
+        client = repository.installation.octokit_client
+        contents = client.contents(repository.name, path: path)
+        Base64.decode64(contents.content)
+      rescue ::Octokit::NotFound
+        nil
       end
 
       private

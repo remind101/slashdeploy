@@ -25,5 +25,9 @@ module GitHub
     def access?(_user, _repository)
       fail NotImplementedError
     end
+
+    def contents(_repository, _path)
+      fail NotImplementedError
+    end
   end
 end
