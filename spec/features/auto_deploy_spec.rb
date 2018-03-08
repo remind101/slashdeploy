@@ -22,9 +22,14 @@ RSpec.feature 'Auto Deployment' do
   end
 
   scenario 'receiving a `push` event from GitHub when the production environment is configured to auto deploy the master branch' do
-    repo = Repository.with_name('baxterthehacker/public-repo')
-    environment = repo.environment('production')
-    environment.configure_auto_deploy('refs/heads/master')
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
 
     expect(github).to receive(:create_deployment).with \
       users(:david),
@@ -39,11 +44,17 @@ RSpec.feature 'Auto Deployment' do
   end
 
   scenario 'receiving a `push` event from GitHub when the staging and production environments are configured to auto deploy the master branch' do
-    repo = Repository.with_name('baxterthehacker/public-repo')
-    production = repo.environment('production')
-    production.configure_auto_deploy('refs/heads/master')
-    staging = repo.environment('staging')
-    staging.configure_auto_deploy('refs/heads/master')
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+      staging:
+        continuous_delivery:
+          ref: refs/heads/master
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
 
     expect(github).to receive(:create_deployment).with \
       users(:david),
@@ -66,9 +77,18 @@ RSpec.feature 'Auto Deployment' do
   end
 
   scenario 'receiving a `push` event when the environment is locked' do
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
+
     repo = Repository.with_name('baxterthehacker/public-repo')
+    repo.configure!(config)
     environment = repo.environment('production')
-    environment.configure_auto_deploy('refs/heads/master')
     environment.lock! users(:david)
 
     expect(slack).to receive(:direct_message).with \
@@ -78,9 +98,14 @@ RSpec.feature 'Auto Deployment' do
   end
 
   scenario 'receiving a `push` event from GitHub from a user that has never logged into slashdeploy' do
-    repo = Repository.with_name('baxterthehacker/public-repo')
-    environment = repo.environment('production')
-    environment.configure_auto_deploy('refs/heads/master')
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
 
     expect(github).to receive(:create_deployment).with \
       installations(:baxterthehacker),
@@ -95,9 +120,18 @@ RSpec.feature 'Auto Deployment' do
   end
 
   scenario 'receiving a `push` event from GitHub from a user that has never logged into slashdeploy, when the environment is locked' do
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
+
     repo = Repository.with_name('baxterthehacker/public-repo')
+    repo.configure!(config)
     environment = repo.environment('production')
-    environment.configure_auto_deploy('refs/heads/master')
     environment.lock! users(:david)
 
     expect(github).to_not receive(:create_deployment)
@@ -106,10 +140,17 @@ RSpec.feature 'Auto Deployment' do
   end
 
   scenario 'receiving a `status` event when the repository is configured to deploy on successful commit statuses' do
-    repo = Repository.with_name('baxterthehacker/public-repo')
-    environment = repo.environment('production')
-    environment.required_contexts = ['ci/circleci', 'security/brakeman']
-    environment.configure_auto_deploy('refs/heads/master')
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+          required_contexts:
+          - ci/circleci
+          - security/brakeman
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
@@ -132,13 +173,23 @@ RSpec.feature 'Auto Deployment' do
   end
 
   scenario 'receiving a `status` event when multiple environments are configured to deploy on successful commit statuses' do
-    repo = Repository.with_name('baxterthehacker/public-repo')
-    production = repo.environment('production')
-    production.required_contexts = ['ci/circleci', 'security/brakeman']
-    production.configure_auto_deploy('refs/heads/master')
-    staging = repo.environment('staging')
-    staging.required_contexts = ['ci/circleci', 'security/brakeman']
-    staging.configure_auto_deploy('refs/heads/master')
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+          required_contexts:
+          - ci/circleci
+          - security/brakeman
+      staging:
+        continuous_delivery:
+          ref: refs/heads/master
+          required_contexts:
+          - ci/circleci
+          - security/brakeman
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
@@ -172,10 +223,17 @@ RSpec.feature 'Auto Deployment' do
   end
 
   scenario 'receiving a `failed` status event' do
-    repo = Repository.with_name('baxterthehacker/public-repo')
-    environment = repo.environment('production')
-    environment.required_contexts = ['ci/circleci', 'security/brakeman']
-    environment.configure_auto_deploy('refs/heads/master')
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+          required_contexts:
+          - ci/circleci
+          - security/brakeman
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
@@ -206,10 +264,17 @@ RSpec.feature 'Auto Deployment' do
   end
 
   scenario 'receiving a `failed` and `errored` status event' do
-    repo = Repository.with_name('baxterthehacker/public-repo')
-    environment = repo.environment('production')
-    environment.required_contexts = ['ci/circleci', 'security/brakeman']
-    environment.configure_auto_deploy('refs/heads/master')
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+          required_contexts:
+          - ci/circleci
+          - security/brakeman
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
 
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
@@ -245,10 +310,17 @@ RSpec.feature 'Auto Deployment' do
   end
 
   scenario 'receiving a new `push` event for a new HEAD of the ref when there is a previous auto deployment' do
-    repo = Repository.with_name('baxterthehacker/public-repo')
-    environment = repo.environment('production')
-    environment.required_contexts = ['ci/circleci', 'security/brakeman']
-    environment.configure_auto_deploy('refs/heads/master')
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+          required_contexts:
+          - ci/circleci
+          - security/brakeman
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
 
     commits = {
       # Commit #1
@@ -326,19 +398,11 @@ RSpec.feature 'Auto Deployment' do
   end
 
   scenario 'receiving a `push` event for a deleted branch' do
-    repo = Repository.with_name('baxterthehacker/public-repo')
-    environment = repo.environment('production')
-    environment.configure_auto_deploy('refs/heads/master')
-
     expect(github).to_not receive(:create_deployment)
     push_event 'secret', deleted: true, head_commit: nil
   end
 
   scenario 'receiving a `push` event for a fork' do
-    repo = Repository.with_name('baxterthehacker/public-repo')
-    environment = repo.environment('production')
-    environment.configure_auto_deploy('refs/heads/master')
-
     expect(github).to_not receive(:create_deployment)
     push_event 'secret', repository: { fork: true }
   end

@@ -96,6 +96,11 @@ RSpec.feature 'Slash Commands' do
     ]
   end
 
+  scenario 'performing a deployment to an unknown environment' do
+    command '/deploy baxterthehacker/public-repo to production', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for baxterthehacker/public-repo. For details about configuring environments, see <https://slashdeploy.io/docs>.")
+  end
+
   scenario 'performing a deployment of a topic branch' do
     command '/deploy acme-inc/api@topic to production', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
@@ -305,6 +310,12 @@ RSpec.feature 'Slash Commands' do
     expect do
       command '/deploy acme-inc/api to staging', as: slack_accounts(:steve)
     end.to change { deployment_requests.count }.by(1)
+
+    command '/deploy lock production on baxterthehacker/public-repo', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for baxterthehacker/public-repo. For details about configuring environments, see <https://slashdeploy.io/docs>.")
+
+    command '/deploy unlock production on baxterthehacker/public-repo', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for baxterthehacker/public-repo. For details about configuring environments, see <https://slashdeploy.io/docs>.")
   end
 
   scenario 'checking a locked branch' do
@@ -320,6 +331,9 @@ RSpec.feature 'Slash Commands' do
     command '/deploy check staging on acme-inc/api', as: slack_accounts(:david)
     attachment = Slack::Attachment.new(mrkdwn_in: ['text'], color: '#3AA3E3', title: 'Lock Status', text: "*staging* isn't locked.")
     expect(command_response.message).to eq Slack::Message.new(text: 'acme-inc/api (*staging*)', attachments: [attachment])
+
+    command '/deploy check production on baxterthehacker/public-repo', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for baxterthehacker/public-repo. For details about configuring environments, see <https://slashdeploy.io/docs>.")
   end
 
   scenario 'locking a branch with a message' do
@@ -364,7 +378,7 @@ RSpec.feature 'Slash Commands' do
 
   scenario 'finding the environments I can deploy a repo to' do
     command '/deploy where acme-inc/api', as: slack_accounts(:david)
-    expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for acme-inc/api")
+    expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for acme-inc/api. For details about configuring environments, see <https://slashdeploy.io/docs>.")
 
     command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
 
@@ -372,6 +386,21 @@ RSpec.feature 'Slash Commands' do
     expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip)
     I know about these environments for acme-inc/api:
     * staging
+    TEXT
+
+    command '/deploy where baxterthehacker/public-repo', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for baxterthehacker/public-repo. For details about configuring environments, see <https://slashdeploy.io/docs>.")
+
+    repo = Repository.with_name("baxterthehacker/public-repo")
+    repo.configure! <<-YAML.strip_heredoc
+    environments:
+      production: {}
+    YAML
+
+    command '/deploy where baxterthehacker/public-repo', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip)
+    I know about these environments for baxterthehacker/public-repo:
+    * production
     TEXT
   end
 

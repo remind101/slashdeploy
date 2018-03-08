@@ -23,7 +23,7 @@ module SlashDeploy
     # Pulls the latest .slashdeploy.yml file from the default branch.
     def update_repository_config(repository)
       raw_config = github.contents(repository, SlashDeploy::CONFIG_FILE_NAME)
-      repository.update_column(:raw_config, raw_config)
+      repository.configure!(raw_config)
     end
 
     # Creates a new AutoDeployment for the given sha.

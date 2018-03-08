@@ -13,14 +13,16 @@ module SlashDeploy
   # http://rubular.com/r/Ecpz7KLRyE
   GITHUB_REPO_REGEX = %r{([\w\-]+)\/([\w\-\.]+)}
 
-  # The file name for SlashDeploy configuration. Similiar to something like
-  # .circleci or .travis.yml. Note that this much match that SlashDeploy
-  # integrations permissions configuration, so that it only has read access to
-  # this single file.
+  # SlashDeploy should _only_ need read access to this file path. Ensure this
+  # value matches SlashDeploy's Github integration permission configuration
+  # labeled "Single File".
+  #
+  # See https://github.com/organizations/<org>/settings/apps/slashdeploy/permissions
   CONFIG_FILE_NAME = ".slashdeploy.yml"
 
   autoload :Service, 'slashdeploy/service'
   autoload :Auth,    'slashdeploy/auth'
+  autoload :Config,  'slashdeploy/config'
 
   def self.github_app
     @github_app ||= GitHub::App.build(Rails.configuration.x.github_app_id, Rails.configuration.x.github_app_private_pem)
