@@ -41,6 +41,10 @@ module GitHub
         deployments[repository][environment].last
       end
 
+      def contents(_repository, _path)
+        nil
+      end
+
       def reset
         @ids = 1
         @commits = Hash.new do |commits, repo|

@@ -17,7 +17,21 @@ class Repository < ActiveRecord::Base
   # necessary. If name is nil, returns the default environment, if the
   # repository has a default environment set.
   def environment(name = nil)
-    environments.with_name(name || default_environment)
+    if config?
+      known_environments.find { |env| env.match_name?(name) }
+    else
+      environments.with_name(name || default_environment)
+    end
+  end
+
+  # Returns a list of known environments for this repository. If the repository
+  # has a config present, that controls what environments are known.
+  def known_environments
+    if config?
+      config.environments.map { |name, _| environments.find_or_create_by(name: name) }
+    else
+      environments
+    end
   end
 
   # The default environment to deploy to when one is not specified.
@@ -28,7 +42,7 @@ class Repository < ActiveRecord::Base
   # Returns the environment that's configured to auto deploy this ref.
   # Returns nil if there is no environment configured for this branch.
   def auto_deploy_environments_for_ref(ref)
-    environments.select { |env| env.auto_deploy?(ref) }
+    known_environments.select { |env| env.auto_deploy?(ref) }
   end
 
   # Returns the organization portion of the repository name.
@@ -41,6 +55,21 @@ class Repository < ActiveRecord::Base
   # this repository.
   def slack_account_for(user)
     user.slack_account_for_github_organization(organization)
+  end
+
+  def configure!(raw_config)
+    update_column :raw_config, raw_config
+  end
+
+  # Returns true if this repository has a .slashdeploy.yml file, and if we
+  # should use it for configuration.
+  def config?
+    raw_config.present?
+  end
+
+  # Returns a Ruby representation of the raw config.
+  def config
+    SlashDeploy::Config.from_yaml(raw_config)
   end
 
   def to_s

@@ -2,3 +2,4 @@
   name: 'baxterthehacker/public-repo'
   github_secret: secret
   installation_id: 1234
+  raw_config: "---\n"
