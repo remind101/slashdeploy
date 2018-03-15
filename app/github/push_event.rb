@@ -11,6 +11,7 @@ class PushEvent < GitHubEventHandler
         slashdeploy.update_repository_config(repository)
       end
       return logger.info 'not configured for automatic deployments' unless environments
+      return logger.info 'skipping continuous delivery because commit message' if skip?
       environments.each do |environment|
         auto_deployment = slashdeploy.create_auto_deployment(environment, sha, deployer)
         logger.info "auto_deployment=#{auto_deployment.id} ready=#{auto_deployment.ready?} deployer=#{auto_deployment.deployer.identifier}"
@@ -19,6 +20,10 @@ class PushEvent < GitHubEventHandler
   end
 
   private
+
+  def skip?
+    SlashDeploy::CD_SKIP.match(event['head_commit']['message'])
+  end
 
   # Returns true if the ref that was pushed to is the default branch for the
   # repository.

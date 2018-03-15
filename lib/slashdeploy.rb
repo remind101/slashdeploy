@@ -20,6 +20,9 @@ module SlashDeploy
   # See https://github.com/organizations/<org>/settings/apps/slashdeploy/permissions
   CONFIG_FILE_NAME = ".slashdeploy.yml"
 
+  # If this is included in the commit message, CD will be skipped.
+  CD_SKIP = /\[cd skip\]/
+
   autoload :Service, 'slashdeploy/service'
   autoload :Auth,    'slashdeploy/auth'
   autoload :Config,  'slashdeploy/config'

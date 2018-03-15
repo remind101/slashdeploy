@@ -43,6 +43,20 @@ RSpec.feature 'Auto Deployment' do
     push_event 'secret', sender: { id: github_accounts(:david).id }
   end
 
+  scenario 'receiving a `push` event when the commit message has the work [cd skip] in it' do
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
+    expect(github).to_not receive(:create_deployment)
+
+    push_event 'secret', sender: { id: github_accounts(:david).id }, head_commit: { message: 'Update README.md [cd skip]' }
+  end
+
   scenario 'receiving a `push` event from GitHub when the staging and production environments are configured to auto deploy the master branch' do
     config = <<-YAML.strip_heredoc
     environments:
