@@ -78,11 +78,6 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'performing a deployment to an aliased environment' do
-    repo = Repository.with_name('acme-inc/api')
-    env  = repo.environment('staging')
-    env.aliases = ['stage']
-    env.save!
-
     command '/deploy acme-inc/api to stage', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'master', environment: 'staging')]
@@ -377,17 +372,11 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'finding the environments I can deploy a repo to' do
-    command '/deploy where acme-inc/api', as: slack_accounts(:david)
-    expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for acme-inc/api. For details about configuring environments, see <https://slashdeploy.io/docs>.")
+    command '/deploy where baxterthehacker/public-repo', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for baxterthehacker/public-repo. For details about configuring environments, see <https://slashdeploy.io/docs>.")
 
-    command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
-
-    command '/deploy where acme-inc/api', as: slack_accounts(:david)
-    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip)
-    I know about these environments for acme-inc/api:
-    * staging
-    TEXT
-
+    repo = Repository.with_name("baxterthehacker/public-repo")
+    repo.configure! nil
     command '/deploy where baxterthehacker/public-repo', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for baxterthehacker/public-repo. For details about configuring environments, see <https://slashdeploy.io/docs>.")
 
@@ -423,27 +412,20 @@ RSpec.feature 'Slash Commands' do
       command '/deploy acme-inc/api@master', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
     expect(command_response.message).to eq Slack::Message.new(
-      text: 'Oops! We had a problem running that command for you.',
-      attachments: [
-        Slack::Attachment.new(color: '#f00', fields: [
-          Slack::Attachment::Field.new(title: 'environment name', value: "can't be blank")
-        ])
-      ]
+      text: "I know about these environments for acme-inc/api:\n* production\n* staging\n* cd/no_contexts"
     )
   end
 
   scenario 'trying to /deploy an environment that is configured to auto deploy' do
     repo = Repository.with_name('acme-inc/api')
-    repo.update_attributes! default_environment: 'production'
-    environment = repo.environment('production')
-    environment.configure_auto_deploy('refs/heads/master')
+    repo.update_attributes! default_environment: 'cd/no_contexts'
 
     expect do
       command '/deploy acme-inc/api@master', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
 
     callback_id = command_response.message.attachments[0].callback_id
-    expect(command_response.message).to eq Slack::Message.new(text: 'acme-inc/api is configured to automatically deploy `refs/heads/master` to *production*.', attachments: [
+    expect(command_response.message).to eq Slack::Message.new(text: 'acme-inc/api is configured to automatically deploy `refs/heads/master` to *cd/no_contexts*.', attachments: [
       Slack::Attachment.new(
         title: 'Deploy anyway?',
         callback_id: callback_id,
@@ -459,16 +441,14 @@ RSpec.feature 'Slash Commands' do
 
   scenario 'trying to /deploy an environment that is configured to auto deploy by action' do
     repo = Repository.with_name('acme-inc/api')
-    repo.update_attributes! default_environment: 'production'
-    environment = repo.environment('production')
-    environment.configure_auto_deploy('refs/heads/master')
+    repo.update_attributes! default_environment: 'cd/no_contexts'
 
     expect do
       command '/deploy acme-inc/api@master', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
 
     callback_id = command_response.message.attachments[0].callback_id
-    expect(command_response.message).to eq Slack::Message.new(text: 'acme-inc/api is configured to automatically deploy `refs/heads/master` to *production*.', attachments: [
+    expect(command_response.message).to eq Slack::Message.new(text: 'acme-inc/api is configured to automatically deploy `refs/heads/master` to *cd/no_contexts*.', attachments: [
       Slack::Attachment.new(
         title: 'Deploy anyway?',
         callback_id: callback_id,
@@ -479,7 +459,7 @@ RSpec.feature 'Slash Commands' do
 
     expect do
       action 'yes', callback_id, as: slack_accounts(:steve)
-      expect(action_response.message).to eq Slack::Message.new(text: 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/ad80a1b3e1a94b98ce99b71a48f811f1|master> to *production* (no change)')
+      expect(action_response.message).to eq Slack::Message.new(text: 'Created deployment request for <https://github.com/acme-inc/api|acme-inc/api>@<https://github.com/acme-inc/api/commits/ad80a1b3e1a94b98ce99b71a48f811f1|master> to *cd/no_contexts* (no change)')
     end.to change { deployment_requests.count }.by(1)
   end
 
