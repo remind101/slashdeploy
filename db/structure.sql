@@ -90,11 +90,8 @@ CREATE TABLE environments (
     updated_at timestamp without time zone NOT NULL,
     repository_id integer NOT NULL,
     in_channel boolean DEFAULT false NOT NULL,
-    aliases text[] DEFAULT '{}'::text[],
     default_ref character varying,
-    auto_deploy_ref character varying,
-    auto_deploy_user_id integer,
-    required_contexts character varying[]
+    auto_deploy_user_id integer
 );
 
 
@@ -693,4 +690,6 @@ INSERT INTO schema_migrations (version) VALUES ('20161217031700');
 INSERT INTO schema_migrations (version) VALUES ('20170704235901');
 
 INSERT INTO schema_migrations (version) VALUES ('20180308001951');
+
+INSERT INTO schema_migrations (version) VALUES ('20180315040144');
 
