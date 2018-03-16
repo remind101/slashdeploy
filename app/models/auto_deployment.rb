@@ -5,6 +5,12 @@ class AutoDeployment < ActiveRecord::Base
   belongs_to :user
   has_many :statuses, primary_key: :sha, foreign_key: :sha
 
+  # there may be only one AutoDeployment per environment + sha.
+  validates :sha, uniqueness: {
+    scope: :environment,
+    message: "there may be only one AutoDeployment per environment + sha."
+  }
+
   # Deployment is waiting on required commit statuses to pass.
   STATE_PENDING = :pending
   # All required commit statuses are passing, and the deployment is ready to be deployed.

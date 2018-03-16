@@ -1,10 +1,10 @@
 # Handles the push event from github.
 class PushEvent < GitHubEventHandler
   def run
+    logger.info "ref=#{event['ref']} sha=#{sha} sender=#{event['sender']['login']}"
     return logger.info 'ignoring deleted branch' if deleted?
     return logger.info 'ignoring push from fork' if fork?
 
-    logger.info "ref=#{event['ref']} sha=#{sha} sender=#{event['sender']['login']}"
     transaction do
       if default_branch?
         logger.info "syncing #{SlashDeploy::CONFIG_FILE_NAME}"
@@ -14,7 +14,11 @@ class PushEvent < GitHubEventHandler
       return logger.info 'skipping continuous delivery because commit message' if skip?
       environments.each do |environment|
         auto_deployment = slashdeploy.create_auto_deployment(environment, sha, deployer)
-        logger.info "auto_deployment=#{auto_deployment.id} ready=#{auto_deployment.ready?} deployer=#{auto_deployment.deployer.identifier}"
+        if auto_deployment.valid?
+          logger.info "auto_deployment=#{auto_deployment.id} ready=#{auto_deployment.ready?} deployer=#{auto_deployment.deployer.identifier}"
+        else
+          logger.info "Skipping auto_deployment for #{environment} + #{sha}, it already exists."
+        end
       end
     end
   end
@@ -41,9 +45,9 @@ class PushEvent < GitHubEventHandler
     event['deleted']
   end
 
-  # The git commit sha to deploy
+  # The git commit sha of this push event.
   def sha
-    event['head_commit']['id']
+    event['head_commit']['id'] if event['head_commit']
   end
 
   # Returns the environment that's configured to auto deploy this git ref.
