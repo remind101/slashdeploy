@@ -1,10 +1,12 @@
 # Handles the push event from github.
 class PushEvent < GitHubEventHandler
   def run
+    logger.info "ref=#{event['ref']} sha=#{sha} sender=#{event['sender']['login']}"
+
     return logger.info 'ignoring deleted branch' if deleted?
     return logger.info 'ignoring push from fork' if fork?
+    return logger.info 'ignoring rebased or replayed commit hash (we already saw this sha)' if sha_has_autodeployment?
 
-    logger.info "ref=#{event['ref']} sha=#{sha} sender=#{event['sender']['login']}"
     transaction do
       return logger.info 'not configured for automatic deployments' unless environments
       environments.each do |environment|
@@ -26,9 +28,14 @@ class PushEvent < GitHubEventHandler
     event['deleted']
   end
 
-  # The git commit sha to deploy
+  # The git commit sha of this push event.
   def sha
     event['head_commit']['id']
+  end
+
+  # Returns true if this push event's git commit sha already has an AutoDeployment.
+  def sha_has_autodeployment?
+    AutoDeployment.exists?(sha=sha)
   end
 
   # Returns the environment that's configured to auto deploy this git ref.
