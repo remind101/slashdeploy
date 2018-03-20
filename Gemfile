@@ -18,6 +18,9 @@ gem 'sass'
 gem 'faraday', '0.9.1'
 gem 'faraday_middleware'
 
+# async worker.
+gem 'sidekiq'
+
 # Visibility
 gem 'rollbar', '~> 2.8.0'
 gem 'lograge'
