@@ -43,7 +43,7 @@ RSpec.feature 'Auto Deployment' do
     push_event 'secret', sender: { id: github_accounts(:david).id }
   end
 
-  scenario 'receiving a `push` event when the commit message has the work [cd skip] in it' do
+  scenario 'receiving a `push` event when the commit message has the word [cd skip] in it' do
     config = <<-YAML.strip_heredoc
     environments:
       production:
@@ -419,5 +419,30 @@ RSpec.feature 'Auto Deployment' do
   scenario 'receiving a `push` event for a fork' do
     expect(github).to_not receive(:create_deployment)
     push_event 'secret', repository: { fork: true }
+  end
+
+  scenario 'receiving a `push` event for an already auto deployed sha' do
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
+
+    expect(github).to receive(:create_deployment).with \
+      users(:david),
+      DeploymentRequest.new(
+        repository: 'baxterthehacker/public-repo',
+        ref: '595ebd4ca061c4671ba89202aaf19c896f216635',
+        environment: 'production',
+        force: true
+      )
+    push_event 'secret', sender: { id: github_accounts(:david).id }, head_commit: { id: "595ebd4ca061c4671ba89202aaf19c896f216635" }
+
+    # duplicate git commit sha.
+    expect(github).to_not receive(:create_deployment)
+    push_event 'secret', head_commit: { id: "595ebd4ca061c4671ba89202aaf19c896f216635" }
   end
 end

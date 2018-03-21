@@ -34,7 +34,8 @@ module SlashDeploy
     #
     # Returns an AutoDeployment.
     def create_auto_deployment(environment, sha, user)
-      auto_deployment = environment.auto_deployments.create! user: user, sha: sha
+      auto_deployment = environment.auto_deployments.create user: user, sha: sha
+      return auto_deployment unless auto_deployment.valid?
       state = auto_deployment.state
       case state
       when AutoDeployment::STATE_READY
