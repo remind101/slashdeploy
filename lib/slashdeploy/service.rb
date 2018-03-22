@@ -45,6 +45,8 @@ module SlashDeploy
           auto_deployment.slack_account, \
           AutoDeploymentCreatedMessage, \
           auto_deployment: auto_deployment
+        # schedule Deployment Watchdog to check up on this AutoDeployment.
+        DeploymentWatchdogWorker.schedule(auto_deployment.id)
       else
         fail "Unhandled #{state} state"
       end

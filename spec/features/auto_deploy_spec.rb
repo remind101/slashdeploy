@@ -445,4 +445,56 @@ RSpec.feature 'Auto Deployment' do
     expect(github).to_not receive(:create_deployment)
     push_event 'secret', head_commit: { id: "595ebd4ca061c4671ba89202aaf19c896f216635" }
   end
+
+  scenario 'simulate a DeploymentWatchdogWorker alerting that an AutoDeployment is stuck in pending.' do
+    # make sure our queue is clear before starting test.
+    DeploymentWatchdogWorker.clear
+
+    # mock the repo's .slashdeploy.yml config.
+    config = <<-YAML.strip_heredoc
+    environments:
+      production:
+        continuous_delivery:
+          ref: refs/heads/master
+          required_contexts:
+            - ci/circleci
+    YAML
+
+    allow(github).to receive(:contents).and_return(config)
+
+    # I think this passes the YAML config into github as a contents symbol?
+    allow(github).to receive(:contents).and_return(config)
+
+    # prepare to receive a slack notification during push_event.
+    # these slack notification trigger when the config has required_context.
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david_baxterthehacker),
+      Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* are passing.", attachments: [])
+
+    # our deployment watchdog worker should start with an empty queue.
+    expect(DeploymentWatchdogWorker.jobs.size).to eq 0
+
+    # simulate push_event from github.
+    push_event 'secret', sender: { id: github_accounts(:david).id }
+
+    # our deployment watchdog worker queue should increase with a new job.
+    expect(DeploymentWatchdogWorker.jobs.size).to eq 1
+
+    # simulate status_event from github, set ci/circleci to pending.
+    status_event 'secret', context: 'ci/circleci', state: 'pending'
+
+    # prepare to receive a slack notification during during worker wake up.
+    # these slack notification trigger when an AutoDeployment
+    # has required_context statuses in the pending state.
+    expect(slack).to receive(:direct_message).with \
+      slack_accounts(:david_baxterthehacker),
+      Slack::Message.new(text: ":sadparrot: <@U012AB1AC>. There was an issue with baxterthehacker/public-repo@0d1a26e to *production*. Some of the required commit status contexts appear hung: *ci/circleci*", attachments: [])
+
+    # simulate waiting 1 hour and drain worker early to trigger a
+    # slack notification that a status context is hung (stuck in pending).
+    DeploymentWatchdogWorker.drain
+
+    # our deployment watchdog worker should finish with an empty queue.
+    expect(DeploymentWatchdogWorker.jobs.size).to eq 0
+  end
 end

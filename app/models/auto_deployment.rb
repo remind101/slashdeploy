@@ -44,7 +44,7 @@ class AutoDeployment < ActiveRecord::Base
 
   # Returns the current state of this AutoDeployment.
   def state
-    return STATE_INACTIVE unless active?
+    return STATE_INACTIVE if inactive?
 
     statuses = required_statuses
 
@@ -70,29 +70,35 @@ class AutoDeployment < ActiveRecord::Base
     fail 'Unreachable'
   end
 
+  def inactive?
+    !active
+  end
+
   def ready?
     state == STATE_READY
   end
 
-  # Returns a Status object for the current state of all required commit status
-  # contexts. If the state field is nil, it means we haven't record a Status
-  # object for it yet.
-  def required_statuses
-    # TODO(ejholmes): Optimize this query.
-    required_contexts.map do |context|
-      statuses.latest(context)
-    end
+  def pending?
+    state == STATE_PENDING
+  end
+
+  def failed?
+    state == STATE_FAILED
+  end
+
+  # Returns the required commit status contexts that are currently in a pending state.
+  def pending_statuses
+    required_statuses.select(&:pending?)
+  end
+
+  # Returns the required commit status contexts that are currently in a success state.
+  def success_statuses
+    required_statuses.select(&:success?)
   end
 
   # Returns the required commit status contexts that are currently in a failing state.
   def failing_statuses
     required_statuses.select(&:failure?)
-  end
-
-  # Returns the slack account that should be used when DM'ing the user about
-  # this auto deployment.
-  def slack_account
-    environment.slack_account_for(deployer)
   end
 
   # Returns the entity we should attribute the deployment to.
@@ -104,6 +110,22 @@ class AutoDeployment < ActiveRecord::Base
   # we received was from GitHub, and we trust GitHub.
   def deployer
     user || environment.installation
+  end
+
+  # Returns the slack account that should be used when DM'ing the user about
+  # this auto deployment.
+  def slack_account
+    environment.slack_account_for(deployer)
+  end
+
+  # Returns a Status object for the current state of all required commit status
+  # contexts. If the state field is nil, it means we haven't record a Status
+  # object for it yet.
+  def required_statuses
+    # TODO(ejholmes): Optimize this query.
+    required_contexts.map do |context|
+      statuses.latest(context)
+    end
   end
 
   private
