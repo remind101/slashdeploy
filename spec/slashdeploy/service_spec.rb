@@ -69,23 +69,6 @@ RSpec.describe SlashDeploy::Service do
       end
     end
 
-    context 'when there is an existing lock held by a different user, and the :force flag is set' do
-      it 'locks the environment' do
-        repo = stub_model(Repository, name: 'acme-inc/api')
-        lock = stub_model(Lock, user: users(:steve))
-        env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: lock)
-        expect(lock).to receive(:environment).and_return(env)
-        expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
-        expect(lock).to receive(:unlock!)
-        expect(env).to receive(:lock!).with(users(:david), 'Testing some stuff')
-        expect(slack).to receive(:direct_message).with(
-          slack_accounts(:steve),
-          Slack::Message.new(text: "Your lock for *staging* on acme-inc/api was stolen by <@#{slack_accounts(:david).id}>"))
-        resp = service.lock_environment(users(:david), env, message: 'Testing some stuff', force: true)
-        expect(resp.stolen).to eq lock
-      end
-    end
-
     context 'when there is an existing lock held by the same user' do
       it 'returns nil' do
         repo = stub_model(Repository, name: 'acme-inc/api')
