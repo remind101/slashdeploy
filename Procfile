@@ -1,5 +1,2 @@
-web:
-  command: bundle exec puma -C config/puma.rb
-
-worker:
-  command: bundle exec sidekiq -c 2 -q deployment_watchdog
+web: bundle exec puma -C config/puma.rb
+worker: bundle exec sidekiq -c 2 -q deployment_watchdog
