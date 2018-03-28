@@ -1,4 +1,6 @@
 # CommitStatusContext represents the red/green state of a git commit per context.
+# The github "status" API allows third party systems like CircleCI and Conveyor to
+# emit status payloads to Github to be centrally managed.
 class CommitStatusContext
   include Virtus.value_object
 

@@ -16,6 +16,7 @@ RSpec.describe GitHub::Client::Octokit do
       github_deployment = double(
         'GitHub Deployment',
         id: 1,
+        url: 'https://api.gthub.com/repos/acme-inc/api/deployments/1',
         ref: 'master',
         environment: 'production',
         sha: '52bea69fa54a0ad7a4bdb305380ef43a'
@@ -104,13 +105,17 @@ RSpec.describe GitHub::Client::Octokit do
 
     context 'when there are previous deployments' do
       it 'returns the first deployment' do
-        expect(octokit_client).to receive(:deployments).and_return([double(
+        github_deployment = double(
           'GitHub Deployment',
           id: 1,
+          url: 'https://api.gthub.com/repos/acme-inc/api/deployments/1',
           ref: 'master',
           environment: 'production',
           sha: 'ef892c97230add9a1250ec7e1d71b362'
-        )])
+        )
+        expect(octokit_client).to receive(:deployments).and_return([
+          github_deployment
+        ])
         deployment = client.last_deployment user, 'acme-inc/api', 'production'
         expect(deployment.id).to eq 1
       end

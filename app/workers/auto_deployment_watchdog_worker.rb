@@ -1,6 +1,6 @@
-class DeploymentWatchdogWorker
+class AutoDeploymentWatchdogWorker
   include Sidekiq::Worker
-  sidekiq_options queue: 'deployment_watchdog'
+  sidekiq_options queue: 'auto_deployment_watchdog'
 
   # default time to wait until our worker wakes up.
   DEFAULT_DELAY = 1.hour
