@@ -9,7 +9,7 @@ class GithubDeploymentWatchdogWorker
   # user_id: the database id of the slashdeploy User object.
   # github_deployment: an instance of class app/model/deployment::Deployment
   def self.schedule(user_id, github_deployment)
-    self.perform_in(DEFAULT_DELAY, user_id, github_deployment.url)
+    self.perform_in(DEFAULT_DELAY, user_id, github_deployment)
   end
 
   # notify the user if there was an issue otherwise do nothing.

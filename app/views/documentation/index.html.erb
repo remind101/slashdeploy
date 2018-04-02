@@ -5,6 +5,7 @@
       <li role="presentation"><a href="#slash-command">Slash Command</a></li>
       <li role="presentation"><a href="#continuous-delivery">Continuous Delivery</a></li>
       <li role="presentation"><a href="#faq">FAQ</a></li>
+      <li role="presentation"><a href="#troubleshooting">Troubleshooting</a></li>
     </ul>
   </div>
   <div class="col-md-9">
@@ -14,14 +15,19 @@
       <p>As SlashDeploy is still in beta, the documentation here is subject to change and some parts may be incomplete. If you have feedback, please send it to <%= feedback_email %>.</p>
     </div>
     <% end %>
+
     <h5 id="installation">Installation</h5>
     <p>The easiest way to install SlashDeploy is to use our Add to Slack button:</p>
     <p><%= add_to_slack %></p>
     <p>This allows us to automatically install the <code>/deploy</code> command as well as a <code>@slashdeploy</code> bot user, which is used to send you notifications when deployments start and end.</p>
+
     <hr />
+
     <h5 id="slash-command">Slash Command</h5>
     <p>Once SlashDeploy is installed into your Slack team, you'll have access to the <code>/deploy</code> command. The first time you type <code>/deploy</code> you'll be asked to authenticate with GitHub so that SlashDeploy can create GitHub Deployments on your behalf.</p>
+
     <hr />
+
     <h6>Deploying</h6>
     <p>To deploy the default ref (master) to the default environment (production).</p>
     <p><code>/deploy acme-inc/api</code></p>
@@ -33,7 +39,9 @@
     <p><code>/deploy acme-inc/api@branch!</code></p>
     <p>To find out what environments you can deploy the repo to.</p>
     <p><code>/deploy where acme-inc/api</code></p>
+
     <hr />
+
     <h6>Locking</h6>
     <p>SlashDeploy also allows you to "lock" environments. If for example, I wanted to test a migration on the staging environment, I can lock it with a message.</p>
     <p><code>/deploy lock staging on acme-inc/api: I'm testing a migration</code></p>
@@ -41,7 +49,9 @@
     <p><code>/deploy acme-inc/api to staging</code></p>
     <p>When I'm done testing my changes, I can unlock the environment so others can deploy to it again.</p>
     <p><code>/deploy unlock staging on acme-inc/api</code></p>
+
     <hr />
+
     <h5 id="continuous-delivery">Continuous Delivery</h5>
     <p>You can configure SlashDeploy to automatically deploy a branch to an environment when you push code to GitHub or when a set of commit status contexts succeeds.</p>
     <p>To configure CD, you add a <code>.slashdeploy.yml</code> file to the root of the repository. Here's an example config file that will automatically deploy the <code>master</code> branch to the <code>production</code> environment, once tests are passing on CircleCI:</p>
@@ -65,7 +75,9 @@ production:
     required_contexts:
       - ci/circleci</pre>
     </p>
+
     <hr />
+
     <h5 id="faq">FAQ</h5>
     <dl>
       <dt>What's GitHub Deployments?</dt>
@@ -74,5 +86,23 @@ production:
       <dt>How does SlashDeploy know who I am on GitHub?</dt>
       <dd>When you first run the /deploy command, we ask you to authenticate with your GitHub account, which is then linked to your Slack user account.</dd>
     </dl>
+
+    <hr />
+
+    <h5 id="troubleshooting">Troubleshooting</h5>
+    <p>Here we have some debugging information about the common issues and how to resolve them.
+    <dl>
+      <dt id="error-1">Error 1: Deployment did not start</dt>
+      <dd>If a deployment doesn't start with in 30 seconds, you will get a Slack notification letting you know something went wrong. This might happen for a number of reasons, so check the following.
+      <ul>
+        <li>make sure the repo's <code>slashdeploy.yml</code> file is configured properly</li>
+        <li>make sure the repo has a Github Deployment Integration (and Webhooks) to handle deployment events</li>
+        <li>make sure the service handling the deployment events is working and sending Deployment Status updates to Github</li>
+        <li>make sure the service handling the deployment events is not filtering or ignoring deployment requests. For example, it will deploy to <code>production</code>, however the  provided environment in the deployment event was <code>prod</code>.
+      </dd>
+      <dt id="error-2">Error 2: Required commit status contexts stuck in pending</dt>
+      <dd>Inside the repo's <code>slashdeploy.yml</code> a list of <code>required_contexts</code> was defined which need to move into the <code>success</code> state in order to continue. For some reason, after an hour of waiting, at least one of these <code>required_contexts</code> are stuck in the <code>pending</code> state instead of transitioning to <code>success<code>, <code>failure</code>, or <code>error</code>. If you fix this issue your deployment will likely continue.</dd>
+    </dl>
+
   </div>
 </div>

@@ -488,7 +488,7 @@ RSpec.feature 'Auto Deployment' do
     # has required_context statuses in the pending state.
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: ":sadparrot: <@U012AB1AC>, There was an issue with baxterthehacker/public-repo@0d1a26e to *production*. Some of the required commit status contexts appear hung: *ci/circleci*", attachments: [])
+      Slack::Message.new(text: ":sadparrot: <@U012AB1AC>, There was an issue with baxterthehacker/public-repo@0d1a26e to *production*. Some of the required commit status contexts appear hung: *ci/circleci*. For more details, please read: https://slashdeploy.io/docs#error-2", attachments: [])
 
     # simulate waiting 1 hour and drain worker early to trigger a
     # slack notification that a status context is hung (stuck in pending).
