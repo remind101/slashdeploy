@@ -14,6 +14,10 @@ class ApplicationController < ActionController::Base
   end
   helper_method :signed_in?
 
+  def authenticate!
+    redirect_to login_path unless signed_in?
+  end
+
   private
 
   def warden

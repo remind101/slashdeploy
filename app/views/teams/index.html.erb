@@ -1,0 +1,30 @@
+<div id="intro">
+  <h3>
+  SlashDeploy Teams
+  <small>
+  locks, statuses, and more
+  </small>
+  </h3>
+  <% @slack_teams.each do |slack_team| %>
+    <hr>
+    <h6>
+    Slack Team: <a href="https://<%= slack_team.domain =%>.slack.com" target="_blank"><%= slack_team.domain %></a>
+    </h6>
+    <% slack_team.slack_accounts.each do |slack_account| %>
+      <% slack_account.user.locks.active.each do |lock| %>
+        <div>
+          <span class="fui-lock"></span>
+          <code><%= lock.environment =%></code>
+          <a href="https://github.com/<%= lock.environment.repository =%>" target="_blank"><%= lock.environment.repository =%></a>
+          <div class="small" style="opacity: .75; padding-left: 24px;">
+            <img src="https://github.com/<%= lock.user.username =%>.png?size=18" />
+            <a href="https://github.com/<%= lock.user.username =%>" target="_blank"><%= lock.user.username =%></a>
+            locked
+            <%= time_ago_in_words(lock.created_at) %> ago
+          </div>
+        </div>
+        <br/>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
