@@ -17,7 +17,7 @@
           <code><%= lock.environment =%></code>
           <a href="https://github.com/<%= lock.environment.repository =%>" target="_blank"><%= lock.environment.repository =%></a>
           <div class="small" style="opacity: .75; padding-left: 24px;">
-            <img src="https://github.com/<%= lock.user.username =%>.png?size=18" />
+            <img src="https://github.com/<%= lock.user.username =%>.png?size=128" style="width: 18px; margin-right: 8px;" />
             <a href="https://github.com/<%= lock.user.username =%>" target="_blank"><%= lock.user.username =%></a>
             locked
             <%= time_ago_in_words(lock.created_at) %> ago

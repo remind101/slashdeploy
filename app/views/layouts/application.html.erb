@@ -40,14 +40,17 @@
         <% if current_user.present? %>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <img src="https://github.com/<%= current_user.username =%>.png?size=128" style="width: 18px; margin-right: 10px;"/> <%= current_user.username =%>
+              <img src="https://github.com/<%= current_user.username =%>.png?size=128" style="width: 18px; margin-right: 8px;"/>
+              <%= current_user.username =%> <span class="caret"></span>
             </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <%= link_to 'Logout', logout_path, method: :post %>
-              </div>
+              <ul class="dropdown-menu" style="margin-top: 0px;">
+                <li><%= link_to 'Your Teams', teams_path %></li>
+                <li role="separator" class="divider"></li>
+                <li><%= link_to 'Log out', logout_path, method: :post %></li>
+              </ul>
           </li>
         <% else %>
-            <li><%= link_to 'Login', login_path %></li>
+            <li><%= link_to 'Log in', login_path %></li>
         <% end %>
         </ul>
         <!--<form class="navbar-form navbar-right" role="form">
