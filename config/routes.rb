@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   post '/slack/install' => 'slack#early_access', as: :early_access
 
   get '/login' => redirect('/auth/slack'), as: :login
+
   post '/logout' => 'sessions#destroy', as: :logout
 
   # Docs
@@ -28,6 +29,8 @@ Rails.application.routes.draw do
     handle :deployment_status, DeploymentStatusEvent
   end
   post '/', to: github_webhooks, constraints: Hookshot.constraint
+
+  get '/teams' => 'teams#index', as: :teams
 
   root 'pages#index'
   # The priority is based upon order of creation: first created -> highest priority.

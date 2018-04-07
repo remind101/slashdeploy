@@ -40,6 +40,10 @@ class SlackAccount < ActiveRecord::Base
       slack_team: team
   end
 
+  def username
+    user_name
+  end
+
   def team_id
     slack_team.id
   end

@@ -31,6 +31,24 @@
       <div class="navbar-collapse collapse" id="navbar-collapse-9">
         <ul class="nav navbar-nav">
           <li class="<%= 'active' if current_page?(documentation_path) %>"><%= link_to 'Documentation', documentation_path %></li>
+          <% if current_user.present? %>
+            <li class="<%= 'active' if current_page?(teams_path) %>"><%= link_to 'Teams', teams_path %></li>
+          <% end %>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+        <% if current_user.present? %>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <img src="https://github.com/<%= current_user.username =%>.png?size=128" style="width: 18px; margin-right: 10px;"/> <%= current_user.username =%>
+            </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <%= link_to 'Logout', logout_path, method: :post %>
+              </div>
+          </li>
+        <% else %>
+            <li><%= link_to 'Login', login_path %></li>
+        <% end %>
         </ul>
         <!--<form class="navbar-form navbar-right" role="form">
           <button type="submit" class="btn btn-success">Sign in</button>

@@ -16,4 +16,8 @@ class GitHubAccount < ActiveRecord::Base
     update_attributes! self.class.attributes_from_auth_hash(auth_hash).except(:id)
     self
   end
+
+  def username
+    login
+  end
 end

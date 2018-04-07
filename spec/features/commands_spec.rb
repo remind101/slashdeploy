@@ -34,7 +34,7 @@ RSpec.feature 'Slash Commands' do
       slack_team: slack_teams(:acme)
     )
 
-    command '/deploy help', as: account
+    command '/deploy acme-inc/api to prod', as: account
 
     OmniAuth.config.mock_auth[:jwt] = OmniAuth::AuthHash.new(
       provider: 'jwt',
