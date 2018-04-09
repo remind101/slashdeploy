@@ -24,6 +24,12 @@ module GitHub
         raise
       end
 
+      def get_deployment(user, repository, deployment_id)
+        deployment = user.octokit_client.deployment(repository, deployment_id)
+        return if deployment.empty?
+        deployment_from_github(repository, deployment)
+      end
+
       def last_deployment(user, repository, environment)
         deployments = user.octokit_client.deployments(repository, environment: environment)
         return if deployments.empty?

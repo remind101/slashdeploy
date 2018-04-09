@@ -71,7 +71,7 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'performing a deployment to a specific environment' do
-    command '/deploy acme-inc/api  to staging', as: slack_accounts(:david)
+    command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'master', environment: 'staging')]
     ]
@@ -532,6 +532,41 @@ RSpec.feature 'Slash Commands' do
       action 'yes', 'b1b111b1-1111-1b1b-b1b1-111bbb111111', as: slack_accounts(:steve)
     end.to_not change { deployment_requests }
     expect(action_response.message).to eq Slack::Message.new(text: "Oops! We had a problem running your command, but we've been notified")
+  end
+
+  scenario 'github deployment does not start after 30 simulated secs and triggers watchdog' do
+    # make sure our queue is clear before starting test.
+    GithubDeploymentWatchdogWorker.clear
+
+    # our deployment watchdog worker should start with an empty queue.
+    expect(GithubDeploymentWatchdogWorker.jobs.size).to eq 0
+
+    expect(User).to receive(:find).and_return(users(:david))
+    expect(users(:david)).to receive(:slack_account_for_github_organization).and_return(slack_accounts(:david))
+
+    # simulate a slashdeploy invocation.
+    command '/deploy acme-inc/api to production', as: slack_accounts(:david)
+
+    expect(command_response).to be_in_channel
+    expect(deployment_requests).to eq [
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'master', environment: 'production')]
+    ]
+
+    # our deployment watchdog worker should start with an empty queue.
+    expect(GithubDeploymentWatchdogWorker.jobs.size).to eq 1
+
+    # setup expectations of the worker notifying the user there was an issue.
+    expect(SlashDeploy.service).to receive(:direct_message).with(
+      slack_accounts(:david),
+      GithubNoDeploymentStatusMessage,
+      any_args
+    )
+
+    # simulate waiting 30 secs and drain worker early to trigger a
+    GithubDeploymentWatchdogWorker.drain
+
+    # our deployment watchdog worker should start with an empty queue.
+    expect(GithubDeploymentWatchdogWorker.jobs.size).to eq 0
   end
 
   def deployment_requests

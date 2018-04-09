@@ -7,7 +7,6 @@ gem 'rails', '~> 4.2.7.1'
 gem 'uglifier', '>= 1.3.0'
 gem 'jquery-rails'
 gem 'turbolinks'
-gem 'octokit', '~> 4.7.0'
 gem 'virtus'
 gem 'pg'
 gem 'postgres_ext'
@@ -15,6 +14,10 @@ gem 'oj'
 gem 'puma'
 gem 'sass'
 
+# Github API Client Library.
+gem 'octokit', github: 'octokit/octokit.rb', ref: 'f2a5ff176447afc61caa0e0d95b0cd02c031512f'
+
+# Used for interacting with Slack API.
 gem 'faraday', '0.9.1'
 gem 'faraday_middleware'
 

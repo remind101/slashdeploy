@@ -109,7 +109,7 @@ module SlashDeploy
         last_deployment = github.last_deployment(user, req.repository, req.environment)
         deployment = github.create_deployment(user, req)
         # schedule Github Deployment Watchdog to check up on this Github Deployment.
-        GithubDeploymentWatchdogWorker.schedule(user.id, deployment)
+        GithubDeploymentWatchdogWorker.schedule(user.id, deployment.repository, deployment.id)
         DeploymentResponse.new(deployment: deployment, last_deployment: last_deployment)
       end
     end
