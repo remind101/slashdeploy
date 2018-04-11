@@ -5,6 +5,7 @@ RSpec.feature 'Slash Commands' do
 
   before do
     github.reset
+    # slack.reset
 
     # Set the HEAD commits for some fake branches.
     HEAD('acme-inc/api', 'master',  'ad80a1b3e1a94b98ce99b71a48f811f1')
@@ -541,9 +542,6 @@ RSpec.feature 'Slash Commands' do
     # our deployment watchdog worker should start with an empty queue.
     expect(GithubDeploymentWatchdogWorker.jobs.size).to eq 0
 
-    expect(User).to receive(:find).and_return(users(:david))
-    expect(users(:david)).to receive(:slack_account_for_github_organization).and_return(slack_accounts(:david))
-
     # simulate a slashdeploy invocation.
     command '/deploy acme-inc/api to production', as: slack_accounts(:david)
 
@@ -556,9 +554,9 @@ RSpec.feature 'Slash Commands' do
     expect(GithubDeploymentWatchdogWorker.jobs.size).to eq 1
 
     # setup expectations of the worker notifying the user there was an issue.
-    expect(SlashDeploy.service).to receive(:direct_message).with(
+    expect(slack).to receive(:direct_message).with(
       slack_accounts(:david),
-      GithubNoDeploymentStatusMessage,
+      Slack::Message.new(text: ':sadparrot: <@U012AB1AB>, The Github Deployment <1> of acme-inc/api@<ad80a1b3e1a94b98ce99b71a48f811f1|master> to *production* did _not_ start. For more details, please read: https://slashdeploy.io/docs#error-1'),
       any_args
     )
 
@@ -575,6 +573,10 @@ RSpec.feature 'Slash Commands' do
 
   def github
     SlashDeploy.service.github
+  end
+
+  def slack
+    SlashDeploy.service.slack
   end
 
   # rubocop:disable Style/MethodName

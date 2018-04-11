@@ -3,9 +3,6 @@
 class Deployment
   include Virtus.value_object
 
-  # http://rubular.com/r/ahTMm18LGA
-  GITHUB_DEPLOYMENT_URL_REGEX_TO_MATCH_ORG_AND_REPO = %r{https:\/\/api.github.com\/repos\/([\w\-]+)\/([\w\-\.]+)}
-
   values do
     # The external id of the deployment.
     attribute :id, Integer
@@ -21,23 +18,9 @@ class Deployment
     attribute :repository, String
   end
 
-  # memoize the result to limit repeated computations.
-  def org_and_repo
-    @org_and_repo ||= GITHUB_DEPLOYMENT_URL_REGEX_TO_MATCH_ORG_AND_REPO.match(url)
-  end
-
   # return the Github Org for deployment.
   def organization
-    # example url: "https://api.github.com/repos/octocat/example/deployments/1"
-    # would result in the following organization: "octocat"
-    org_and_repo[1]
+    matches = SlashDeploy::GITHUB_REPO_REGEX.match(repository)
+    matches[1]
   end
-
-  # TODO: could we use this instead of passing the repository as an argument?
-  # # return the Github Repo for deployment.
-  # def repository
-  #   # given the url: "https://api.github.com/repos/octocat/example/deployments/1"
-  #   # would result in the following repository: "example"
-  #   org_and_repo[2]
-  # end
 end

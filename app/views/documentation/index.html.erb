@@ -93,7 +93,9 @@ production:
     <p>Here we have some debugging information about the common issues and how to resolve them.
     <dl>
       <dt id="error-1">Error 1: Deployment did not start</dt>
-      <dd>If a deployment doesn't start with in 30 seconds, you will get a Slack notification letting you know something went wrong. This might happen for a number of reasons, so check the following.
+      <dd>If a deployment does not start after
+      <% time_ago_in_words(GithubDeploymentWatchdogWorker::DEFAULT_DELAY.from_now, include_seconds: true) %>, 
+      you will get a Slack notification letting you know something went wrong. This might happen for a number of reasons, so check the following.
       <ul>
         <li>make sure the repo's <code>slashdeploy.yml</code> file is configured properly</li>
         <li>make sure the repo has a Github Deployment Integration (and Webhooks) to handle deployment events</li>
@@ -101,7 +103,7 @@ production:
         <li>make sure the service handling the deployment events is not filtering or ignoring deployment requests. For example, it will deploy to <code>production</code>, however the  provided environment in the deployment event was <code>prod</code>.
       </dd>
       <dt id="error-2">Error 2: Required commit status contexts stuck in pending</dt>
-      <dd>Inside the repo's <code>slashdeploy.yml</code> a list of <code>required_contexts</code> was defined which need to move into the <code>success</code> state in order to continue. For some reason, after an hour of waiting, at least one of these <code>required_contexts</code> are stuck in the <code>pending</code> state instead of transitioning to <code>success<code>, <code>failure</code>, or <code>error</code>. If you fix this issue your deployment will likely continue.</dd>
+      <dd>Inside the repo's <code>slashdeploy.yml</code> a list of <code>required_contexts</code> was defined which need to move into the <code>success</code> state in order to continue. For some reason, after <%= time_ago_in_words(DeploymentWatchdogWorker::DEFAULT_DELAY.from_now) %> of waiting, at least one of these <code>required_contexts</code> are stuck in the <code>pending</code> state instead of transitioning to <code>success<code>, <code>failure</code>, or <code>error</code>. If you fix this issue your deployment will likely continue.</dd>
     </dl>
 
   </div>
