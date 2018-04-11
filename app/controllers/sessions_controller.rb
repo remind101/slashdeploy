@@ -1,6 +1,8 @@
 class SessionsController < ApplicationController
   skip_before_filter :verify_authenticity_token
 
+  skip_before_action :authenticate!
+
   def failure
     render text: 'Authentication failed'
   end

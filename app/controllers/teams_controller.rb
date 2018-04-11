@@ -1,5 +1,4 @@
 class TeamsController < ApplicationController
-  before_action :authenticate!
   def index
     @slack_teams = current_user.slack_teams
     # get a list of slack team objects who have slack_accounts with locks.
