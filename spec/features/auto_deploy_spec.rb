@@ -448,7 +448,7 @@ RSpec.feature 'Auto Deployment' do
 
   scenario 'simulate a DeploymentWatchdogWorker alerting that an AutoDeployment is stuck in pending.' do
     # make sure our queue is clear before starting test.
-    DeploymentWatchdogWorker.clear
+    AutoDeploymentWatchdogWorker.clear
 
     # mock the repo's .slashdeploy.yml config.
     config = <<-YAML.strip_heredoc
@@ -472,13 +472,13 @@ RSpec.feature 'Auto Deployment' do
       Slack::Message.new(text: ":wave: <@U012AB1AC>. I'll start a deployment of baxterthehacker/public-repo@0d1a26e to *production* for you once *ci/circleci* are passing.", attachments: [])
 
     # our deployment watchdog worker should start with an empty queue.
-    expect(DeploymentWatchdogWorker.jobs.size).to eq 0
+    expect(AutoDeploymentWatchdogWorker.jobs.size).to eq 0
 
     # simulate push_event from github.
     push_event 'secret', sender: { id: github_accounts(:david).id }
 
     # our deployment watchdog worker queue should increase with a new job.
-    expect(DeploymentWatchdogWorker.jobs.size).to eq 1
+    expect(AutoDeploymentWatchdogWorker.jobs.size).to eq 1
 
     # simulate status_event from github, set ci/circleci to pending.
     status_event 'secret', context: 'ci/circleci', state: 'pending'
@@ -488,13 +488,13 @@ RSpec.feature 'Auto Deployment' do
     # has required_context statuses in the pending state.
     expect(slack).to receive(:direct_message).with \
       slack_accounts(:david_baxterthehacker),
-      Slack::Message.new(text: ":sadparrot: <@U012AB1AC>. There was an issue with baxterthehacker/public-repo@0d1a26e to *production*. Some of the required commit status contexts appear hung: *ci/circleci*", attachments: [])
+      Slack::Message.new(text: ":sadparrot: <@U012AB1AC>, There was an issue with baxterthehacker/public-repo@0d1a26e to *production*. Some of the required commit status contexts appear hung: *ci/circleci*. For more details, please read: https://slashdeploy.io/docs#error-2", attachments: [])
 
     # simulate waiting 1 hour and drain worker early to trigger a
     # slack notification that a status context is hung (stuck in pending).
-    DeploymentWatchdogWorker.drain
+    AutoDeploymentWatchdogWorker.drain
 
     # our deployment watchdog worker should finish with an empty queue.
-    expect(DeploymentWatchdogWorker.jobs.size).to eq 0
+    expect(AutoDeploymentWatchdogWorker.jobs.size).to eq 0
   end
 end

@@ -16,6 +16,14 @@ RSpec.describe SlashDeploy::Service do
   describe '#create_deployment' do
     context 'when no environment or ref is provided' do
       it 'sets the default environment' do
+        github_deployment = stub_model(
+          Deployment,
+          id: 1,
+          url: 'https://api.gthub.com/repos/acme-inc/api/deployments/1',
+          ref: 'master',
+          environment: 'production',
+          sha: '52bea69fa54a0ad7a4bdb305380ef43a'
+        )
         repo = stub_model(Repository, name: 'acme-inc/api')
         env  = stub_model(Environment, repository: repo, name: 'production', active_lock: nil)
         expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
@@ -27,7 +35,7 @@ RSpec.describe SlashDeploy::Service do
             environment: 'production',
             ref: 'master'
           )
-        )
+        ).and_return(github_deployment)
         resp = service.create_deployment(users(:david), env, 'master')
         expect(resp).to be_a(DeploymentResponse)
       end

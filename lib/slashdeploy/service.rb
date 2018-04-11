@@ -45,8 +45,8 @@ module SlashDeploy
           auto_deployment.slack_account, \
           AutoDeploymentCreatedMessage, \
           auto_deployment: auto_deployment
-        # schedule Deployment Watchdog to check up on this AutoDeployment.
-        DeploymentWatchdogWorker.schedule(auto_deployment.id)
+        # schedule an AutoDeployment Watchdog to check up on this AutoDeployment.
+        AutoDeploymentWatchdogWorker.schedule(auto_deployment.id)
       else
         fail "Unhandled #{state} state"
       end
@@ -108,6 +108,8 @@ module SlashDeploy
       else
         last_deployment = github.last_deployment(user, req.repository, req.environment)
         deployment = github.create_deployment(user, req)
+        # schedule Github Deployment Watchdog to check up on this Github Deployment.
+        GithubDeploymentWatchdogWorker.schedule(user.id, deployment.repository, deployment.id)
         DeploymentResponse.new(deployment: deployment, last_deployment: last_deployment)
       end
     end

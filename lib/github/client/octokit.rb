@@ -24,10 +24,22 @@ module GitHub
         raise
       end
 
+      def get_deployment(user, repository, deployment_id)
+        deployment = user.octokit_client.deployment(repository, deployment_id)
+        return if deployment.empty?
+        deployment_from_github(repository, deployment)
+      end
+
       def last_deployment(user, repository, environment)
         deployments = user.octokit_client.deployments(repository, environment: environment)
         return if deployments.empty?
-        deployment_from_github repository, deployments.first
+        deployment_from_github(repository, deployments.first)
+      end
+
+      def last_deployment_status(user, deployment_url)
+        deployment_statuses = user.octokit_client.deployment_statuses(deployment_url)
+        return if deployment_statuses.empty?
+        deployment_status_from_github(deployments_statuses.first)
       end
 
       def access?(user, repository)
@@ -49,12 +61,26 @@ module GitHub
       private
 
       def deployment_from_github(repository, github_deployment)
+        # https://developer.github.com/v3/repos/deployments/#response-1
         Deployment.new(
           id:          github_deployment.id,
-          repository:  repository,
+          url:         github_deployment.url,
           ref:         github_deployment.ref,
           sha:         github_deployment.sha,
-          environment: github_deployment.environment
+          environment: github_deployment.environment,
+          repository:  repository
+        )
+      end
+
+      def deployment_status_from_github(github_deployment_status)
+        # https://developer.github.com/v3/repos/deployments/#response-3
+        DeploymentStatus.new(
+          id:             github_deployment_status.id,
+          url:            github_deployment_status.url,
+          description:    github_deployment_status.description,
+          target_url:     github_deployment_status.target_url,
+          deployment_url: github_deployment_status.deployment_url,
+          repository_url: github_deployment_status.repository_url
         )
       end
 

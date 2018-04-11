@@ -28,6 +28,7 @@ module GitHub
 
         deployment = Deployment.new(
           id:          id,
+          url:         "https://api.github.com/repos/acme-inc/#{req.repository}/deployments/1",
           repository:  req.repository,
           ref:         req.ref,
           sha:         commits[req.repository][req.ref],
@@ -37,8 +38,19 @@ module GitHub
         deployment
       end
 
+      def get_deployment(_user, repository, _deployment_id)
+        deployments[repository]['production'].last
+      end
+
       def last_deployment(_user, repository, environment)
         deployments[repository][environment].last
+      end
+
+      # the only test which uses this expects nil, to trigger watch dog.
+      #   spec/features/commands_spec.rb:
+      #     'github deployment does not start after 30 simulated secs and triggers watchdog'
+      def last_deployment_status(_user, _deployment_url)
+        nil
       end
 
       def contents(_repository, _path)

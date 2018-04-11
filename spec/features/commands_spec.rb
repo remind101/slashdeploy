@@ -5,6 +5,7 @@ RSpec.feature 'Slash Commands' do
 
   before do
     github.reset
+    # slack.reset
 
     # Set the HEAD commits for some fake branches.
     HEAD('acme-inc/api', 'master',  'ad80a1b3e1a94b98ce99b71a48f811f1')
@@ -71,7 +72,7 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'performing a deployment to a specific environment' do
-    command '/deploy acme-inc/api  to staging', as: slack_accounts(:david)
+    command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
     expect(deployment_requests).to eq [
       [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'master', environment: 'staging')]
     ]
@@ -534,12 +535,48 @@ RSpec.feature 'Slash Commands' do
     expect(action_response.message).to eq Slack::Message.new(text: "Oops! We had a problem running your command, but we've been notified")
   end
 
+  scenario 'github deployment does not start after 30 simulated secs and triggers watchdog' do
+    # make sure our queue is clear before starting test.
+    GithubDeploymentWatchdogWorker.clear
+
+    # our deployment watchdog worker should start with an empty queue.
+    expect(GithubDeploymentWatchdogWorker.jobs.size).to eq 0
+
+    # simulate a slashdeploy invocation.
+    command '/deploy acme-inc/api to production', as: slack_accounts(:david)
+
+    expect(command_response).to be_in_channel
+    expect(deployment_requests).to eq [
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'master', environment: 'production')]
+    ]
+
+    # our deployment watchdog worker should start with an empty queue.
+    expect(GithubDeploymentWatchdogWorker.jobs.size).to eq 1
+
+    # setup expectations of the worker notifying the user there was an issue.
+    expect(slack).to receive(:direct_message).with(
+      slack_accounts(:david),
+      Slack::Message.new(text: ':sadparrot: <@U012AB1AB>, The Github Deployment <1> of acme-inc/api@<ad80a1b3e1a94b98ce99b71a48f811f1|master> to *production* did _not_ start. For more details, please read: https://slashdeploy.io/docs#error-1'),
+      any_args
+    )
+
+    # simulate waiting 30 secs and drain worker early to trigger a
+    GithubDeploymentWatchdogWorker.drain
+
+    # our deployment watchdog worker should start with an empty queue.
+    expect(GithubDeploymentWatchdogWorker.jobs.size).to eq 0
+  end
+
   def deployment_requests
     github.requests
   end
 
   def github
     SlashDeploy.service.github
+  end
+
+  def slack
+    SlashDeploy.service.slack
   end
 
   # rubocop:disable Style/MethodName
