@@ -23,6 +23,9 @@ class SlashActions
     account = env['account']
     user = account.user
 
+    # User needs a Github account, so bubble MissingGitHubAccount if missing.
+    user.github_account
+
     scope = {
       person: { id: user.id, username: user.username }
     }

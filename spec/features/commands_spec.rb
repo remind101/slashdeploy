@@ -34,13 +34,19 @@ RSpec.feature 'Slash Commands' do
       slack_team: slack_teams(:acme)
     )
 
-    command '/deploy acme-inc/api to prod', as: account
+    # This is the first time this user ran a slash deploy command.
+    # This user does not have an associated Github account so
+    # we bubble and resue MissingGitHubAccount. During the rescue we
+    # send a slack notification to the user with a link to install slashdeploy
+    # as an oauth app on their github user.
+    command '/deploy help', as: account
 
     OmniAuth.config.mock_auth[:jwt] = OmniAuth::AuthHash.new(
       provider: 'jwt',
       uid: User.find_by_slack('UABCD').id
     )
 
+    # simulate clicking the oauth link.
     expect do
       visit command_response.text.match(%r{^.*(/auth/jwt/callback\?jwt=.*?)\|.*$})[1]
     end.to_not change { User.count }
