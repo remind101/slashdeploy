@@ -1,3 +1,63 @@
+<style>
+.card-wrapper {
+  margin: 0 auto;
+  width: 90%;
+  max-width: 1170px;
+
+  display: grid;
+
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+  grid-gap: 20px;
+}
+
+.card {
+  background: white;
+  text-decoration: none;
+  color: #444;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  min-height: 100%;
+}
+
+.card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
+
+}
+
+.card-footer {
+  opacity: .75;
+  text-align: center;
+}
+
+.card-icon {
+  width: 60px;
+  height: 75px;
+}
+
+.card-main {
+  padding-top: 22px;
+  text-align: center;
+}
+
+@media only screen and (min-width: 750px) {
+  .card-wrapper {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media only screen and (min-width: 1228px) {
+  .card-wrapper {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+
+</style>
+
 <div id="intro">
   <h3>
   SlashDeploy Teams
@@ -10,21 +70,33 @@
     <h6>
     Slack Team: <a href="https://<%= slack_team.domain =%>.slack.com" target="_blank"><%= slack_team.domain %></a>
     </h6>
+    <div class="card-wrapper">
     <% slack_team.slack_accounts.each do |slack_account| %>
       <% slack_account.user.locks.active.each do |lock| %>
-        <div>
-          <span class="fui-lock"></span>
-          <code><%= lock.environment =%></code>
-          <a href="https://github.com/<%= lock.environment.repository =%>" target="_blank"><%= lock.environment.repository =%></a>
-          <div class="small" style="opacity: .75; padding-left: 24px;">
-            <img src="https://github.com/<%= lock.user.username =%>.png?size=128" style="width: 18px; margin-right: 8px;" />
+
+        <div class="card">
+
+          <div class="card-body">
+            <div class="card-icon">
+              <span class="fui-lock" style="font-size: 38px; float: left;"></span>
+              <img src="https://github.com/<%= lock.user.username =%>.png?size=128" style="width: 28px; border-radius: 6px; border-width: 3px; border-color: white; border-style: solid; position: relative; top: -30px; left: 20px;" />
+            </div>
+            <div class="card-main">
+              <a href="https://github.com/<%= lock.environment.repository =%>" target="_blank"><%= lock.environment.repository =%></a>
+            </div>
+          </div>
+
+          <div class="card-footer small">
+            <b><%= lock.environment =%></b>
+            locked by
             <a href="https://github.com/<%= lock.user.username =%>" target="_blank"><%= lock.user.username =%></a>
-            locked
             <%= time_ago_in_words(lock.created_at) %> ago
           </div>
+
         </div>
-        <br/>
+
       <% end %>
     <% end %>
+    </div> <!-- end of cards-wrapper grid. -->
   <% end %>
 </div>
