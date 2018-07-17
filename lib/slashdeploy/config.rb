@@ -40,7 +40,8 @@ module SlashDeploy
     #
     # Returns Config.
     def self.from_yaml(yaml)
-      new Psych.safe_load(yaml)
+      # disable arbirtary class deserialization but allow aliases
+      new Psych.safe_load(yaml, [], [], true)
     end
   end
 end
