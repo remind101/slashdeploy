@@ -490,6 +490,53 @@ RSpec.feature 'Slash Commands' do
     end.to change { deployment_requests.count }.by(1)
   end
 
+  scenario 'trying to /deploy an environment that is configured to auto deploy by action but whose context checks are failing' do
+    repo = Repository.with_name('acme-inc/api')
+    repo.update_attributes! default_environment: 'production'
+    environment = repo.environment('production')
+    environment.configure_auto_deploy('refs/heads/master')
+
+    expect do
+      command '/deploy acme-inc/api@failing', as: slack_accounts(:david)
+    end.to_not change { deployment_requests }
+
+    callback_id = command_response.message.attachments[0].callback_id
+
+    # let the user know this repo / environment uses ci, ask if they want to skip_ci_check.
+    expect(command_response.message).to eq Slack::Message.new(
+      text: 'acme-inc/api is configured to automatically deploy `refs/heads/master` to *production*.',
+      attachments: [
+        Slack::Attachment.new(
+          title: 'Deploy anyway?',
+          callback_id: callback_id,
+          color: '#3AA3E3',
+          actions: SlackMessage.confirmation_actions
+        )
+      ]
+    )
+
+    # have the user click yes, to continue deploying, skipping cd.
+    # deployment_request.count should stay at 0 and not increase.
+    expect do
+      action 'yes', callback_id, as: slack_accounts(:steve)
+      callback_id = action_response.message.attachments[0].callback_id
+      # expect the deployent request to raise an exception because of failing context checks.
+      # message the user asking if we should force the deployment anyways.
+      expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip, attachments: [Slack::Attachment.new(title: 'Ignore status checks and deploy anyway?', callback_id: callback_id, color: '#3AA3E3', actions: SlackMessage.confirmation_actions)])
+      The following commit status checks are not passing:
+      * *ci* [failure]
+      TEXT
+    end.to change { deployment_requests.count }.by(0)
+
+    # have the user click yes, again, to skip context checks and
+    # deploy a bad commit into environment...
+    # deployment_request.count should increase.
+    expect do
+      action 'yes', callback_id, as: slack_accounts(:steve)
+      callback_id = action_response.message.attachments[0].callback_id
+    end.to change { deployment_requests.count }.by(1)
+  end
+
   scenario 'stealing a lock by action' do
     command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')

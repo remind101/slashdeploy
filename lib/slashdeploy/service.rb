@@ -87,10 +87,12 @@ module SlashDeploy
     # ref         - A String git ref. If none is provided, defaults to the
     #               default ref.
     # options     - A Hash of extra options.
-    #               :force       - "force" the deployment, ignoring commit
-    #                               status contexts.
-    #               :strong_lock - If set to true, even the user that locked it
-    #                              won't be able to deploy.
+    #               :skip_cd_check - bypass continuous deployment, release
+    #                                specified commit to environment.
+    #               :force         - "force" the deployment, ignoring commit
+    #                                status contexts.
+    #               :strong_lock   - If set to true, even the user that locked
+    #                                it won't be able to deploy.
     #
     # Returns a DeploymentResponse.
     def create_deployment(user, environment, ref = nil, options = {})
@@ -99,7 +101,7 @@ module SlashDeploy
       req = deployment_request(environment, ref, force: options[:force])
 
       # Check if the environment we're deploying to is configured for auto deployments.
-      fail EnvironmentAutoDeploys if environment.auto_deploy_enabled? && !options[:force]
+      fail EnvironmentAutoDeploys if environment.auto_deploy_enabled? && !options[:skip_cd_check]
 
       # Check if the environment we're deploying to is locked.
       lock = environment.active_lock

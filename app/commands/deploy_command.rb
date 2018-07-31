@@ -14,6 +14,7 @@ class DeployCommand < BaseCommand
           user,
           env,
           params['ref'],
+          skip_cd_check: params['skip_cd_check'] || params['force'],
           force: params['force']
         )
 
@@ -47,9 +48,12 @@ class DeployCommand < BaseCommand
           unlock_action: unlock_action
         respond env.in_channel?, m
       rescue SlashDeploy::EnvironmentAutoDeploys
+        # Message user on slack and ask if we should bypass CD and deploy
+        # this commit directly into this environment. Alter params with
+        # skip_cd_check = true in preparation if user clicks yes.
         message_action = slashdeploy.create_message_action(
           DeployAction,
-          params.merge('force' => true)
+          params.merge('skip_cd_check' => true)
         )
         Slash.reply AutoDeploymentConfiguredMessage.build \
           environment: env,
