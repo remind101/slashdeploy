@@ -5,6 +5,7 @@ AllCops:
     - '**/Rakefile'
     - '**/config.ru'
   Exclude:
+    - 'bin/**/*'
     - 'db/**/*'
     - 'config/**/*'
     - 'script/**/*'
@@ -118,7 +119,7 @@ Style/RedundantSelf:
 Bundler/OrderedGems:
   Enabled: false
 
-Style/FileName:
+Naming/FileName:
   Enabled: false
 
 Style/IfInsideElse:

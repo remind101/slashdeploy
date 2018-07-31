@@ -5,7 +5,7 @@ SlashDeploy uses a `Gemfile` to document dependencies.
 The following external dependencies are also required:
 
  * `Postgresql 9.6`
- * `Ruby 2.2.6` (optionally `rbenv`)
+ * `Ruby 2.5.1` (optionally `rbenv`)
  * `bundler`
 
 ### macOS
