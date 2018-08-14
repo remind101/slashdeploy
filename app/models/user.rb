@@ -17,6 +17,11 @@ class User < ActiveRecord::Base
     "#{id}:#{username}"
   end
 
+  # Unlock all active locks.
+  def unlock_all!
+    locks.map(&:unlock!)
+  end
+
   # username determine by the following priority:
   # 1. GithubAccount#username, 2. SlackAccount#username, 3. User#id
   def username
