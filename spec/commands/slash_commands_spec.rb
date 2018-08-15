@@ -19,6 +19,7 @@ RSpec.describe SlashCommands do
       check_route(a, 'lock staging on api!', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil, 'force' => '!')
       check_route(a, 'lock staging on api: Doing stuff!', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => ' Doing stuff', 'force' => '!')
 
+      check_route(a, 'unlock all', UnlockAllCommand, {})
       check_route(a, 'unlock staging on acme-inc/api', UnlockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
       check_route(a, 'unlock staging on api', UnlockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
 

@@ -8,11 +8,13 @@ class SlashCommands
 
   attr_reader :router
 
+  # order matters, uses first match priority.
   def self.route
     router = Slash::Router.new
     router.match match_regexp(/^help$/), HelpCommand
     router.match match_regexp(/^where #{REPO}$/), EnvironmentsCommand
     router.match match_regexp(/^lock #{ENV} on #{REPO}(:(?<message>.*(?<!\!$)))?(?<force>!)?$/), LockCommand
+    router.match match_regexp(/^unlock all$/), UnlockAllCommand
     router.match match_regexp(/^unlock #{ENV} on #{REPO}$/), UnlockCommand
     router.match match_regexp(/^check #{ENV} on #{REPO}$/), CheckCommand
     router.match match_regexp(/^boom$/), BoomCommand
