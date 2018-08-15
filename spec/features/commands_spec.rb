@@ -221,6 +221,22 @@ RSpec.feature 'Slash Commands' do
     expect(command_response.message).to eq Slack::Message.new(text: 'Unlocked *production* on acme-inc/api')
   end
 
+  scenario 'david locks two environments and then runs unlock all' do
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
+    command '/deploy lock production on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: 'Locked *production* on acme-inc/api')
+    expect(users(:david).locks.active.count).to eq 2
+    command '/deploy unlock all', as: slack_accounts(:david)
+    expect(users(:david).locks.active.count).to eq 0
+    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip)
+    You unlocked all of the the following:
+     * *staging* on acme-inc/api
+     * *production* on acme-inc/api
+    TEXT
+    
+  end
+
   scenario 'performing a deployment of a branch that has failing commit status contexts' do
     expect do
       command '/deploy acme-inc/api@failing to production', as: slack_accounts(:david)

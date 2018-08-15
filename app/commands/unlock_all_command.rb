@@ -2,9 +2,14 @@
 class UnlockAllCommand < BaseCommand
   def run
     transaction do
-      active_locks = user.locks.active
+      # Gather an Array of Environment objects from each of the user's active locks.
+      environments = []
+      user.locks.active.each do |lock|
+        environments.push(lock.environment)
+      end
       slashdeploy.unlock_all(user)
-      Slash.say UnlockedAllMessage.build active_locks
+      Slash.say UnlockedAllMessage.build \
+        environments: environments
     end
   end
 end
