@@ -90,13 +90,28 @@ RSpec.describe SlashDeploy::Service do
   end
 
   describe '#unlock_environment' do
-    context 'when the environment is locked by a different user' do
+    context 'when the environment has an active_lock by user' do
       it 'unlocks it' do
         repo = stub_model(Repository, name: 'acme-inc/api')
-        env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: nil)
+        lock = stub_model(Lock, user: users(:david))
+        env  = stub_model(Environment, repository: repo, name: 'staging', active_lock: lock)
         expect(github).to receive(:access?).with(users(:david), 'acme-inc/api').and_return(true)
-        expect(env).to receive(:lock!).with(users(:david), 'Testing some stuff')
-        service.lock_environment(users(:david), env, message: 'Testing some stuff')
+        expect(env.active_lock).to receive(:unlock!)
+        service.unlock_environment(users(:david), env)
+      end
+    end
+  end
+
+  describe '#unlock_all' do
+    context 'when the user has multiple locks' do
+      it 'unlocks each' do
+        repo = stub_model(Repository, name: 'acme-inc/api')
+        lock1 = stub_model(Lock, user: users(:david), active: true)
+        lock2 = stub_model(Lock, user: users(:david), active: true)
+        env1  = stub_model(Environment, repository: repo, name: 'staging', active_lock: lock1)
+        env2  = stub_model(Environment, repository: repo, name: 'production', active_lock: lock2)
+        expect(users(:david)).to receive(:unlock_all!)
+        service.unlock_all(users(:david))
       end
     end
   end

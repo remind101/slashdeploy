@@ -1,4 +1,5 @@
 class UnlockedMessage < SlackMessage
+  # the models.environment::Environment to unlock
   values do
     attribute :environment, Environment
   end
