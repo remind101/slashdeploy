@@ -161,6 +161,12 @@ module SlashDeploy
       lock.unlock!
     end
 
+    # Unlock all of a User's active locks.
+    # Returns nothing
+    def unlock_all(user)
+      user.unlock_all!
+    end
+
     # Creates a MessageAction, generating a uuid for the callback_id
     #
     #  action - The class that the message action will execute. Implements BaseAction.
