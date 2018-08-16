@@ -1,4 +1,4 @@
 You unlocked all of the the following:
-<% @environments.each do |environment| %>
- * *<%= environment %>* on <%= environment.repository %>
+<% @locks.each do |lock| %>
+ * *<%= lock.environment %>* on <%= lock.environment.repository %>
 <% end %>

@@ -1,8 +1,8 @@
 class UnlockedAllMessage < SlackMessage
 
-  # list of Environment objects that will be unlocked.
+  # list of Lock objects that were unlocked.
   values do
-    attribute :environments, Array[Environment]
+    attribute :locks, Array[Lock]
   end
 
   def to_message
