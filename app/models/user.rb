@@ -19,7 +19,7 @@ class User < ActiveRecord::Base
 
   # Unlock all active locks.
   def unlock_all!
-    locks.map(&:unlock!)
+    locks.each(&:unlock!)
   end
 
   # username determine by the following priority:

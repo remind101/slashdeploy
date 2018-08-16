@@ -32,7 +32,11 @@ RSpec.describe User, type: :model do
         .and change { user2.locks.active.count }.from(0).to(1)
 
       # david runs unlock_all!
-      user1.unlock_all!
+      unlocked_locks = user1.unlock_all!
+
+      # expect the unlock_all! method should return locks which were unlocked.
+      expect(unlocked_locks.count).to eq(2)
+      expect(unlocked_locks[0].repository.name).to eq("acme-inc/api1")
 
       # expect david to have no active locks.
       expect(user1.locks.active.count).to eq(0)
