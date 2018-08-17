@@ -25,6 +25,12 @@ RSpec.describe User, type: :model do
         .to change { repo1_prod.locks.active.count }.from(0).to(1)
         .and change { user1.locks.active.count }.from(1).to(2)
 
+      # david unlocks and then relocks repo1 in prod environment.
+      repo1_prod.active_lock.unlock!()
+      expect { repo1_prod.lock! user1 }
+        .to change { repo1_prod.locks.active.count }.from(0).to(1)
+        .and change { user1.locks.active.count }.from(1).to(2)
+
       # steve runs lock repo2 in stage environment.
       repo2_stage = repo2.environment('stage')
       expect { repo2_stage.lock! user2 }
@@ -40,6 +46,9 @@ RSpec.describe User, type: :model do
 
       # expect david to have no active locks.
       expect(user1.locks.active.count).to eq(0)
+
+      # expect david to have 3 unactive locks.
+      expect(user1.locks.count).to eq(3)
 
       # expect steve to have 1 active locks.
       expect(user2.locks.active.count).to eq(1)
