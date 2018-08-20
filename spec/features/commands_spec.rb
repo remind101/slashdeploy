@@ -237,6 +237,44 @@ RSpec.feature 'Slash Commands' do
     
   end
 
+  scenario 'david locks an environment and forgets' do
+    # make sure our queue is clear before starting test.
+    LockNagWorker.clear
+
+    # our lock nag worker should to start with an empty queue.
+    expect(LockNagWorker.jobs.size).to eq 0
+
+    # simulate david locking stage on acme-inc/api
+    command '/deploy lock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: 'Locked *staging* on acme-inc/api')
+
+    # our lock nag worker should increase by 1.
+    expect(LockNagWorker.jobs.size).to eq 1
+
+    # setup expectations of the worker should notify (nag) the user about the forgotten lock.
+    expect(slack).to receive(:direct_message).with(
+      slack_accounts(:david),
+      any_args
+    )
+
+    # simulate waiting 3 days and drain worker early to trigger nag.
+    LockNagWorker.perform_one
+
+    # our lock nag worker should still be 1.
+    expect(LockNagWorker.jobs.size).to eq 1
+
+    # simulate david unlocking stage on acme-inc/api
+    command '/deploy unlock staging on acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: 'Unlocked *staging* on acme-inc/api')
+
+    # simulate waiting 3 more days and drain worker early to trigger nag.
+    LockNagWorker.perform_one
+
+    # our lock nag worker should be 0, the lock was not active
+    # and the user should not be nagged anymore.
+    expect(LockNagWorker.jobs.size).to eq 0
+  end
+
   scenario 'performing a deployment of a branch that has failing commit status contexts' do
     expect do
       command '/deploy acme-inc/api@failing to production', as: slack_accounts(:david)

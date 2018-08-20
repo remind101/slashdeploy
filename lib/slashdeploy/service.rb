@@ -143,6 +143,12 @@ module SlashDeploy
       stolen = lock
       lock = environment.lock! user, options[:message]
 
+      # I'm not sure why, but sometimes lock can be nil?
+      if lock
+        # schedule an LockNag Watchdog to check up on this Lock.
+        LockNagWorker.schedule(lock.id)
+      end
+
       LockResponse.new \
         lock: lock,
         stolen: stolen
