@@ -5,6 +5,10 @@ class Lock < ActiveRecord::Base
 
   scope :active, -> { where(active: true) }
 
+  def inactive?
+    !active
+  end
+
   def unlock!
     update_attributes!(active: false)
   end
