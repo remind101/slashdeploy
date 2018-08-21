@@ -14,6 +14,7 @@ gem 'oj'
 gem 'puma'
 gem 'sass'
 gem 'therubyracer'
+gem 'coffee-script'
 
 # Github API Client Library.
 gem 'octokit', '>= 4.9.0'
