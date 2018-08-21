@@ -14,6 +14,9 @@ gem 'oj'
 gem 'puma'
 gem 'sass'
 gem 'therubyracer'
+
+# Not actually used, but Rails asset pipeline (sprockets) is loading it.
+# TODO: Try to remove with config.generators.javascript_engine = :js
 gem 'coffee-script'
 
 # Github API Client Library.
