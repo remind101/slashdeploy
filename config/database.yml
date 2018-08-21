@@ -1,0 +1,6 @@
+production:
+  url: <%= ENV['DATABASE_URL'] %>
+development:
+  url: <%= ENV['DATABASE_DEV_URL'] || "postgres://localhost:5432/slashdeploy_development" %>
+test:
+  url: <%= ENV['DATABASE_TEST_URL'] || "postgres://localhost:5432/slashdeploy_test" %>
