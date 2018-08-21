@@ -28,6 +28,14 @@ The following external dependencies are also required:
 1. create database schema: `bundle exec rake db:setup`
 1. migrate database schema: `bundle exec rake db:migrate`
 
+## Docker
+
+You can also use Docker for development and testing:
+
+```
+make test
+```
+
 ## Tests
 
 The full test suite can be run with:
