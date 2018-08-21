@@ -8,6 +8,7 @@ services:
       - postgres
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres/postgres
-    command: bundle exec rake
+    entrypoint: ./bin/docker-compose-setup
+    command: ./bin/rake
   postgres:
     image: postgres:9.6

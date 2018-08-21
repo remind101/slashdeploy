@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -e
+
+cmd="$@"
+
+# Install gems
+bundle check || bundle install
+
+# error on misconfigured db
+if [ -e config/database.yml ]; then
+  >&2 echo "Detected incompatible configuration, aborting..."
+  >&2 echo "Error: config/database.yml is for local dev & is *not* compatible with docker-compose. Please remove/rename this file and try again."
+  exit 1
+fi
+
+# Wait for postgres
+until psql -h postgres -U postgres -c '\l' > /dev/null; do
+  >&2 echo "Postgres is unavailable - sleeping"
+  sleep 1
+done
+
+# Setup/Migrate database
+if [[ `psql -h postgres -U postgres postgres -tAc "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'schema_migrations');"` = 'f' ]]; then
+  >&2 echo "Postgres schema not defined, running rake db:setup"
+  bundle exec rake db:setup
+fi
+
+if [[ `psql -h postgres -U postgres postgres -tAc "SELECT version FROM schema_migrations order by version desc limit 1;"` -ne `ls -1 db/migrate/ | cut -d _ -f 1 | tail -1` ]]; then
+  >&2 echo "Postgres schema not up to date, running rake db:migrate"
+  bundle exec rake db:migrate
+fi
+
+echo "Running $cmd"
+echo
+exec $cmd
