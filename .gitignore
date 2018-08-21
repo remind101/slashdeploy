@@ -16,6 +16,5 @@
 !/log/.keep
 /tmp
 /spec/examples.txt
-database.yml
 .env*
 *.pem
