@@ -1,10 +1,14 @@
 language: ruby
 cache: bundler
 rvm:
-- 2.5.1
-before_script: "./bin/rake db:setup"
-script: "./bin/rake"
+  - 2.5.1
+before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+  - ./bin/rake db:setup
+env:
+  - DATABASE_URL=postgres://postgres:@localhost/travis_ci_test
+script: ./bin/rake
 notifications:
   email: false
 addons:
-  postgresql: "9.2" # json data type was introduced in postgres 9.2. Travis default is 9.1
+  postgresql: "9.6" # json data type was introduced in postgres 9.2. Travis default is 9.1
