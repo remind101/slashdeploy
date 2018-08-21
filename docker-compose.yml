@@ -1,0 +1,14 @@
+version: "3"
+services:
+  test:
+    build: .
+    volumes:
+      - .:/home/app
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres/postgres
+    entrypoint: ./bin/docker-compose-setup
+    command: ./bin/rake
+  postgres:
+    image: postgres:9.6

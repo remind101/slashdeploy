@@ -8,11 +8,12 @@ gem 'uglifier', '>= 1.3.0'
 gem 'jquery-rails'
 gem 'turbolinks'
 gem 'virtus'
-gem 'pg'
+gem 'pg', '~> 0.21'
 gem 'postgres_ext'
 gem 'oj'
 gem 'puma'
 gem 'sass'
+gem 'therubyracer'
 
 # Github API Client Library.
 gem 'octokit', '>= 4.9.0'
@@ -27,7 +28,7 @@ gem 'sidekiq'
 # Visibility
 gem 'rollbar', '~> 2.8.0'
 gem 'lograge'
-gem 'dogstatsd-ruby'
+gem 'dogstatsd-ruby', '~> 1.5.0'
 
 # Auth
 gem 'jwt'
@@ -39,7 +40,8 @@ gem 'omniauth-oauth2'
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
-  gem 'rspec-rails', '~> 3.0'
+  gem 'rspec', '~> 3.7.0'
+  gem 'rspec-rails'
   gem 'rspec-activemodel-mocks'
   gem 'rubocop', '~> 0.58.0'
 
@@ -50,7 +52,7 @@ end
 group :test do
   gem 'webmock', require: false
   gem 'capybara'
-  gem 'codeclimate-test-reporter', require: nil
+  gem 'codeclimate-test-reporter', '0.4.8', require: nil
 end
 
 group :development do
