@@ -7,8 +7,20 @@ services:
     depends_on:
       - postgres
     environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres/postgres
+      RACK_ENV: test
+      DATABASE_TEST_URL: postgres://postgres:postgres@postgres/postgres
     entrypoint: ./bin/docker-compose-setup
     command: ./bin/rake
+  dev:
+    build: .
+    volumes:
+      - .:/home/app
+    depends_on:
+      - postgres
+    environment:
+      RACK_ENV: development
+      DATABASE_DEV_URL: postgres://postgres:postgres@postgres/postgres
+    entrypoint: ./bin/docker-compose-setup
+    command: bash
   postgres:
     image: postgres:9.6

@@ -7,13 +7,6 @@ cmd="$@"
 # Install gems
 bundle check || bundle install
 
-# error on misconfigured db
-if [ -e config/database.yml ]; then
-  >&2 echo "Detected incompatible configuration, aborting..."
-  >&2 echo "Error: config/database.yml is for local dev & is *not* compatible with docker-compose. Please remove/rename this file and try again."
-  exit 1
-fi
-
 # Wait for postgres
 until psql -h postgres -U postgres -c '\l' > /dev/null; do
   >&2 echo "Postgres is unavailable - sleeping"
