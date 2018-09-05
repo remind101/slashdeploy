@@ -30,6 +30,9 @@ class SlackMessage
       search = ['app/views/messages']
     end
     view = ActionView::Base.new(search, attributes.merge(extra_assigns))
+    view.class_eval do
+      include ApplicationHelper
+    end
     view.render(file: file).strip
   end
 
