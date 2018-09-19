@@ -2,7 +2,8 @@
 I don't know about any environments for <%= @repository %>. For details about configuring environments, see <https://slashdeploy.io/docs>.
 <% else %>
 I know about these environments for <%= @repository %>:
-  <% @repository.known_environments.each do |environment| %>
-* <%= environment.name %>
-  <% end %>
+<% @repository.known_environments.each do |environment| %>
+ * <%= environment.name %><% if environment.is_default? %> (default)<% end %>
+<% end %>
+<% if @repository.default_environment == nil %>No default environment set, for details see <https://slashdeploy.io/docs>.<% end %>
 <% end %>
