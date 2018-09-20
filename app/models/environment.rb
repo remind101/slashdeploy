@@ -53,8 +53,13 @@ class Environment < ActiveRecord::Base
   # or one of it's aliases.
   def match_name?(name)
     return true if self.name == name
-    return true if config.aliases.include?(name)
+    return true if aliases.include?(name)
     false
+  end
+
+  # Returns true if 'default' in aliases, else false.
+  def is_default?
+    aliases.include?('default')
   end
 
   # Returns the aliases for this environment.
