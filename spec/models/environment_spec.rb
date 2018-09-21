@@ -99,22 +99,4 @@ RSpec.describe Environment, type: :model do
       end
     end
   end
-
-  describe '#match_name' do
-    context 'when the repository has a config set' do
-      it 'returns the correct value' do
-        repo = Repository.with_name('acme-inc/api')
-        repo.configure! <<-YAML
-environments:
-  production:
-    aliases: [prod]
-YAML
-
-        environment = Environment.new(name: 'production', repository: repo)
-        expect(environment.match_name?('production')).to eq true
-        expect(environment.match_name?('prod')).to eq true
-        expect(environment.match_name?('pro')).to eq false
-      end
-    end
-  end
 end

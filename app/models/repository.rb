@@ -13,14 +13,16 @@ class Repository < ActiveRecord::Base
     find_or_create_by(name: name)
   end
 
-  # Finds the associated environment with the given name, creating it if
-  # necessary. If name is nil, returns the default environment, if the
-  # repository has a default environment set.
+  # Get or create associated environment with the given name.
+  # If given name is nil, return the default environment if configured.
+  # If default environment is not configured, this method will return nil.
   def environment(name = nil)
-    if config?
+    if not name
+      default_environment
+    elsif config?
       known_environments.find { |env| env.match_name?(name) }
     else
-      environments.with_name(name || default_environment)
+      environments.with_name(name)
     end
   end
 
@@ -34,9 +36,18 @@ class Repository < ActiveRecord::Base
     end
   end
 
-  # The default environment to deploy to when one is not specified.
+  # The default environment name if configured.
+  def default_environment_name
+    config? ? config.default_environment : nil
+  end
+
+  # The default environment if configured.
   def default_environment
-    super.presence
+    if default_environment_name
+      environments.with_name(default_environment_name)
+    else
+      nil
+    end
   end
 
   # Returns the environment that's configured to auto deploy this ref.
