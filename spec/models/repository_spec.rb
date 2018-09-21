@@ -20,6 +20,11 @@ RSpec.describe Repository, type: :model do
     context 'when given and environment name' do
       it 'returns the environment with that name' do
         repo = Repository.with_name('acme-inc/api')
+        repo.raw_config = <<-YAML
+        environments:
+          production: {}
+          staging: {}
+        YAML
         environment = repo.environment('staging')
         expect(environment).to_not be_nil
         expect(environment.name).to eq 'staging'
@@ -30,6 +35,11 @@ RSpec.describe Repository, type: :model do
       it 'returns the default environment' do
         repo = Repository.with_name('acme-inc/api')
         repo.default_environment = 'production'
+        repo.raw_config = <<-YAML
+        environments:
+          production: {}
+          staging: {}
+        YAML
         environment = repo.environment
         expect(environment).to_not be_nil
         expect(environment.name).to eq 'production'
