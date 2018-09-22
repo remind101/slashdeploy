@@ -17,15 +17,21 @@ class Repository < ActiveRecord::Base
   # necessary. If name is nil, returns the default environment, if the
   # repository has a default environment set.
   def environment(name = nil)
-    name = default_environment unless name
-    known_environments.find { |env| env.match_name?(name) }
+    if config?
+      known_environments.find { |env| env.match_name?(name) }
+    else
+      environments.with_name(name || default_environment)
+    end
   end
 
   # Returns a list of known environments for this repository. If the repository
   # has a config present, that controls what environments are known.
   def known_environments
-    return [] unless config?
-    config.environments.map { |name, _| environments.find_or_create_by(name: name) }
+    if config?
+      config.environments.map { |name, _| environments.find_or_create_by(name: name) }
+    else
+      environments
+    end
   end
 
   # The default environment to deploy to when one is not specified.
@@ -63,7 +69,6 @@ class Repository < ActiveRecord::Base
 
   # Returns a Ruby representation of the raw config.
   def config
-    fail(SlashDeploy::NoConfig) unless config?
     SlashDeploy::Config.from_yaml(raw_config)
   end
 

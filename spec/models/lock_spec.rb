@@ -7,11 +7,6 @@ RSpec.describe Lock, type: :model do
 
     it 'only allows for 1 active lock per environment' do
       repo = Repository.with_name('acme-inc/api')
-      repo.raw_config = <<-YAML
-      environments:
-        production: {}
-        staging: {}
-      YAML
 
       # Trying the lock the same environment should result in an error.
       staging = repo.environment('staging')

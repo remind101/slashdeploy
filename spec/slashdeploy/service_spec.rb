@@ -3,7 +3,6 @@ require 'rails_helper'
 RSpec.describe SlashDeploy::Service do
   fixtures :users
   fixtures :slack_accounts
-  fixtures :slack_teams
 
   let(:github) { instance_double(GitHub::Client, access?: true) }
   let(:slack) { instance_double(Slack::Client) }

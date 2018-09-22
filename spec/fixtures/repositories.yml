@@ -3,16 +3,3 @@
   github_secret: secret
   installation_id: 1234
   raw_config: "---\n"
-'acme-inc/api':
-  name: 'acme-inc/api'
-  github_secret: secret
-  installation_id: 1234
-  raw_config: |
-    environments:
-      production: {}
-      staging:
-        aliases:
-          - stage
-      cd/no_contexts:
-        continuous_delivery:
-          ref: refs/heads/master
