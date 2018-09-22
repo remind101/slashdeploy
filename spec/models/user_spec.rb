@@ -13,14 +13,35 @@ RSpec.describe User, type: :model do
       repo1 = Repository.with_name('acme-inc/api1')
       repo2 = Repository.with_name('acme-inc/api2')
 
+      repo1.configure! <<-YAML.strip_heredoc
+      environments:
+        production:
+          aliases: [prod]
+        stage:
+          aliases: [staging]
+      YAML
+
+      repo2.configure! <<-YAML.strip_heredoc
+      environments:
+        production:
+          aliases: [prod]
+        stage:
+          aliases: [staging]
+      YAML
+
+      repo1.save!
+      repo2.save!
+
       # david runs lock repo1 in stage environment.
       repo1_stage = repo1.environment('stage')
+      repo1_stage.save!
       expect { repo1_stage.lock! user1 }
         .to change { repo1_stage.locks.active.count }.from(0).to(1)
         .and change { user1.locks.active.count }.from(0).to(1)
 
       # david runs lock repo1 in prod environment.
       repo1_prod = repo1.environment('prod')
+      repo1_prod.save!
       expect { repo1_prod.lock! user1 }
         .to change { repo1_prod.locks.active.count }.from(0).to(1)
         .and change { user1.locks.active.count }.from(1).to(2)
@@ -33,6 +54,7 @@ RSpec.describe User, type: :model do
 
       # steve runs lock repo2 in stage environment.
       repo2_stage = repo2.environment('stage')
+      repo2_stage.save!
       expect { repo2_stage.lock! user2 }
         .to change { repo2_stage.locks.active.count }.from(0).to(1)
         .and change { user2.locks.active.count }.from(0).to(1)

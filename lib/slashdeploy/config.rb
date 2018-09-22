@@ -34,6 +34,9 @@ module SlashDeploy
 
     attribute :environments, Hash[String => Environment]
 
+    # optional default_environment name.
+    attribute :default_environment, String, :default => nil
+
     # Public: Loads the raw yaml and initializes a new Config object from it.
     #
     # yaml - raw YAML formatted string
