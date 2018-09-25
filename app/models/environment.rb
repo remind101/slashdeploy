@@ -43,13 +43,18 @@ class Environment < ActiveRecord::Base
   # or one of it's aliases.
   def match_name?(name)
     return true if self.name == name
-    return true if config.aliases.include?(name)
+    return true if aliases.include?(name)
     false
   end
 
   # Returns the aliases for this environment.
   def aliases
     config.aliases
+  end
+
+  # Returns true if this environment is the default for this repository, else false.
+  def is_default?
+    self.name == repository.default_environment_name
   end
 
   # Checks if this environment is configured to automatically deploy the given ref.
