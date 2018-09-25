@@ -23,8 +23,16 @@ RSpec.describe AutoDeployment, type: :model do
 
     context 'when all required contexts are in a success state' do
       it 'returns :ready' do
-        environment = Repository.with_name('acme-inc/api').environment('production')
-        environment.update_attributes! required_contexts: ['ci/circleci', 'security/brakeman']
+        repo = Repository.with_name('acme-inc/api')
+        repo.raw_config = <<-YAML
+        environments:
+          production:
+            continuous_delivery:
+              required_contexts:
+                - ci/circleci
+                - security/brakeman
+        YAML
+        environment = repo.environment('production')
         Status.create! sha: 'abcd', context: 'ci/circleci', state: 'success'
         Status.create! sha: 'abcd', context: 'security/brakeman', state: 'success'
         auto_deployment = environment.auto_deployments.new sha: 'abcd'
@@ -34,8 +42,16 @@ RSpec.describe AutoDeployment, type: :model do
 
     context 'when only some of the required contexts are in a success state' do
       it 'returns :pending' do
-        environment = Repository.with_name('acme-inc/api').environment('production')
-        environment.update_attributes! required_contexts: ['ci/circleci', 'security/brakeman']
+        repo = Repository.with_name('acme-inc/api')
+        repo.raw_config = <<-YAML
+        environments:
+          production:
+            continuous_delivery:
+              required_contexts:
+                - ci/circleci
+                - security/brakeman
+        YAML
+        environment = repo.environment('production')
         ci = Status.create! sha: 'abcd', context: 'ci/circleci', state: 'success'
         auto_deployment = environment.auto_deployments.new sha: 'abcd'
         expect(auto_deployment.state).to equal AutoDeployment::STATE_PENDING
@@ -49,8 +65,16 @@ RSpec.describe AutoDeployment, type: :model do
 
     context 'when some of the required contexts are in a failing state' do
       it 'returns :pending' do
-        environment = Repository.with_name('acme-inc/api').environment('production')
-        environment.update_attributes! required_contexts: ['ci/circleci', 'security/brakeman']
+        repo = Repository.with_name('acme-inc/api')
+        repo.raw_config = <<-YAML
+        environments:
+          production:
+            continuous_delivery:
+              required_contexts:
+                - ci/circleci
+                - security/brakeman
+        YAML
+        environment = repo.environment('production')
         Status.create! sha: 'abcd', context: 'ci/circleci', state: 'success'
         Status.create! sha: 'abcd', context: 'ci/circleci', state: 'failure'
         auto_deployment = environment.auto_deployments.new sha: 'abcd'
@@ -60,8 +84,16 @@ RSpec.describe AutoDeployment, type: :model do
 
     context 'when all of the required contexts are tracked, but some are not successful' do
       it 'returns :failed' do
-        environment = Repository.with_name('acme-inc/api').environment('production')
-        environment.update_attributes! required_contexts: ['ci/circleci', 'security/brakeman']
+        repo = Repository.with_name('acme-inc/api')
+        repo.raw_config = <<-YAML
+        environments:
+          production:
+            continuous_delivery:
+              required_contexts:
+                - ci/circleci
+                - security/brakeman
+        YAML
+        environment = repo.environment('production')
         Status.create! sha: 'abcd', context: 'ci/circleci', state: 'failure'
         Status.create! sha: 'abcd', context: 'security/brakeman', state: 'success'
         auto_deployment = environment.auto_deployments.new sha: 'abcd'
