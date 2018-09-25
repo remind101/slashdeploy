@@ -3,6 +3,7 @@
     <ul class="nav nav-pills nav-stacked">
       <li role="presentation"><a href="#installation">Installation</a></li>
       <li role="presentation"><a href="#slash-command">Slash Command</a></li>
+      <li role="presentation"><a href="#.slashdeploy.yml">.slashdeploy.yml</a></li>
       <li role="presentation"><a href="#continuous-delivery">Continuous Delivery</a></li>
       <li role="presentation"><a href="#faq">FAQ</a></li>
       <li role="presentation"><a href="#troubleshooting">Troubleshooting</a></li>
@@ -56,8 +57,8 @@
 
     <h5 id=".slashdeploy.yml">.slashdeploy.yml</h5>
 
-    <p>You may configure SlashDeploy for your project by putting a <code>.slashdeploy.yml</code> file in the root of your git repository.
-    <p>Here is a heavily commented <code>.slashdeploy.yml</code> example:
+    <p>You may configure SlashDeploy for your project by putting a <a href="#.slashdeploy.yml">.slashdeploy.yml</a> file in the root of your git repository.
+    <p>Here is a heavily commented <a href="#.slashdeploy.yml">.slashdeploy.yml</a> example:
       <pre>---
 # teach SlashDeploy which environment is default. optional.
 # used when environment is not passed to a `/deploy` command.
@@ -79,10 +80,12 @@ environments:
       - staging
     </pre>
 
+    <hr />
+
     <h5 id="continuous-delivery">Continuous Delivery</h5>
     <p>You can configure SlashDeploy to automatically deploy a branch to an environment when you push code to GitHub.</p>
-    <p>If you utilize Github "Branch Protection Rules", you should likely use the same set of "Require status checks" under <code>required_context</code>.</p>
-    <p>This example <code>.slashdeploy.yml</code> file will automatically deploy the <code>master</code> branch to the <code>production</code> environment, once tests are passing on CircleCI:</p>
+    <p>If you utilize Github "Branch Protection Rules", you should likely use the same set of "Require status checks" under <code>required_contexts</code>.</p>
+    <p>This example <a href="#.slashdeploy.yml">.slashdeploy.yml</a> file will automatically deploy the <code>master</code> branch to the <code>production</code> environment, once tests are passing on CircleCI:</p>
     <p>
       <pre>---
 environments:
@@ -122,13 +125,13 @@ environments:
       <%= time_ago_in_words(GithubDeploymentWatchdogWorker::DEFAULT_DELAY.from_now, include_seconds: true) %>, 
       you will get a Slack notification letting you know something went wrong. This might happen for a number of reasons, so check the following.
       <ul>
-        <li>make sure the repo's <code>slashdeploy.yml</code> file is configured properly</li>
+        <li>make sure the repo's <a href="#.slashdeploy.yml">.slashdeploy.yml</a> file is configured properly</li>
         <li>make sure the repo has a Github Deployment Integration (and Webhooks) to handle deployment events</li>
         <li>make sure the service handling the deployment events is working and sending Deployment Status updates to Github</li>
         <li>make sure the service handling the deployment events is not filtering or ignoring deployment requests. For example, it will deploy to <code>production</code>, however the  provided environment in the deployment event was <code>prod</code>.
       </dd>
       <dt id="error-2">Error 2: <small>A required commit status context is stuck in pending</small></dt>
-      <dd>Inside the repo's <code>slashdeploy.yml</code> a list of <code>required_contexts</code> was defined which need to move into the <code>success</code> state in order to continue. For some reason, after <%= time_ago_in_words(AutoDeploymentWatchdogWorker::DEFAULT_DELAY.from_now) %> of waiting, at least one of these <code>required_contexts</code> are stuck in the <code>pending</code> state instead of transitioning to <code>success</code>, <code>failure</code>, or <code>error</code>. If you fix this issue your deployment will likely continue.</dd>
+      <dd>Inside the repo's <a href="#.slashdeploy.yml">.slashdeploy.yml</a> a list of <code>required_contexts</code> was defined which need to move into the <code>success</code> state in order to continue. For some reason, after <%= time_ago_in_words(AutoDeploymentWatchdogWorker::DEFAULT_DELAY.from_now) %> of waiting, at least one of these <code>required_contexts</code> are stuck in the <code>pending</code> state instead of transitioning to <code>success</code>, <code>failure</code>, or <code>error</code>. If you fix this issue your deployment will likely continue.</dd>
     </dl>
 
   </div>
