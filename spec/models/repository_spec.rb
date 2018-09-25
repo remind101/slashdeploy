@@ -30,38 +30,46 @@ RSpec.describe Repository, type: :model do
         expect(environment.name).to eq 'staging'
       end
     end
-
-    context 'when not given a name' do
-      it 'returns the default environment' do
-        repo = Repository.with_name('acme-inc/api')
-        repo.default_environment = 'production'
-        repo.raw_config = <<-YAML
-        environments:
-          production: {}
-          staging: {}
-        YAML
-        environment = repo.environment
-        expect(environment).to_not be_nil
-        expect(environment.name).to eq 'production'
-      end
-    end
   end
 
   describe '#default_environment' do
-    context 'when the repository has a default environment provided' do
-      it 'returns that value' do
-        repo = Repository.new(default_environment: 'staging')
-        expect(repo.default_environment).to eq 'staging'
+
+    before do
+      @repo = Repository.with_name('acme-inc/api')
+      @repo.configure! <<-YAML
+default_environment: production
+environments:
+  production:
+    aliases: [prod]
+  stage:
+    aliases: [staging]
+YAML
+
+      @env_prod = Environment.new(name: 'production', repository: @repo)
+      @env_stage = Environment.new(name: 'stage', repository: @repo)
+    end
+
+    context 'when not given a name' do
+      it 'returns the default environment' do
+        environment = @repo.environment
+        expect(environment).to_not be_nil
+        expect(environment.name).to eq "production"
       end
     end
 
-    context 'when the repository does not have a default environment' do
-      it 'returns nil' do
-        repo = Repository.new(default_environment: '')
-        expect(repo.default_environment).to be_nil
+    context 'when not given an alias' do
+      it 'repo returns the correct environment' do
+        environment = @repo.environment("prod")
+        expect(environment).to_not be_nil
+        expect(environment.name).to eq "production"
+      end
+    end
 
-        repo = Repository.new
-        expect(repo.default_environment).to be_nil
+    context 'when default_environment set' do
+      it 'repository and environment objects react correctly' do
+        expect(@env_prod.is_default?).to eq true
+        expect(@env_stage.is_default?).to eq false
+        expect(@repo.default_environment.name).to eq "production"
       end
     end
   end

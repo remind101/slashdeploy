@@ -433,11 +433,20 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'finding the environments I can deploy a repo to' do
-    command '/deploy where baxterthehacker/public-repo', as: slack_accounts(:david)
-    expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for baxterthehacker/public-repo. For details about configuring environments, see <https://slashdeploy.io/docs>.")
+    command '/deploy where acme-inc/api', as: slack_accounts(:david)
+    #expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for acme-inc/api. For details about configuring environments, see <https://slashdeploy.io/docs>.")
 
-    repo = Repository.with_name("baxterthehacker/public-repo")
-    repo.configure! nil
+    #command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
+
+    command '/deploy where acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip)
+    I know about these environments for acme-inc/api:
+     * production
+     * staging
+     * cd/no_contexts
+    No default environment set, for details see <https://slashdeploy.io/docs>.
+    TEXT
+
     command '/deploy where baxterthehacker/public-repo', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for baxterthehacker/public-repo. For details about configuring environments, see <https://slashdeploy.io/docs>.")
 
@@ -450,8 +459,25 @@ RSpec.feature 'Slash Commands' do
     command '/deploy where baxterthehacker/public-repo', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip)
     I know about these environments for baxterthehacker/public-repo:
-    * production
+     * production
+    No default environment set, for details see <https://slashdeploy.io/docs>.
     TEXT
+
+    repo = Repository.with_name("baxterthehacker/public-repo")
+    repo.configure! <<-YAML.strip_heredoc
+    default_environment: production
+    environments:
+      production: {}
+      stage: {}
+    YAML
+
+    command '/deploy where baxterthehacker/public-repo', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip)
+    I know about these environments for baxterthehacker/public-repo:
+     * production (default)
+     * stage
+    TEXT
+
   end
 
   scenario 'trying to /deploy to an invalid repoisotory' do
@@ -472,14 +498,24 @@ RSpec.feature 'Slash Commands' do
     expect do
       command '/deploy acme-inc/api@master', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
-    expect(command_response.message).to eq Slack::Message.new(
-      text: "I know about these environments for acme-inc/api:\n* production\n* staging\n* cd/no_contexts"
-    )
+    expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip)
+    I know about these environments for acme-inc/api:
+     * production
+     * staging
+     * cd/no_contexts
+    No default environment set, for details see <https://slashdeploy.io/docs>.
+    TEXT
   end
 
   scenario 'trying to /deploy an environment that is configured to auto deploy' do
     repo = Repository.with_name('acme-inc/api')
-    repo.update_attributes! default_environment: 'cd/no_contexts'
+    repo.configure! <<-YAML.strip_heredoc
+    default_environment: cd/no_contexts
+    environments:
+      cd/no_contexts:
+        continuous_delivery:
+          ref: refs/heads/master
+    YAML
 
     expect do
       command '/deploy acme-inc/api@master', as: slack_accounts(:david)
@@ -502,10 +538,16 @@ RSpec.feature 'Slash Commands' do
 
   scenario 'trying to /deploy an environment that is configured to auto deploy by action' do
     repo = Repository.with_name('acme-inc/api')
-    repo.update_attributes! default_environment: 'cd/no_contexts'
+
+    repo.configure! <<-YAML.strip_heredoc
+    environments:
+      cd/no_contexts:
+        continuous_delivery:
+          ref: refs/heads/master
+    YAML
 
     expect do
-      command '/deploy acme-inc/api@master', as: slack_accounts(:david)
+      command '/deploy acme-inc/api@master to cd/no_contexts', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
 
     callback_id = command_response.message.attachments[0].callback_id
@@ -526,10 +568,15 @@ RSpec.feature 'Slash Commands' do
 
   scenario 'trying to /deploy an environment that is configured to auto deploy by action but whose context checks are failing' do
     repo = Repository.with_name('acme-inc/api')
-    repo.update_attributes! default_environment: 'cd/no_contexts'
+    repo.configure! <<-YAML.strip_heredoc
+    environments:
+      cd/no_contexts:
+        continuous_delivery:
+          ref: refs/heads/master
+    YAML
 
     expect do
-      command '/deploy acme-inc/api@failing', as: slack_accounts(:david)
+      command '/deploy acme-inc/api@failing to cd/no_contexts', as: slack_accounts(:david)
     end.to_not change { deployment_requests }
 
     callback_id = command_response.message.attachments[0].callback_id
