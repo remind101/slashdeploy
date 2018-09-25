@@ -20,14 +20,14 @@ RSpec.describe GitHubEventHandler do
             '/',
             input: {
               repository: {
-                full_name: 'acme-inc/api'
+                full_name: 'acme-inc/frontend'
               },
               installation: {
                 id: 1234
               }
             }.to_json,
             'CONTENT_TYPE' => 'application/json',
-            'HTTP_X_HUB_SIGNATURE' => 'sha1=1290d145b7ac29e87238b4b129bc10076e22387f'
+            'HTTP_X_HUB_SIGNATURE' => 'sha1=cf3087c974f5bee8c93210f61b0186e0722c605d'
           expect(resp.status).to eq 200
         end.to change { Repository.count }
       end

@@ -3,6 +3,8 @@ module SlashDeploy
 
   EnvironmentAutoDeploys = Class.new(Error)
 
+  NoConfig = Class.new(Error)
+
   # Raised when a user doesn't have access to the given repo.
   class RepoUnauthorized < Error
     attr_reader :repository

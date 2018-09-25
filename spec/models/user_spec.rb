@@ -9,9 +9,16 @@ RSpec.describe User, type: :model do
     let(:user2) { users(:steve) }
 
     it 'allows david to unlock both environments with unlock_all without messing with steve' do
+      config = <<-yaml.strip_heredoc
+      environments:
+        stage: {}
+        prod: {}
+      yaml
 
       repo1 = Repository.with_name('acme-inc/api1')
+      repo1.update_attributes! raw_config: config
       repo2 = Repository.with_name('acme-inc/api2')
+      repo2.update_attributes! raw_config: config
 
       # david runs lock repo1 in stage environment.
       repo1_stage = repo1.environment('stage')
