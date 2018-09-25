@@ -7,12 +7,6 @@ class Environment < ActiveRecord::Base
 
   validates :name, presence: true, uniqueness: { scope: :repository_id }
 
-  # TODO(ejholmes): Pending migration: https://github.com/remind101/slashdeploy/blob/ba259375fa8b7c845d36eda6f545643ccaad643b/db/migrate/20180315040144_remove_db_backed_cd.rb
-  def self.columns
-    removed = ["auto_deploy_ref", "required_contexts", "aliases"]
-    super.reject { |c| removed.include?(c.name) }
-  end
-
   # Set defaults.
   after_initialize do
     # Default to in_channel responses when the environment looks like a
