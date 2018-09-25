@@ -49,31 +49,56 @@
     <p><code>/deploy acme-inc/api to staging</code></p>
     <p>When I'm done testing my changes, I can unlock the environment so others can deploy to it again.</p>
     <p><code>/deploy unlock staging on acme-inc/api</code></p>
+    <p>When I'm done for the day, I can release all my locks.
+    <p><code>/deploy unlock all</code></p>
 
     <hr />
 
+    <h5 id=".slashdeploy.yml">.slashdeploy.yml</h5>
+
+    <p>You may configure SlashDeploy for your project by putting a <code>.slashdeploy.yml</code> file in the root of your git repository.
+    <p>Here is a heavily commented <code>.slashdeploy.yml</code> example:
+      <pre>---
+# teach SlashDeploy which environment is default. optional.
+# used when environment is not passed to a `/deploy` command.
+default_environment: production
+
+# a document of available environments for this repository.
+environments:
+
+  # an environment named "production".
+  production:
+
+    # an optional list of aliases used to refer to the "production" environment.
+    aliases:
+      - prod
+
+  # another environment named "stage".
+  stage:
+    aliases:
+      - staging
+    </pre>
+
     <h5 id="continuous-delivery">Continuous Delivery</h5>
-    <p>You can configure SlashDeploy to automatically deploy a branch to an environment when you push code to GitHub or when a set of commit status contexts succeeds.</p>
-    <p>To configure CD, you add a <code>.slashdeploy.yml</code> file to the root of the repository. Here's an example config file that will automatically deploy the <code>master</code> branch to the <code>production</code> environment, once tests are passing on CircleCI:</p>
+    <p>You can configure SlashDeploy to automatically deploy a branch to an environment when you push code to GitHub.</p>
+    <p>If you utilize Github "Branch Protection Rules", you should likely use the same set of "Require status checks" under <code>required_context</code>.</p>
+    <p>This example <code>.slashdeploy.yml</code> file will automatically deploy the <code>master</code> branch to the <code>production</code> environment, once tests are passing on CircleCI:</p>
     <p>
       <pre>---
-production:
+environments:
+  production:
+
+    # Enable continuous delivery for this environment.
+    continuous_delivery:
+
+      # Specify any git "ref" (tag, branch, etc) to auto deploy when pushed to.
+      ref: refs/heads/master
   
-  # Allows us to reference this using "production" or a short alias, "prod".
-  aliases:
-    - prod
-
-  # Enable continuous delivery for this environment.
-  continuous_delivery:
-    # You can specify any git "ref" (tag, branch, etc) to auto deploy when
-    # pushed to.
-    ref: refs/heads/master
-
-    # If you want to only deploy when a set of GitHub commit statuses are
-    # passing, you can configure those here. If none are provided, SlashDeploy
-    # will deploy when new commits are pushed to the git ref.
-    required_contexts:
-      - ci/circleci</pre>
+      # To deploy only after a set of GitHub commit statuses pass,
+      # configure required_contexts (optional).
+      required_contexts:
+        - ci/circleci
+      </pre>
     </p>
 
     <hr />

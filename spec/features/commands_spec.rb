@@ -433,10 +433,6 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'finding the environments I can deploy a repo to' do
-    command '/deploy where acme-inc/api', as: slack_accounts(:david)
-    #expect(command_response.message).to eq Slack::Message.new(text: "I don't know about any environments for acme-inc/api. For details about configuring environments, see <https://slashdeploy.io/docs>.")
-
-    #command '/deploy acme-inc/api to staging', as: slack_accounts(:david)
 
     command '/deploy where acme-inc/api', as: slack_accounts(:david)
     expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip)
