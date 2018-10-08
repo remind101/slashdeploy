@@ -1,4 +1,8 @@
-You unlocked all of the the following:
+<% if @locks.length >= 1 %>
+You unlocked each of the the following:
 <% @locks.each do |lock| %>
  * *<%= lock.environment %>* on <%= lock.environment.repository %>
+<% end %>
+<% else %>
+You have nothing to unlock.
 <% end %>
