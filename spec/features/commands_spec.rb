@@ -225,10 +225,12 @@ RSpec.feature 'Slash Commands' do
     command '/deploy unlock all', as: slack_accounts(:david)
     expect(users(:david).locks.active.count).to eq 0
     expect(command_response.message).to eq Slack::Message.new(text: <<-TEXT.strip_heredoc.strip)
-    You unlocked all of the the following:
+    You unlocked each of the the following:
      * *staging* on acme-inc/api
      * *production* on acme-inc/api
     TEXT
+    command '/deploy unlock all', as: slack_accounts(:david)
+    expect(command_response.message).to eq Slack::Message.new(text: 'You have nothing to unlock.')
     
   end
 
