@@ -9,6 +9,8 @@ To lock an environment: /deploy lock ENVIRONMENT on REPO: MESSAGE
 To unlock a previously locked environment: /deploy unlock ENVIRONMENT on REPO
 To unlock all locks you own: /deploy unlock all
 To check if an environment is locked: /deploy check ENVIRONMENT on REPO
+To get the latest deployment for a repo: /deploy latest REPO
+To get the latest deployment for a repo to a specific environment: /deploy latest REPO to ENVIRONMENT
 EOF
 
   values do
