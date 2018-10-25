@@ -39,6 +39,9 @@ RSpec.describe SlashCommands do
       check_route(a, 'acme-inc/api@topic to staging!', DeployCommand, 'repository' => 'acme-inc/api', 'ref' => 'topic', 'environment' => 'staging', 'force' => '!')
 
       check_route(a, 'api to staging', DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
+
+      check_route(a, 'latest acme-inc/api', LatestCommand, 'repository' => 'acme-inc/api', 'environment' => nil)
+      check_route(a, 'latest acme-inc/api to staging', LatestCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
     end
 
     def check_route(account, text, expected_handler, expected_params)

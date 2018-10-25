@@ -697,6 +697,164 @@ RSpec.feature 'Slash Commands' do
     expect(GithubDeploymentWatchdogWorker.jobs.size).to eq 0
   end
 
+  scenario 'checking the latest deployment for a repo with a default environment' do
+    repo = Repository.with_name("acme-inc/api")
+    repo.configure! <<-YAML.strip_heredoc
+    default_environment: production
+    environments:
+      production: {}
+      staging: {}
+    YAML
+
+    expected_fields = [
+      {
+        title: "Commit SHA",
+        value: "ad80a1b3e1a94b98ce99b71a48f811f1"
+      }
+    ]
+
+    expected_slack_msg = Slack::Message.new(
+      text: 'Latest deployment for *acme-inc/api* to environment *production*',
+      attachments: [
+        Slack::Attachment.new(
+          color: '#3AA3E3',
+          title: 'acme-inc/api/master',
+          title_link: 'https://github.com/acme-inc/api/commit/ad80a1b3e1a94b98ce99b71a48f811f1',
+          fields: expected_fields
+        )
+      ]
+    
+    )
+
+    command '/deploy acme-inc/api@master to production', as: slack_accounts(:david)
+    
+    command '/deploy latest acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq expected_slack_msg
+
+    command '/deploy latest acme-inc/api to production', as: slack_accounts(:david)
+    expect(command_response.message).to eq expected_slack_msg
+  end
+  
+  scenario 'checking the latest deployment for a repo without a default environment' do
+    repo = Repository.with_name("acme-inc/api")
+    repo.configure! <<-YAML.strip_heredoc
+    environments:
+      production: {}
+      staging: {}
+    YAML
+    
+    expected_fields_staging = [
+      {
+        title: "Commit SHA",
+        value: "4c7b474c6e1c81553a16d1082cebfa60"
+      }
+    ]
+
+    expected_slack_msg_staging = Slack::Message.new(
+      text: 'Latest deployment for *acme-inc/api* to environment *staging*',
+      attachments: [
+        Slack::Attachment.new(
+          color: '#3AA3E3',
+          title: 'acme-inc/api/topic',
+          title_link: 'https://github.com/acme-inc/api/commit/4c7b474c6e1c81553a16d1082cebfa60',
+          fields: expected_fields_staging
+        )
+      ]
+    )
+    
+    expected_fields_production = [
+      {
+        title: "Commit SHA",
+        value: "ad80a1b3e1a94b98ce99b71a48f811f1"
+      }
+    ]
+
+    expected_slack_msg_production = Slack::Message.new(
+      text: 'Latest deployment for *acme-inc/api* to environment *production*',
+      attachments: [
+        Slack::Attachment.new(
+          color: '#3AA3E3',
+          title: 'acme-inc/api/master',
+          title_link: 'https://github.com/acme-inc/api/commit/ad80a1b3e1a94b98ce99b71a48f811f1',
+          fields: expected_fields_production
+        )
+      ]
+    )
+
+    command '/deploy acme-inc/api@master to production', as: slack_accounts(:david)
+    command '/deploy acme-inc/api@topic to staging', as: slack_accounts(:david)
+    
+    # Latest deployment without environment set should return the latest 
+    # all over the repo (when there's no default environment).
+    # Octokit client returns the latest deployment on the whole repo if 
+    # no environment is set, however it is not working with the current github fake client
+    
+    #command '/deploy latest acme-inc/api', as: slack_accounts(:david)
+    #expect(command_response.message).to eq expected_slack_msg_staging
+
+    command '/deploy latest acme-inc/api to staging', as: slack_accounts(:david)
+    expect(command_response.message).to eq expected_slack_msg_staging
+
+    command '/deploy latest acme-inc/api to production', as: slack_accounts(:david)
+    expect(command_response.message).to eq expected_slack_msg_production
+  end
+
+  scenario 'checking the latest deployment for a repo without a default environment multiple' do
+    repo = Repository.with_name("acme-inc/api")
+    repo.configure! <<-YAML.strip_heredoc
+    environments:
+      production: {}
+      staging: {}
+    YAML
+    
+    expected_fields_topic = [
+      {
+        title: "Commit SHA",
+        value: "4c7b474c6e1c81553a16d1082cebfa60"
+      }
+    ]
+
+    expected_slack_msg_topic = Slack::Message.new(
+      text: 'Latest deployment for *acme-inc/api* to environment *production*',
+      attachments: [
+        Slack::Attachment.new(
+          color: '#3AA3E3',
+          title: 'acme-inc/api/topic',
+          title_link: 'https://github.com/acme-inc/api/commit/4c7b474c6e1c81553a16d1082cebfa60',
+          fields: expected_fields_topic
+        )
+      ]
+    )
+    
+    expected_fields_master = [
+      {
+        title: "Commit SHA",
+        value: "ad80a1b3e1a94b98ce99b71a48f811f1"
+      }
+    ]
+
+    expected_slack_msg_master = Slack::Message.new(
+      text: 'Latest deployment for *acme-inc/api* to environment *production*',
+      attachments: [
+        Slack::Attachment.new(
+          color: '#3AA3E3',
+          title: 'acme-inc/api/master',
+          title_link: 'https://github.com/acme-inc/api/commit/ad80a1b3e1a94b98ce99b71a48f811f1',
+          fields: expected_fields_master
+        )
+      ]
+    )
+
+    command '/deploy acme-inc/api@master to production', as: slack_accounts(:david)
+    command '/deploy acme-inc/api@topic to production', as: slack_accounts(:david)
+    command '/deploy latest acme-inc/api to production', as: slack_accounts(:david)
+    expect(command_response.message).to eq expected_slack_msg_topic
+
+    command '/deploy acme-inc/api@master to production', as: slack_accounts(:david)
+    command '/deploy latest acme-inc/api to production', as: slack_accounts(:david)
+    expect(command_response.message).to eq expected_slack_msg_master
+  end
+
   def deployment_requests
     github.requests
   end
