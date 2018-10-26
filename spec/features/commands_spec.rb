@@ -733,6 +733,10 @@ RSpec.feature 'Slash Commands' do
 
     command '/deploy latest acme-inc/api to production', as: slack_accounts(:david)
     expect(command_response.message).to eq expected_slack_msg
+
+    command '/deploy acme-inc/api@master to staging', as: slack_accounts(:david)
+    command '/deploy latest acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq expected_slack_msg
   end
   
   scenario 'checking the latest deployment for a repo without a default environment' do
