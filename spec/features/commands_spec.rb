@@ -720,14 +720,15 @@ RSpec.feature 'Slash Commands' do
           color: '#3AA3E3',
           title: 'acme-inc/api@master',
           title_link: 'https://github.com/acme-inc/api/commit/ad80a1b3e1a94b98ce99b71a48f811f1',
-          fields: expected_fields
+          fields: expected_fields,
+          footer: "<https://github.com/acme-inc/api/deployments|Check all the latest deployments here>"
         )
       ]
     
     )
 
     command '/deploy acme-inc/api@master to production', as: slack_accounts(:david)
-    
+
     command '/deploy latest acme-inc/api', as: slack_accounts(:david)
     expect(command_response.message).to eq expected_slack_msg
 
@@ -761,7 +762,8 @@ RSpec.feature 'Slash Commands' do
           color: '#3AA3E3',
           title: 'acme-inc/api@topic',
           title_link: 'https://github.com/acme-inc/api/commit/4c7b474c6e1c81553a16d1082cebfa60',
-          fields: expected_fields_staging
+          fields: expected_fields_staging,
+          footer: "<https://github.com/acme-inc/api/deployments|Check all the latest deployments here>"
         )
       ]
     )
@@ -780,7 +782,8 @@ RSpec.feature 'Slash Commands' do
           color: '#3AA3E3',
           title: 'acme-inc/api@master',
           title_link: 'https://github.com/acme-inc/api/commit/ad80a1b3e1a94b98ce99b71a48f811f1',
-          fields: expected_fields_production
+          fields: expected_fields_production,
+          footer: "<https://github.com/acme-inc/api/deployments|Check all the latest deployments here>"
         )
       ]
     )
@@ -825,7 +828,8 @@ RSpec.feature 'Slash Commands' do
           color: '#3AA3E3',
           title: 'acme-inc/api@topic',
           title_link: 'https://github.com/acme-inc/api/commit/4c7b474c6e1c81553a16d1082cebfa60',
-          fields: expected_fields_topic
+          fields: expected_fields_topic,
+          footer: "<https://github.com/acme-inc/api/deployments|Check all the latest deployments here>"
         )
       ]
     )
@@ -844,7 +848,8 @@ RSpec.feature 'Slash Commands' do
           color: '#3AA3E3',
           title: 'acme-inc/api@master',
           title_link: 'https://github.com/acme-inc/api/commit/ad80a1b3e1a94b98ce99b71a48f811f1',
-          fields: expected_fields_master
+          fields: expected_fields_master,
+          footer: "<https://github.com/acme-inc/api/deployments|Check all the latest deployments here>"
         )
       ]
     )
