@@ -718,7 +718,7 @@ RSpec.feature 'Slash Commands' do
       attachments: [
         Slack::Attachment.new(
           color: '#3AA3E3',
-          title: 'acme-inc/api/master',
+          title: 'acme-inc/api@master',
           title_link: 'https://github.com/acme-inc/api/commit/ad80a1b3e1a94b98ce99b71a48f811f1',
           fields: expected_fields
         )
@@ -755,7 +755,7 @@ RSpec.feature 'Slash Commands' do
       attachments: [
         Slack::Attachment.new(
           color: '#3AA3E3',
-          title: 'acme-inc/api/topic',
+          title: 'acme-inc/api@topic',
           title_link: 'https://github.com/acme-inc/api/commit/4c7b474c6e1c81553a16d1082cebfa60',
           fields: expected_fields_staging
         )
@@ -774,7 +774,7 @@ RSpec.feature 'Slash Commands' do
       attachments: [
         Slack::Attachment.new(
           color: '#3AA3E3',
-          title: 'acme-inc/api/master',
+          title: 'acme-inc/api@master',
           title_link: 'https://github.com/acme-inc/api/commit/ad80a1b3e1a94b98ce99b71a48f811f1',
           fields: expected_fields_production
         )
@@ -819,7 +819,7 @@ RSpec.feature 'Slash Commands' do
       attachments: [
         Slack::Attachment.new(
           color: '#3AA3E3',
-          title: 'acme-inc/api/topic',
+          title: 'acme-inc/api@topic',
           title_link: 'https://github.com/acme-inc/api/commit/4c7b474c6e1c81553a16d1082cebfa60',
           fields: expected_fields_topic
         )
@@ -838,7 +838,7 @@ RSpec.feature 'Slash Commands' do
       attachments: [
         Slack::Attachment.new(
           color: '#3AA3E3',
-          title: 'acme-inc/api/master',
+          title: 'acme-inc/api@master',
           title_link: 'https://github.com/acme-inc/api/commit/ad80a1b3e1a94b98ce99b71a48f811f1',
           fields: expected_fields_master
         )
