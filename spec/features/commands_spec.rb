@@ -791,13 +791,8 @@ RSpec.feature 'Slash Commands' do
     command '/deploy acme-inc/api@master to production', as: slack_accounts(:david)
     command '/deploy acme-inc/api@topic to staging', as: slack_accounts(:david)
     
-    # Latest deployment without environment set should return the latest 
-    # all over the repo (when there's no default environment).
-    # Octokit client returns the latest deployment on the whole repo if 
-    # no environment is set, however it is not working with the current github fake client
-    
-    #command '/deploy latest acme-inc/api', as: slack_accounts(:david)
-    #expect(command_response.message).to eq expected_slack_msg_staging
+    command '/deploy latest acme-inc/api', as: slack_accounts(:david)
+    expect(command_response.message).to eq expected_slack_msg_staging
 
     command '/deploy latest acme-inc/api to staging', as: slack_accounts(:david)
     expect(command_response.message).to eq expected_slack_msg_staging
