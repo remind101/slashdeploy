@@ -39,7 +39,7 @@ module GitHub
       def last_deployment_status(user, deployment_url)
         deployment_statuses = user.octokit_client.deployment_statuses(deployment_url)
         return if deployment_statuses.empty?
-        deployment_status_from_github(deployments_statuses.first)
+        deployment_status_from_github(deployment_statuses.first)
       end
 
       def access?(user, repository)
@@ -80,7 +80,8 @@ module GitHub
           description:    github_deployment_status.description,
           target_url:     github_deployment_status.target_url,
           deployment_url: github_deployment_status.deployment_url,
-          repository_url: github_deployment_status.repository_url
+          repository_url: github_deployment_status.repository_url,
+          state:          github_deployment_status.state
         )
       end
 

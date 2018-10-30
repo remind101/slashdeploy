@@ -122,11 +122,17 @@ module SlashDeploy
     # repo        - The repository to retrieve the last deployment from.
     # environment - The Environment to retrieve the last deployment from.
     #
-    # Returns github.last_deployment.
+    # Returns a LastDeployment.
     def last_deployment(user, repo, environment)
       authorize! user, repo.to_s
 
       last_deployment = github.last_deployment(user, repo.to_s, environment.to_s)
+      last_deployment_status = github.last_deployment_status(user, last_deployment.url)
+      
+      LastDeployment.new(
+        last_deployment: last_deployment,
+        last_deployment_status: last_deployment_status
+      )
     end
 
     # Attempts to lock the environment on the repo.

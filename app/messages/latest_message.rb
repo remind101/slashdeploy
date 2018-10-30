@@ -1,13 +1,20 @@
 class LatestMessage < SlackMessage
   values do
     attribute :last_deployment, Deployment
+    attribute :last_deployment_state, String
   end
 
   def to_message
     fields = [
       {
         title: "Commit SHA",
-        value: last_deployment.sha
+        value: last_deployment.sha[0..6],
+        short: true
+      },
+      {
+        title: "State",
+        value: "`#{last_deployment_state}`",
+        short: true
       }
     ]
 

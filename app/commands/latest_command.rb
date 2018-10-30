@@ -9,7 +9,8 @@ class LatestCommand < BaseCommand
       last_deployment = slashdeploy.last_deployment(user, repo, env)
 
       Slash.say LatestMessage.build \
-        last_deployment: last_deployment
+        last_deployment: last_deployment.last_deployment,
+        last_deployment_state: last_deployment.last_deployment_status.state
     end
   end
 end
