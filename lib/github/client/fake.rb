@@ -34,16 +34,20 @@ module GitHub
           sha:         commits[req.repository][req.ref],
           environment: req.environment
         )
-        deployments[req.repository][req.environment] << deployment
+        deployments[req.repository] << deployment
         deployment
       end
 
       def get_deployment(_user, repository, _deployment_id)
-        deployments[repository]['production'].last
+        deployments[repository].select{|k| k[:environment].to_s.match("production")}.last
       end
 
       def last_deployment(_user, repository, environment)
-        deployments[repository][environment].last
+        if environment.nil? 
+          deployments[repository].last
+        else
+          deployments[repository].select{|k| k[:environment].to_s.match(environment)}.last
+        end
       end
 
       # the only test which uses this expects nil, to trigger watch dog.
@@ -63,9 +67,7 @@ module GitHub
           commits[repo] = {}
         end
         @deployments = Hash.new do |deployments, repo|
-          deployments[repo] = Hash.new do |repos, env|
-            repos[env] = []
-          end
+          deployments[repo] = []
         end
         @requests = []
       end
