@@ -666,6 +666,17 @@ RSpec.feature 'Slash Commands' do
   end
 
   scenario 'github deployment does not start after 30 simulated secs and triggers watchdog' do
+    # Create a watchdog repo identifier to mock the latest_command test accordingly
+    HEAD('acme-inc/api_watchdog', 'master', 'ad80a1b3e1a94b98ce99b71a48f811f1')
+
+    repo = Repository.with_name("acme-inc/api_watchdog")
+    repo.configure! <<-YAML.strip_heredoc
+    default_environment: production
+    environments:
+      production: {}
+      staging: {}
+    YAML
+    
     # make sure our queue is clear before starting test.
     GithubDeploymentWatchdogWorker.clear
 
@@ -673,11 +684,11 @@ RSpec.feature 'Slash Commands' do
     expect(GithubDeploymentWatchdogWorker.jobs.size).to eq 0
 
     # simulate a slashdeploy invocation.
-    command '/deploy acme-inc/api to production', as: slack_accounts(:david)
+    command '/deploy acme-inc/api_watchdog to production', as: slack_accounts(:david)
 
     expect(command_response).to be_in_channel
     expect(deployment_requests).to eq [
-      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api', ref: 'master', environment: 'production')]
+      [users(:david), DeploymentRequest.new(repository: 'acme-inc/api_watchdog', ref: 'master', environment: 'production')]
     ]
 
     # our deployment watchdog worker should start with an empty queue.
@@ -686,7 +697,7 @@ RSpec.feature 'Slash Commands' do
     # setup expectations of the worker notifying the user there was an issue.
     expect(slack).to receive(:direct_message).with(
       slack_accounts(:david),
-      Slack::Message.new(text: ':sadparrot: <@U012AB1AB>, The Github Deployment <1> of acme-inc/api@<ad80a1b3e1a94b98ce99b71a48f811f1|master> to *production* did _not_ start. For more details, please read: https://slashdeploy.io/docs#error-1'),
+      Slack::Message.new(text: ':sadparrot: <@U012AB1AB>, The Github Deployment <1> of acme-inc/api_watchdog@<ad80a1b3e1a94b98ce99b71a48f811f1|master> to *production* did _not_ start. For more details, please read: https://slashdeploy.io/docs#error-1'),
       any_args
     )
 
@@ -709,7 +720,13 @@ RSpec.feature 'Slash Commands' do
     expected_fields = [
       {
         title: "Commit SHA",
-        value: "ad80a1b3e1a94b98ce99b71a48f811f1"
+        value: "ad80a1b",
+        short: true
+      },
+      {
+        title: "State",
+        value: "`success`",
+        short: true
       }
     ]
 
@@ -751,7 +768,13 @@ RSpec.feature 'Slash Commands' do
     expected_fields_staging = [
       {
         title: "Commit SHA",
-        value: "4c7b474c6e1c81553a16d1082cebfa60"
+        value: "4c7b474",
+        short: true
+      },
+      {
+        title: "State",
+        value: "`success`",
+        short: true
       }
     ]
 
@@ -771,7 +794,13 @@ RSpec.feature 'Slash Commands' do
     expected_fields_production = [
       {
         title: "Commit SHA",
-        value: "ad80a1b3e1a94b98ce99b71a48f811f1"
+        value: "ad80a1b",
+        short: true
+      },
+      {
+        title: "State",
+        value: "`success`",
+        short: true
       }
     ]
 
@@ -812,7 +841,13 @@ RSpec.feature 'Slash Commands' do
     expected_fields_topic = [
       {
         title: "Commit SHA",
-        value: "4c7b474c6e1c81553a16d1082cebfa60"
+        value: "4c7b474",
+        short: true
+      },
+      {
+        title: "State",
+        value: "`success`",
+        short: true
       }
     ]
 
@@ -832,7 +867,13 @@ RSpec.feature 'Slash Commands' do
     expected_fields_master = [
       {
         title: "Commit SHA",
-        value: "ad80a1b3e1a94b98ce99b71a48f811f1"
+        value: "ad80a1b",
+        short: true
+      },
+      {
+        title: "State",
+        value: "`success`",
+        short: true
       }
     ]
 

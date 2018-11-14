@@ -50,11 +50,15 @@ module GitHub
         end
       end
 
-      # the only test which uses this expects nil, to trigger watch dog.
+      # a test which uses this expects nil, to trigger watch dog.
       #   spec/features/commands_spec.rb:
       #     'github deployment does not start after 30 simulated secs and triggers watchdog'
-      def last_deployment_status(_user, _deployment_url)
-        nil
+      def last_deployment_status(_user, deployment_url)
+        return nil if deployment_url.include? "api_watchdog"
+
+        {
+          state: 'success'
+        }
       end
 
       def contents(_repository, _path)
