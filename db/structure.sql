@@ -125,7 +125,9 @@ CREATE TABLE github_accounts (
     user_id integer,
     id integer NOT NULL,
     login character varying NOT NULL,
-    token character varying NOT NULL
+    token character varying NOT NULL,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone
 );
 
 
@@ -693,4 +695,6 @@ INSERT INTO schema_migrations (version) VALUES ('20161217031700');
 INSERT INTO schema_migrations (version) VALUES ('20170704235901');
 
 INSERT INTO schema_migrations (version) VALUES ('20180308001951');
+
+INSERT INTO schema_migrations (version) VALUES ('20181211003305');
 
