@@ -1,6 +1,6 @@
 namespace :github do
   task :request_reauthenticate, [:user_id] => :environment do |t, args|
-    users = User.all
+    users = User.joins(:github_accounts).where(github_accounts: { updated_at: nil })
     if user_id = args[:user_id]
       users = [User.find(user_id)]
     end

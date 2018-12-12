@@ -4,6 +4,6 @@ class GitHubAuthenticateMessage < SlackMessage
   end
 
   def to_message
-    Slack::Message.new text: "Please authenticate with GitHub: #{url}"
+    Slack::Message.new text: "Please reconnect your GitHub account by visiting #{url}"
   end
 end
