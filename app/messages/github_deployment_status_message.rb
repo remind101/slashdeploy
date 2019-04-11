@@ -1,9 +1,10 @@
 class GitHubDeploymentStatusMessage < SlackMessage
   STATUSES = {
-    'pending' => ['#ff0', 'started'],
-    'success' => ['#0f0', 'succeeded'],
-    'failure' => ['#f00', 'failed'],
-    'error'   => ['#f00', 'errored']
+    'pending'  => ['#ff0', 'started'],
+    'success'  => ['#0f0', 'succeeded'],
+    'failure'  => ['#f00', 'failed'],
+    'error'    => ['#f00', 'errored'],
+    'inactive' => ['#0f0', 'superseded'],
   }.freeze
 
   values do
