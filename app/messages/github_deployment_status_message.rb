@@ -14,6 +14,15 @@ class GitHubDeploymentStatusMessage < SlackMessage
 
   def to_message
     state = event['deployment_status']['state']
+    description = event['deployment_status']['description']
+
+    # hack: for some reason a GitHub Deployment Status in the inactive state
+    # does not trigger a webhook. To work around this, we use the error state
+    # with a real state as the description.
+    if state == "error" && description == "inactive"
+        state = "inactive"
+    end
+
     color, verb = STATUSES[state]
     Slack::Message.new attachments: [
       Slack::Attachment.new(
