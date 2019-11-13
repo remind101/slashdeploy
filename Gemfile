@@ -12,7 +12,8 @@ gem 'pg', '~> 0.21'
 gem 'postgres_ext'
 gem 'oj'
 gem 'puma'
-gem 'sass'
+#gem 'sass'
+gem 'sassc-rails'
 gem 'therubyracer'
 
 # Not actually used, but Rails asset pipeline (sprockets) is loading it.
