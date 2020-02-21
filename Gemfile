@@ -21,7 +21,7 @@ gem 'therubyracer'
 gem 'coffee-script'
 
 # Github API Client Library.
-gem 'octokit', '>= 4.9.0'
+gem 'octokit', '>= 4.16.0'
 
 # Used for interacting with Slack API.
 gem 'faraday', '0.9.1'
