@@ -3,7 +3,7 @@ class LockNagWorker
   sidekiq_options queue: 'lock_nag'
 
   # default time to wait until our worker wakes up.
-  DEFAULT_DELAY = 3.day
+  DEFAULT_DELAY = 3.hours
 
   # create a class method to hardcode how we want to schedule this worker.
   def self.schedule(lock_id)
