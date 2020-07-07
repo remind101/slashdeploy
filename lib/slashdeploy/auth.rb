@@ -31,11 +31,17 @@ module SlashDeploy
 
       begin
         handler.call(env)
-      rescue User::MissingGitHubAccount
-        # If we don't know this slack user, we'll ask them to authenticate
-        # with GitHub. We encode and sign the Slack user id within the state
-        # param so we know what slack user they are when the hit the GitHub
-        # callback.
+      rescue User::MissingGitHubAccount, Octokit::Unauthorized
+        # If User::MissingGitHubAccount the slack user doesn't have an
+        # associated GithubAccount.
+        #
+        # If Octokit::Unauthorized the slack user's associated GithubAccount's
+        # OAuth token which we persist in our database has expired.
+        #
+        # Either way, we ask them to authenticate with GitHub.
+        #
+        # We encode and sign the Slack user id within the state param so we
+        # know what slack user they are when the hit the GitHub callback.
         claims = {
           id: account.user.id,
           exp: EXPIRATION.from_now.to_i,
