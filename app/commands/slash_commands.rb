@@ -5,6 +5,7 @@ class SlashCommands
   REPO = /(?<repository>\S+?)/
   ENV  = /(?<environment>\S+?)/
   REF  = /(?<ref>\S+?)/
+  ON_TO = /(on|to){1}/
 
   attr_reader :router
 
@@ -13,13 +14,13 @@ class SlashCommands
     router = Slash::Router.new
     router.match match_regexp(/^help$/), HelpCommand
     router.match match_regexp(/^where #{REPO}$/), EnvironmentsCommand
-    router.match match_regexp(/^lock #{ENV} (on|to){1} #{REPO}(:(?<message>.*(?<!\!$)))?(?<force>!)?$/), LockCommand
+    router.match match_regexp(/^lock #{ENV} #{ON_TO} #{REPO}(:(?<message>.*(?<!\!$)))?(?<force>!)?$/), LockCommand
     router.match match_regexp(/^unlock all$/), UnlockAllCommand
-    router.match match_regexp(/^unlock #{ENV} (on|to){1} #{REPO}$/), UnlockCommand
-    router.match match_regexp(/^check #{ENV} (on|to){1} #{REPO}$/), CheckCommand
+    router.match match_regexp(/^unlock #{ENV} #{ON_TO} #{REPO}$/), UnlockCommand
+    router.match match_regexp(/^check #{ENV} #{ON_TO} #{REPO}$/), CheckCommand
     router.match match_regexp(/^boom$/), BoomCommand
-    router.match match_regexp(/^#{REPO}(@#{REF})?( (on|to){1} #{ENV})?(?<force>!)?$/), DeployCommand
-    router.match match_regexp(/^latest #{REPO}( (on|to){1} #{ENV})?$/), LatestCommand
+    router.match match_regexp(/^#{REPO}(@#{REF})?( #{ON_TO} #{ENV})?(?<force>!)?$/), DeployCommand
+    router.match match_regexp(/^latest #{REPO}( #{ON_TO} #{ENV})?$/), LatestCommand
 
     router.not_found = -> (env) do
       env['params'] = { 'not_found' => true }
