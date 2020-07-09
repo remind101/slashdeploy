@@ -33,7 +33,7 @@
     <p>To deploy the default ref (master) to the default environment (production).</p>
     <p><code>/deploy acme-inc/api</code></p>
     <p>To deploy the default ref (master) to a different environment.</p>
-    <p><code>/deploy acme-inc/api to staging</code></p>
+    <p><code>/deploy acme-inc/api on staging</code></p>
     <p>To deploy a branch (or git sha, or git tag) to the default environment.</p>
     <p><code>/deploy acme-inc/api@branch</code></p>
     <p>By default, all GitHub commit statuses will be checked before creating a deployment, you can disable this check by using the <code>!</code> flag.</p>
@@ -47,7 +47,7 @@
     <p>SlashDeploy also allows you to "lock" environments. If for example, I wanted to test a migration on the staging environment, I can lock it with a message.</p>
     <p><code>/deploy lock staging on acme-inc/api: I'm testing a migration</code></p>
     <p>If any of my other team members try to deploy to the staging environment, they'll see the lock message.</p>
-    <p><code>/deploy acme-inc/api to staging</code></p>
+    <p><code>/deploy acme-inc/api on staging</code></p>
     <p>When I'm done testing my changes, I can unlock the environment so others can deploy to it again.</p>
     <p><code>/deploy unlock staging on acme-inc/api</code></p>
     <p>When I'm done for the day, I can release all my locks.
@@ -59,7 +59,7 @@
 
     <p>You may configure SlashDeploy for your project by putting a <a href="#.slashdeploy.yml">.slashdeploy.yml</a> file in the root of your git repository.
     <p>Here is a heavily commented <a href="#.slashdeploy.yml">.slashdeploy.yml</a> example:
-      <pre>---
+    <pre>---
 # teach SlashDeploy which environment is default. optional.
 # used when environment is not passed to a `/deploy` command.
 default_environment: production
@@ -87,7 +87,7 @@ environments:
     <p>If you utilize Github "Branch Protection Rules", you should likely use the same set of "Require status checks" under <code>required_contexts</code>.</p>
     <p>This example <a href="#.slashdeploy.yml">.slashdeploy.yml</a> file will automatically deploy the <code>master</code> branch to the <code>production</code> environment, once tests are passing on CircleCI:</p>
     <p>
-      <pre>---
+    <pre>---
 environments:
   production:
 
@@ -96,7 +96,7 @@ environments:
 
       # Specify any git "ref" (tag, branch, etc) to auto deploy when pushed to.
       ref: refs/heads/master
-  
+
       # To deploy only after a set of GitHub commit statuses pass,
       # configure required_contexts (optional).
       required_contexts:
@@ -120,15 +120,15 @@ environments:
     <h5 id="troubleshooting">Troubleshooting</h5>
     <p>Here we have some debugging information about the common issues and how to resolve them.
     <dl>
-        <dt id="error-1">Error 1: <small>The deployment did not start</small></dt>
+      <dt id="error-1">Error 1: <small>The deployment did not start</small></dt>
       <dd>If a deployment does not start in
-      <%= time_ago_in_words(GithubDeploymentWatchdogWorker::DEFAULT_DELAY.from_now, include_seconds: true) %>, 
-      you will get a Slack notification letting you know something went wrong. This might happen for a number of reasons, so check the following.
-      <ul>
-        <li>make sure the repo's <a href="#.slashdeploy.yml">.slashdeploy.yml</a> file is configured properly</li>
-        <li>make sure the repo has a Github Deployment Integration (and Webhooks) to handle deployment events</li>
-        <li>make sure the service handling the deployment events is working and sending Deployment Status updates to Github</li>
-        <li>make sure the service handling the deployment events is not filtering or ignoring deployment requests. For example, it will deploy to <code>production</code>, however the  provided environment in the deployment event was <code>prod</code>.
+        <%= time_ago_in_words(GithubDeploymentWatchdogWorker::DEFAULT_DELAY.from_now, include_seconds: true) %>,
+        you will get a Slack notification letting you know something went wrong. This might happen for a number of reasons, so check the following.
+        <ul>
+          <li>make sure the repo's <a href="#.slashdeploy.yml">.slashdeploy.yml</a> file is configured properly</li>
+          <li>make sure the repo has a Github Deployment Integration (and Webhooks) to handle deployment events</li>
+          <li>make sure the service handling the deployment events is working and sending Deployment Status updates to Github</li>
+          <li>make sure the service handling the deployment events is not filtering or ignoring deployment requests. For example, it will deploy to <code>production</code>, however the provided environment in the deployment event was <code>prod</code>.
       </dd>
       <dt id="error-2">Error 2: <small>A required commit status context is stuck in pending</small></dt>
       <dd>Inside the repo's <a href="#.slashdeploy.yml">.slashdeploy.yml</a> a list of <code>required_contexts</code> was defined which need to move into the <code>success</code> state in order to continue. For some reason, after <%= time_ago_in_words(AutoDeploymentWatchdogWorker::DEFAULT_DELAY.from_now) %> of waiting, at least one of these <code>required_contexts</code> are stuck in the <code>pending</code> state instead of transitioning to <code>success</code>, <code>failure</code>, or <code>error</code>. If you fix this issue your deployment will likely continue.</dd>
