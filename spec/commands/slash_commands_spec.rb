@@ -12,18 +12,22 @@ RSpec.describe SlashCommands do
 
       check_route(a, 'where acme-inc/api', EnvironmentsCommand, 'repository' => 'acme-inc/api')
       check_route(a, 'where api', EnvironmentsCommand, 'repository' => 'acme-inc/api')
-
-      check_route(a, 'lock staging on acme-inc/api: Doing stuff', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => ' Doing stuff', 'force' => nil)
-      check_route(a, 'lock staging on acme-inc/api', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil, 'force' => nil)
-      check_route(a, 'lock staging on api', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil, 'force' => nil)
-      check_route(a, 'lock staging on api!', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil, 'force' => '!')
-      check_route(a, 'lock staging on api: Doing stuff!', LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => ' Doing stuff', 'force' => '!')
-
+      %w(on to).each { |x|
+        check_route(a, 'lock staging %s acme-inc/api: Doing stuff' % x, LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => ' Doing stuff', 'force' => nil)
+        check_route(a, 'lock staging %s acme-inc/api' % x, LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil, 'force' => nil)
+        check_route(a, 'lock staging %s api' % x, LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil, 'force' => nil)
+        check_route(a, 'lock staging %s api!' % x, LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => nil, 'force' => '!')
+        check_route(a, 'lock staging %s api: Doing stuff!' % x, LockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'message' => ' Doing stuff', 'force' => '!')
+      }
       check_route(a, 'unlock all', UnlockAllCommand, {})
-      check_route(a, 'unlock staging on acme-inc/api', UnlockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
-      check_route(a, 'unlock staging on api', UnlockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
+      %w(on to).each { |x|
+        check_route(a, 'unlock staging %s acme-inc/api' % x, UnlockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
+        check_route(a, 'unlock staging %s api' % x, UnlockCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
+      }
 
-      check_route(a, 'check production on acme-inc/api', CheckCommand, 'repository' => 'acme-inc/api', 'environment' => 'production')
+      %w(on to).each { |x|
+        check_route(a, 'check production %s acme-inc/api' % x, CheckCommand, 'repository' => 'acme-inc/api', 'environment' => 'production')
+      }
 
       check_route(a, 'boom', BoomCommand, {})
 
@@ -31,17 +35,19 @@ RSpec.describe SlashCommands do
       check_route(a, 'acme-inc/api!', DeployCommand, 'repository' => 'acme-inc/api', 'force' => '!', 'ref' => nil, 'environment' => nil)
       check_route(a, 'acme-inc/api@topic', DeployCommand, 'repository' => 'acme-inc/api', 'ref' => 'topic', 'force' => nil, 'environment' => nil)
       check_route(a, 'acme-inc/api@topic!', DeployCommand, 'repository' => 'acme-inc/api', 'ref' => 'topic', 'force' => '!', 'environment' => nil)
-      check_route(a, 'acme-inc/api to staging', DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
-      check_route(a, 'acme-inc/api to staging!', DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => '!', 'ref' => nil)
-      check_route(a, 'acme-inc/api to staging', DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
-      check_route(a, 'acme-inc/api to staging!', DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => '!', 'ref' => nil)
-      check_route(a, 'acme-inc/api@topic to staging', DeployCommand, 'repository' => 'acme-inc/api', 'ref' => 'topic', 'environment' => 'staging', 'force' => nil)
-      check_route(a, 'acme-inc/api@topic to staging!', DeployCommand, 'repository' => 'acme-inc/api', 'ref' => 'topic', 'environment' => 'staging', 'force' => '!')
+      %w(on to).each { |x|
+        check_route(a, 'acme-inc/api %s staging' % x, DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
+        check_route(a, 'acme-inc/api %s staging!' % x, DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => '!', 'ref' => nil)
+        check_route(a, 'acme-inc/api %s staging' % x, DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
+        check_route(a, 'acme-inc/api %s staging!' % x, DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => '!', 'ref' => nil)
+        check_route(a, 'acme-inc/api@topic %s staging' % x, DeployCommand, 'repository' => 'acme-inc/api', 'ref' => 'topic', 'environment' => 'staging', 'force' => nil)
+        check_route(a, 'acme-inc/api@topic %s staging!' % x, DeployCommand, 'repository' => 'acme-inc/api', 'ref' => 'topic', 'environment' => 'staging', 'force' => '!')
 
-      check_route(a, 'api to staging', DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
+        check_route(a, 'api %s staging' % x, DeployCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging', 'force' => nil, 'ref' => nil)
 
+        check_route(a, 'latest acme-inc/api %s staging' % x, LatestCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
+      }
       check_route(a, 'latest acme-inc/api', LatestCommand, 'repository' => 'acme-inc/api', 'environment' => nil)
-      check_route(a, 'latest acme-inc/api to staging', LatestCommand, 'repository' => 'acme-inc/api', 'environment' => 'staging')
     end
 
     def check_route(account, text, expected_handler, expected_params)
