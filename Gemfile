@@ -30,6 +30,9 @@ gem 'faraday_middleware'
 # async worker.
 gem 'sidekiq'
 
+# schedule sidekiq workers via crontab syntax. BackupUserMapping.
+gem 'sidekiq-cron'
+
 # Visibility
 gem 'rollbar', '~> 2.8.0'
 gem 'lograge'

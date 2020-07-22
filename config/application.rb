@@ -60,6 +60,11 @@ module SlashDeploy
     # While we're in beta mode...
     config.x.beta = ENV['BETA'].present?
 
+    # S3 Bucket to store backups. Defaults to nil.
+    config.x.backup_s3_bucket = ENV['BACKUP_S3_BUCKET']
+    config.x.backup_s3_access_key = ENV['BACKUP_S3_ACCESS_KEY']
+    config.x.backup_s3_secret_key = ENV['BACKUP_S3_SECRET_KEY']
+
     # Segment.io
     config.x.segment.write_key = ENV['SEGMENT_KEY']
 

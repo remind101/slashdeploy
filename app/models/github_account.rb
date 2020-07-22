@@ -4,6 +4,7 @@ class GitHubAccount < ActiveRecord::Base
 
   def self.attributes_from_auth_hash(auth_hash)
     { id: auth_hash[:uid],
+      user_name: auth_hash[:info][:nickname],
       login: auth_hash[:info][:nickname],
       token: auth_hash[:credentials][:token] }
   end
@@ -18,6 +19,6 @@ class GitHubAccount < ActiveRecord::Base
   end
 
   def username
-    login
+    user_name
   end
 end
