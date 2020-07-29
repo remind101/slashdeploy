@@ -1,0 +1,6 @@
+---
+update: false
+tunnels:
+  default:
+    proto: http
+    addr: 3000

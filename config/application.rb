@@ -43,7 +43,7 @@ module SlashDeploy
     config.middleware.swap Rails::Rack::Logger, Perty::Rack
 
     # The name of the deployment backend to use. Possible options are:
-    #   
+    #
     #   github
     config.x.github_client = ENV['GITHUB_CLIENT']
     config.x.integration_secret = ENV['GITHUB_WEBHOOK_SECRET']
