@@ -69,4 +69,5 @@ group :development do
   gem 'foreman'
   gem 'brakeman'
   gem 'dotenv-rails', '~> 2.2'
+  gem 'byebug'
 end
