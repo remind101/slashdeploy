@@ -24,6 +24,9 @@ if [[ `psql -h postgres -U postgres postgres -tAc "SELECT version FROM schema_mi
   bundle exec rake db:migrate
 fi
 
+# Set up minio
+bundle exec rake user_mapping:create_bucket 2>/dev/null || true
+
 echo "Running $cmd"
 echo
 exec $cmd

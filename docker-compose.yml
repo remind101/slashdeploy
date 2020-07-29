@@ -1,6 +1,12 @@
 ---
 version: "3"
 services:
+  minio:
+    image: minio/minio
+    environment: &minio_creds
+      MINIO_ACCESS_KEY: slashdeploykey
+      MINIO_SECRET_KEY: slashdeploysecret
+    command: server /data
   test: &test
     build: .
     volumes:
@@ -8,10 +14,16 @@ services:
     depends_on:
       - postgres
       - redis
+      - minio
     environment:
       RACK_ENV: test
       DATABASE_TEST_URL: postgres://postgres:postgres@postgres/postgres
       REDIS_URL: redis://redis:6379/0
+      BACKUP_AWS_REGION: us-east-1
+      BACKUP_S3_ENDPOINT: http://minio:9000
+      BACKUP_S3_ACCESS_KEY_ID: slashdeploykey
+      BACKUP_S3_SECRET_ACCESS_KEY: slashdeploysecret
+      BACKUP_S3_BUCKET_NAME: slashdeploy
     entrypoint: ./bin/docker-compose-setup
     command: ./bin/rake
   dev:

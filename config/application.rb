@@ -57,6 +57,18 @@ module SlashDeploy
     config.x.default_ref = 'master'
     config.x.feedback_email = 'hi@slashdeploy.io'
 
+    # AWS S3
+    config.x.backup_s3_access_key_id = ENV.fetch('BACKUP_S3_ACCESS_KEY_ID', nil)
+    config.x.backup_s3_secret_access_key = ENV.fetch('BACKUP_S3_SECRET_ACCESS_KEY', nil)
+    config.x.backup_s3_role_arn = ENV.fetch('BACKUP_S3_ROLE_ARN', nil)
+    config.x.backup_s3_bucket_name = ENV.fetch('BACKUP_S3_BUCKET_NAME', nil)
+    config.x.backup_aws_region = ENV.fetch('BACKUP_AWS_REGION', nil)
+    # For actual AWS (in prod) this should be
+    # https://s3.us-east-2.amazonaws.com, but this allows us to override the
+    # endpoint to use minio locally for development.
+    config.x.backup_s3_endpoint = ENV.fetch('BACKUP_S3_ENDPOINT', nil)
+
+
     # While we're in beta mode...
     config.x.beta = ENV['BETA'].present?
 
