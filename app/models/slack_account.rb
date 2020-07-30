@@ -18,7 +18,6 @@ class SlackAccount < ActiveRecord::Base
 
     # TODO: This should just be an upsert
     team = SlackTeam.find_or_initialize_by(id: auth_hash[:info][:team_id]) do |t|
-      # team_domain doesn't appear to be set, so we fall back to team_id
       t.domain = domain
     end
 
