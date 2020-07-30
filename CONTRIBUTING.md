@@ -53,18 +53,24 @@ The full test suite can be run with:
 ### Setup a new Slack App
 
 1. Create a [Slack App](https://api.slack.com/apps/new)
-1. Set your Interactive Components Request URL to `https://xxx.ngrok.io/slack/actions`
-1. Add a new OAuth & Permissions Redirect URL with the value `https://xxx.ngrok.io/auth/slack/callback`
-1. Add a new `/deploy` command by setting the Request URL to `https://xxx.ngrok.io/slack/commands`
+1. Set your Interactive Components Request URL to
+   `https://xxx.ngrok.io/slack/actions`
+1. Add a new OAuth & Permissions Redirect URL with the value
+   `https://xxx.ngrok.io/auth/slack/callback`
+1. Add a new `/deploy` command by setting the Request URL to
+   `https://xxx.ngrok.io/slack/commands`
 
 ### Setup a new Github OAuth App
 
-1. Register a new [Github OAuth Application](https://github.com/settings/applications/new)
-1. Set your Github Authorization callback URL to `http://xxx.ngrok.io/auth/github/callback`
+1. Register a new [Github OAuth
+   Application](https://github.com/settings/applications/new)
+1. Set your Github Authorization callback URL to
+   `http://xxx.ngrok.io/auth/github/callback`
 
 ### Start the Development server
 
-1. Using Slack and Github app credentials, set the following environment variables in a `.env` file:
+1. Using Slack and Github app credentials, set the following environment
+   variables in a `.env` file:
 
 ```
 STATE_KEY=""
@@ -88,4 +94,5 @@ SLACK_VERIFICATION_TOKEN=""
 
 ### Functional Tests
 
-1. Create a Slack team and add SlashDeploy to it using the button on `https://xxx.ngrok.io`
+1. Create a Slack team and add SlashDeploy to it using the button on
+   `https://xxx.ngrok.io`
