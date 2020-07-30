@@ -1,28 +1,27 @@
+---
 version: "3"
 services:
-  test:
+  test: &test
     build: .
     volumes:
       - .:/home/app
     depends_on:
       - postgres
+      - redis
     environment:
       RACK_ENV: test
       DATABASE_TEST_URL: postgres://postgres:postgres@postgres/postgres
+      REDIS_URL: redis://redis:6379/0
     entrypoint: ./bin/docker-compose-setup
     command: ./bin/rake
   dev:
-    build: .
-    volumes:
-      - .:/home/app
-    depends_on:
-      - postgres
-    environment:
-      RACK_ENV: development
-      DATABASE_DEV_URL: postgres://postgres:postgres@postgres/postgres
-    entrypoint: ./bin/docker-compose-setup
-    command: bash
+    <<: *test
+    ports:
+      - "3000:3000"
+    command: foreman start -p 3000
   postgres:
     image: postgres:9.6
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
+  redis:
+    image: redis:latest
