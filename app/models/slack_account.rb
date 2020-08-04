@@ -13,8 +13,12 @@ class SlackAccount < ActiveRecord::Base
   end
 
   def self.create_from_auth_hash(auth_hash)
+    # Extract the domain from the url
+    domain = URI.parse(auth_hash[:extra][:raw_info][:url]).host.gsub(/\.slack.com/, "")
+
+    # TODO: This should just be an upsert
     team = SlackTeam.find_or_initialize_by(id: auth_hash[:info][:team_id]) do |t|
-      t.domain = auth_hash[:info][:team_domain]
+      t.domain = domain
     end
 
     create! attributes_from_auth_hash(auth_hash).merge(slack_team: team)

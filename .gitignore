@@ -18,6 +18,7 @@
 /spec/examples.txt
 .env*
 *.pem
+.byebug_history
 
 # Ignore asdf ruby version manager
 .tool-versions

@@ -23,7 +23,9 @@ class SessionsController < ApplicationController
   end
 
   def create
-    SlackBot.from_auth_hash(auth_hash) if auth_hash[:provider] == 'slack' && auth_hash[:extra][:bot_info].present?
+    if auth_hash[:provider] == 'slack' && auth_hash[:extra][:bot_info].present?
+      SlackBot.from_auth_hash(auth_hash)
+    end
 
     User.transaction do
       account = ConnectedAccount.from_auth_hash(auth_hash)
