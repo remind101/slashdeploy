@@ -1,6 +1,9 @@
 ---
 version: "3"
 services:
+  # Minio provides an S3 compatible object storage interface.
+  # Docs: https://docs.min.io/
+  # https://docs.min.io/docs/aws-cli-with-minio
   minio:
     image: minio/minio
     environment: &minio_creds
