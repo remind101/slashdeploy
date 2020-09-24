@@ -20,7 +20,7 @@ jobs:
           --health-retries 5
     steps:
     - uses: actions/checkout@v2
-    - run: gem install bundler -v 2.1.4
+    - run: gem upgrade bundler
     - run: bundle install
     - run: rake
       env:
