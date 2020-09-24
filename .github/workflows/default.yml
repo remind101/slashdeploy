@@ -1,0 +1,28 @@
+name: Default
+
+on:
+  - push
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  debug:
+    runs-on: ubuntu-20.04
+    container: ruby:2.5.1
+    services:
+      postgres:
+        image: postgres:9.6
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+    - uses: actions/checkout@v2
+    - run: bundle update --bundler
+    - run: rake
+      env:
+        DATABASE_TEST_URL: postgres://postgres:postgres@postgres/postgres
