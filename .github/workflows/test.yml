@@ -1,11 +1,11 @@
 ---
-name: Default
+name: Test
 on:
   - push
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  debug:
+  test:
     runs-on: ubuntu-20.04
     container: ruby:2.5.1
     services:
