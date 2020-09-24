@@ -20,7 +20,8 @@ jobs:
           --health-retries 5
     steps:
     - uses: actions/checkout@v2
-    - run: bundle update --bundler
+    - run: gem install bundler -v 2.1.4
+    - run: bundle install
     - run: rake
       env:
         DATABASE_TEST_URL: postgres://postgres:postgres@postgres/postgres
