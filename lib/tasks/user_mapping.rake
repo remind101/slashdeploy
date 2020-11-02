@@ -47,7 +47,7 @@ namespace :user_mapping do
     # Go through each Slack team with have in the DB.
     SlackTeam.all.each do |team|
       # Get all the users for the team. We only care about the Slack <-> GitHub
-      # mapping.
+      # mapping, and we grab users by slack team, not github account.
       query = User.select(
         :id,
         "slack_accounts.user_name as slack_nickname",
@@ -55,20 +55,22 @@ namespace :user_mapping do
       ).joins(
         :slack_accounts,
         :github_accounts
-      ).distinct
+      ).where(slack_accounts: {
+        slack_team_id: team.id
+      }).distinct
 
       # Add all the users to the team data and dump it to JSON.
-      json = JSON.dump({
+      json = JSON.dump(
         slack_domain: team.domain,
         github_organization: team.github_organization,
         users: query.as_json
-      })
+      )
 
       # Upload the file to S3.
-      bucket.put_object({
+      bucket.put_object(
         key: "user_mappings/#{team.domain}-#{team.github_organization}.json",
         body: json,
-      })
+      )
     end
   end
 
