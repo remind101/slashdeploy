@@ -2,10 +2,19 @@
 class UnlockCommand < BaseCommand
   def run
     transaction do
-      repo = Repository.with_name(params['repository'])
+      repo_name = params['repository']
+      env_name = params['environment']
+
+      repo = Repository.with_name(repo_name)
+      
+      if repo.invalid?
+        env_name, repo_name = repo_name, env_name
+        repo = Repository.with_name(repo_name)
+      end
+
       return Slash.reply(ValidationErrorMessage.build(record: repo)) if repo.invalid?
 
-      env = repo.environment(params['environment'])
+      env = repo.environment(env_name)
       return Slash.reply(EnvironmentsMessage.build(repository: repo)) unless env
       return Slash.reply(ValidationErrorMessage.build(record: env)) if env.invalid?
 
