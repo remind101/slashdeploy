@@ -6,7 +6,7 @@ The following external dependencies are also required:
 
  * `Postgresql 9.6`
  * `Redis`
- * `Ruby 2.5.1` (optionally `rbenv`)
+ * `Ruby 2.6.7` (optionally `rbenv`)
  * `bundler`
 
 ### macOS
