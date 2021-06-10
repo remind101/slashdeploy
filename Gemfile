@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.5.1'
+ruby '2.6.7'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 4.2.10'
@@ -48,7 +48,7 @@ group :development, :test do
   gem 'rspec', '~> 3.7.0'
   gem 'rspec-rails'
   gem 'rspec-activemodel-mocks'
-  gem 'rubocop', '~> 0.58.0'
+  gem 'rubocop', '~> 1.16.0'
 
   gem 'pry',                       '0.10.3'
   gem 'pry-rails',                 '0.3.4'

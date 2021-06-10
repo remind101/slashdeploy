@@ -1,4 +1,5 @@
 AllCops:
+  NewCops: enable
   DisplayCopNames: true
   ExtraDetails: true
   Include:
@@ -11,7 +12,7 @@ AllCops:
     - 'script/**/*'
     - 'vendor/**/*'
 
-Metrics/LineLength:
+Layout/LineLength:
   Enabled: false
 
 Metrics/MethodLength:
@@ -62,10 +63,10 @@ Metrics/BlockLength:
 Lint/AmbiguousBlockAssociation:
   Enabled: false
 
-Layout/IndentArray:
+Layout/FirstArrayElementIndentation:
   Enabled: false
 
-Layout/IndentHeredoc:
+Layout/HeredocIndentation:
   Enabled: false
 
 Style/StringLiterals:
@@ -86,16 +87,13 @@ Style/NestedParenthesizedCalls:
 Lint/UnusedBlockArgument:
   Enabled: false
 
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Enabled: false
 
 Style/HashSyntax:
   Enabled: false
 
 Style/GuardClause:
-  Enabled: false
-
-Performance/RedundantMerge:
   Enabled: false
 
 Style/SymbolArray:

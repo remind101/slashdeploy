@@ -10,7 +10,7 @@ env:
 jobs:
   test:
     runs-on: ubuntu-20.04
-    container: library/ruby:2.5.1
+    container: library/ruby:2.6.7
     services:
       postgres:
         image: library/postgres:9.6

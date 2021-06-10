@@ -4,7 +4,7 @@ cache: bundler
 #  - gem install bundler
 dist: trusty
 rvm:
-  - 2.5.1
+  - 2.6.7
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
   - ./bin/rake db:setup
