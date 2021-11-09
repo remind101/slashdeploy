@@ -1,6 +1,17 @@
 require 'rails_helper'
 
 RSpec.describe Environment, type: :model do
+  before do
+    stub_request(:get, "https://api.github.com/repos/acme-inc/api").
+        with(
+          headers: {
+          'Accept'=>'application/vnd.github.v3+json',
+          'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+          'Content-Type'=>'application/json',
+          'User-Agent'=>'Octokit Ruby Gem 4.16.0'
+          }).
+        to_return(status: 200, body: {'default_branch': 'main'}.to_json, headers: { 'Content-Type' => 'application/json' })
+  end
   describe '#in_channel' do
     it 'defaults to true for production environments' do
       environment = Environment.new(name: 'production')
@@ -15,19 +26,30 @@ RSpec.describe Environment, type: :model do
 
   describe '#default_ref' do
     context 'when the environment has a default ref provided' do
-      it 'returns that value' do
-        environment = Environment.new(default_ref: 'develop')
+      it 'returns that value if no default_branch is provided' do
+         stub_request(:get, "https://api.github.com/repos/acme-inc/api").
+        with(
+          headers: {
+          'Accept'=>'application/vnd.github.v3+json',
+          'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+          'Content-Type'=>'application/json',
+          'User-Agent'=>'Octokit Ruby Gem 4.16.0'
+          }).
+        to_return(status: 200, body: {}.to_json, headers: { 'Content-Type' => 'application/json' })
+        repo = Repository.with_name('acme-inc/api')
+        environment = Environment.new(default_ref: 'develop', repository: repo)
         expect(environment.default_ref).to eq 'develop'
       end
     end
 
     context 'when the environment does not have a default ref' do
       it 'returns the global default' do
-        environment = Environment.new(default_ref: '')
-        expect(environment.default_ref).to eq 'master'
+        repo = Repository.with_name('acme-inc/api')
+        environment = Environment.new(default_ref: '', repository: repo)
+        expect(environment.default_ref).to eq 'main'
 
-        environment = Environment.new
-        expect(environment.default_ref).to eq 'master'
+        environment = Environment.new(repository: repo)
+        expect(environment.default_ref).to eq 'main'
       end
     end
   end
@@ -37,10 +59,10 @@ RSpec.describe Environment, type: :model do
       it 'returns the correct value' do
         repo = Repository.with_name('acme-inc/api')
         repo.configure! <<-YAML
-environments:
-  production:
-    aliases: [prod]
-YAML
+                        environments:
+                          production:
+                            aliases: [prod]
+                        YAML
 
         environment = Environment.new(name: 'production', repository: repo)
         expect(environment.match_name?('production')).to eq true

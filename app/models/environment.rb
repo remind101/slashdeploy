@@ -79,7 +79,11 @@ class Environment < ActiveRecord::Base
 
   # The default git ref to deploy when none is provided for this environment.
   def default_ref
-    super.presence || self.class.default_ref
+    client_default_branch || super.presence || self.class.default_ref
+  end
+
+  def client_default_branch
+    @client_default_branch ||= Octokit.client.repository(repository.name).default_branch
   end
 
   def self.default_ref
