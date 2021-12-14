@@ -12,12 +12,12 @@ environments:
     aliases:
     - prod
     continuous_delivery:
-      ref: ref/heads/master
+      ref: ref/heads/main
 YAML
 
       expect(config.environments.length).to eq 2
       expect(config.environments["staging"].aliases).to eq ["stage"]
-      expect(config.environments["production"].continuous_delivery.ref).to eq "ref/heads/master"
+      expect(config.environments["production"].continuous_delivery.ref).to eq "ref/heads/main"
     end
   end
 end
