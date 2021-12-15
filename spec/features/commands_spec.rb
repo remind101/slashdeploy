@@ -11,16 +11,6 @@ RSpec.feature 'Slash Commands' do
     HEAD('acme-inc/api', 'master',  'ad80a1b3e1a94b98ce99b71a48f811f1')
     HEAD('acme-inc/api', 'topic',   '4c7b474c6e1c81553a16d1082cebfa60')
     HEAD('acme-inc/api', 'failing', '46c2acc4e588924340adcd108cfc948b')
-
-    stub_request(:get, "https://api.github.com/repos/acme-inc/api").
-      with(
-        headers: {
-        'Accept'=>'application/vnd.github.v3+json',
-        'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-        'Content-Type'=>'application/json',
-        'User-Agent'=>'Octokit Ruby Gem 4.16.0'
-        }).
-      to_return(status: 200, body: {'default_branch': 'master'}.to_json, headers: { 'Content-Type' => 'application/json' })
   end
 
   after do
@@ -686,15 +676,7 @@ RSpec.feature 'Slash Commands' do
       production: {}
       staging: {}
     YAML
-    stub_request(:get, "https://api.github.com/repos/acme-inc/api_watchdog").
-      with(
-        headers: {
-          'Accept'=>'application/vnd.github.v3+json',
-          'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-          'Content-Type'=>'application/json',
-          'User-Agent'=>'Octokit Ruby Gem 4.16.0'
-        }).
-      to_return(status: 200, body: {'default_branch': 'master'}.to_json, headers: { 'Content-Type' => 'application/json' })
+    
     # make sure our queue is clear before starting test.
     GithubDeploymentWatchdogWorker.clear
 
